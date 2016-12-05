@@ -1,0 +1,16 @@
+language: android
+sudo: required
+android:
+  components:
+  - tools
+  - build-tools-23.0.1
+  - android-23
+  - extra
+env:
+  global:
+  - END_TASK=""
+script:
+  - if [[ "${TRAVIS_PULL_REQUEST}" = "false" ]]; then
+      export END_TASK="uploadArchives";
+    fi
+  - ./gradlew clean assemble test ${END_TASK}
