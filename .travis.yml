@@ -1,4 +1,5 @@
 language: android
+jdk: oraclejdk8
 sudo: required
 android:
   components:
@@ -6,3 +7,5 @@ android:
   - build-tools-23.0.1
   - android-23
   - extra
+script:
+  - ./gradlew clean assemble test
