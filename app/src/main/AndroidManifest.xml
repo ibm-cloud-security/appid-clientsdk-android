@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ibm.mobilefirstplatform.appid_clientsdk_android">
+    package="com.ibm.mobilefirstplatform.appid">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application

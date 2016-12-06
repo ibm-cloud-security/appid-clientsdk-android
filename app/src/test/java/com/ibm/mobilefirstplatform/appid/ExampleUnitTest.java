@@ -1,4 +1,4 @@
-package com.ibm.mobilefirstplatform.appid_clientsdk_android;
+package com.ibm.mobilefirstplatform.appid;
 
 import org.junit.Test;
 
