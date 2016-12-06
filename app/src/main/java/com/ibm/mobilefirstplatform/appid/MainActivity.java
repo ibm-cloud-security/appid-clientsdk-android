@@ -21,11 +21,8 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
         setContentView(R.layout.activity_main);
 
         AppId appid = AppId.createInstance(this.getApplicationContext(), mcaTenantId, region);
-
         appid.overrideServerHost = "http://10.0.2.2:6001"; //only when working locally
-
         appid.login(this.getApplicationContext(), this);
-
     }
 
     @Override

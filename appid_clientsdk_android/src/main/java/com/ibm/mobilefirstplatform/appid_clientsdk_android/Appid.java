@@ -5,20 +5,14 @@ import android.content.Intent;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.api.DeviceIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseAppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDeviceIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseUserIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationHeaderHelper;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
 
 import org.json.JSONObject;
 
 import java.util.InputMismatchException;
-import java.util.Map;
 
 /**
  * Created by rotembr on 04/12/2016.
@@ -27,14 +21,13 @@ import java.util.Map;
 public class AppId {
 
     private static AppId instance;
-    AuthorizationManagerPreferences preferences;
-    AppIdAuthorizationProcessManager appIdauthorizationProcessManager;
     private String tenantId = null;
     private String bluemixRegionSuffix = null;
-    private ResponseListener responseListener;
+    private AuthorizationManagerPreferences preferences;
+
+    AppIdAuthorizationProcessManager appIdAuthorizationProcessManager;
 
     public static String overrideServerHost = null;
-
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
@@ -42,7 +35,7 @@ public class AppId {
 
     private AppId(Context context) {
         this.preferences = new AuthorizationManagerPreferences(context);
-        this.appIdauthorizationProcessManager = new AppIdAuthorizationProcessManager(context, preferences);
+        this.appIdAuthorizationProcessManager = new AppIdAuthorizationProcessManager(context, preferences);
         //init generic data, like device data and application data
         if (preferences.deviceIdentity.get() == null) {
             preferences.deviceIdentity.set(new BaseDeviceIdentity(context));
@@ -75,15 +68,29 @@ public class AppId {
         return instance;
     }
 
-    public void login(Context context, ResponseListener listener) {
+    public void login(final Context context, final ResponseListener listener) {
+        this.appIdAuthorizationProcessManager.setResponseListener(listener);
         if (preferences.clientId.get() == null) {
-            appIdauthorizationProcessManager.invokeInstanceRegistrationRequest(context);
-        } else {
-            this.responseListener = listener;
-            Intent intent = new Intent(context, WebViewActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            appIdAuthorizationProcessManager.invokeInstanceRegistrationRequest(new ResponseListener() {
+                @Override
+                public void onSuccess(Response response) {
+                    appIdAuthorizationProcessManager.saveCertificateFromResponse(response);
+                    startWebViewActivity(context);
+                }
+                @Override
+                public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+                    listener.onFailure(response, t, extendedInfo);
+                }
+            });
+        }else{
+              startWebViewActivity(context);
         }
+    }
+
+    private void startWebViewActivity(Context context){
+        Intent intent = new Intent(context, WebViewActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
 
@@ -100,27 +107,6 @@ public class AppId {
     public String getBluemixRegionSuffix(){
         return bluemixRegionSuffix;
     }
-
-    /**
-     * Handle success in the authorization process. The response listeners will be updated with
-     * success
-     * @param response final success response from the server
-     */
-    void handleAuthorizationSuccess(Response response) {
-        responseListener.onSuccess(response);
-    }
-
-    /**
-     * Handle failure in the authorization process. The response listeners will be updated with
-     * failure
-     * @param response response that caused to failure
-     * @param t additional info about the failure
-     */
-    void handleAuthorizationFailure(Response response, Throwable t, JSONObject extendedInfo) {
-        responseListener.onFailure(response, t, extendedInfo);
-    }
-
-
 
 
 
@@ -141,30 +127,30 @@ public class AppId {
 
 
 
-    public String getCachedAuthorizationHeader() {
-        String accessToken = preferences.accessToken.get();
-        String idToken = preferences.idToken.get();
+//    public String getCachedAuthorizationHeader() {
+//        String accessToken = preferences.accessToken.get();
+//        String idToken = preferences.idToken.get();
+//
+//        if (accessToken != null && idToken != null) {
+//            return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
+//        }
+//        return null;
+//    }
 
-        if (accessToken != null && idToken != null) {
-            return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
-        }
-        return null;
-    }
 
-
-
-    public UserIdentity getUserIdentity() {
-        Map map = preferences.userIdentity.getAsMap();
-        return (map == null) ? null : new BaseUserIdentity(map);
-    }
-
-    public DeviceIdentity getDeviceIdentity() {
-        return new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
-    }
-
-    public AppIdentity getAppIdentity() {
-        return new BaseAppIdentity(preferences.appIdentity.getAsMap());
-    }
+//
+//    public UserIdentity getUserIdentity() {
+//        Map map = preferences.userIdentity.getAsMap();
+//        return (map == null) ? null : new BaseUserIdentity(map);
+//    }
+//
+//    public DeviceIdentity getDeviceIdentity() {
+//        return new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
+//    }
+//
+//    public AppIdentity getAppIdentity() {
+//        return new BaseAppIdentity(preferences.appIdentity.getAsMap());
+//    }
 
 
 }

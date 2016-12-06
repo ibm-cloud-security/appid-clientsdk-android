@@ -17,6 +17,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.DeviceIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseAppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDeviceIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequestManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.Utils;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.CertificateStore;
@@ -35,22 +36,21 @@ import java.security.KeyPair;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.Signature;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/**
- * Handles the complete authorization process cycle
- * Created by cirilla on 8/3/15.
- */
+import static com.ibm.mobilefirstplatform.appid_clientsdk_android.AppId.overrideServerHost;
+
 public class AppIdAuthorizationProcessManager {
 
-    private static final String HTTP_LOCALHOST = "http://localhost";
     private AuthorizationManagerPreferences preferences;
     private KeyPair registrationKeyPair;
     private DefaultJSONSigner jsonSigner;
@@ -58,16 +58,22 @@ public class AppIdAuthorizationProcessManager {
     private CertificateStore certificateStore;
     private Logger logger;
     private String sessionId;
+    private ResponseListener listener;
+
+    static final String redirect_uri = "http://localhost/code";
+    private static final String serverName = "https://imf-authserver";
+    private static final String authorizationPath = "/oauth/v2/authorization";
+    private static final String tokenPath = "/oauth/v2/token";
+    private static final String tenantId = AppId.getInstance().getTenantId();
+    private static final String registrationPath = "/imf-authserver/authorization/v1/apps/" + tenantId + "/clients/instance";
 
     public AppIdAuthorizationProcessManager(Context context, AuthorizationManagerPreferences preferences) {
         this.logger = Logger.getLogger(Logger.INTERNAL_PREFIX + com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationProcessManager.class.getSimpleName());
         this.preferences = preferences;
         this.jsonSigner = new DefaultJSONSigner();
-
         File keyStoreFile = new File(context.getFilesDir().getAbsolutePath(), "mfp.keystore");
         String uuid = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         certificateStore = new CertificateStore(keyStoreFile, uuid);
-
         //case where the shared preferences were deleted but the certificate is saved in the keystore
         if (preferences.clientId.get() == null && certificateStore.isCertificateStored()) {
             try {
@@ -77,49 +83,63 @@ public class AppIdAuthorizationProcessManager {
                 e.printStackTrace();
             }
         }
-
         //generate new random session id
         sessionId = UUID.randomUUID().toString();
     }
 
-    PrivateKey getClientPrivateKey(){
-        return registrationKeyPair.getPrivate();
+    String getAuthorizationUrl() {
+        //Rotem: ask if that ok for performance?
+        String queryParams = "?";
+        queryParams += "response_type=code";
+        queryParams += "&client_id=" + tenantId;
+        queryParams += "&redirect_uri="+ redirect_uri;
+        queryParams += "&scope=openid";
+        queryParams += "&use_login_widget=true";
+        return getServerHost() + authorizationPath + queryParams;
+    }
+
+    void setResponseListener(ResponseListener listener){
+        this.listener = listener;
+    }
+    /**
+     * @return the authentication server host name
+     */
+    private String getServerHost() {
+        String serverHost = serverName + AppId.getInstance().getBluemixRegionSuffix();
+        if (null != overrideServerHost) {
+            serverHost = overrideServerHost;
+        }
+        return serverHost;
+    }
+
+    private String getRegistrationUrl() {
+        return getServerHost() + registrationPath;
+    }
+
+    private String getTokenUrl() {
+        return getServerHost() + tokenPath;
     }
 
     /**
      * Invoke request for registration, the result of the request should contain ClientId.
-     * @param context android context
+     *
      */
-    void invokeInstanceRegistrationRequest(final Context context) {
-
+    void invokeInstanceRegistrationRequest(final ResponseListener responseListener) {
         AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
-
         options.parameters = createRegistrationParams();
-        options.headers = createRegistrationHeaders();
-        options.requestMethod = Request.POST;
-
-//        AppIdAuthorizationProcessManager.InnerAuthorizationResponseListener listener = new AppIdAuthorizationProcessManager.InnerAuthorizationResponseListener() {
-//            @Override
-//            public void handleAuthorizationSuccessResponse(Response response) throws Exception {
-//
-//            }
-//        };
-
-        authorizationRequestSend(null, "clients/instance", options, new ResponseListener() {
-            @Override
-            public void onSuccess(Response response) {
-                saveCertificateFromResponse(response);
-            }
-
-            @Override
-            public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
-                logger.error("registration process failed");
-            }
-        });
+        AuthorizationRequest request = null;
+        try {
+            request = new AuthorizationRequest(getRegistrationUrl(), Request.POST);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        request.addHeader("X-WL-Session", sessionId);
+        request.send(options.parameters, responseListener);
     }
 
     /**
      * Generate the params that will be used during the registration phase
+     *
      * @return Map with all the parameters
      */
     private HashMap<String, String> createRegistrationParams() {
@@ -150,153 +170,80 @@ public class AppIdAuthorizationProcessManager {
         }
     }
 
-    /**
-     * Generate the headers that will be used during the registration phase
-     * @return Map with all the headers
-     */
-    private HashMap<String, String> createRegistrationHeaders() {
-        HashMap<String, String> headers = new HashMap<>();
-        addSessionIdHeader(headers);
-
-        return headers;
-    }
-
-//    /**
-//     * Generate the params that will be used during the token request phase
-//     * @param grantCode from the authorization phase
-//     * @return Map with all the headers
-//     */
-//    private HashMap<String, String> createTokenRequestParams(String grantCode) {
-//
-//        HashMap<String, String> params = new HashMap<>();
-//
-//        params.put("code", grantCode);
-//        params.put("client_id", preferences.clientId.get());
-//        params.put("grant_type", "authorization_code");
-//        params.put("redirect_uri", HTTP_LOCALHOST);
-//
-//        return params;
-//    }
 
     /**
      * Extract the certificate data from response and save it on local storage
+     *
      * @param response contains the certificate data
      */
-    private void saveCertificateFromResponse(Response response) {
+    void saveCertificateFromResponse(Response response) {
         try {
             String responseBody = response.getResponseText();
             JSONObject jsonResponse = new JSONObject(responseBody);
-
             //handle certificate
             String certificateString = jsonResponse.getString("certificate");
             X509Certificate certificate = CertificatesUtility.base64StringToCertificate(certificateString);
-
             CertificatesUtility.checkValidityWithPublicKey(certificate, registrationKeyPair.getPublic());
-
             certificateStore.saveCertificate(registrationKeyPair, certificate);
-
             //save the clientId separately
             preferences.clientId.set(jsonResponse.getString("clientId"));
-
         } catch (Exception e) {
             throw new RuntimeException("Failed to save certificate from response", e);
         }
-
         logger.debug("certificate successfully saved");
     }
 
+    void sendTokenRequest(String code) {
+        String header = createTokenRequestHeaders();
+        HashMap<String, String> params = new HashMap<>();
+        params.put("code", code);
+        params.put("client_id", tenantId);
+        params.put("grant_type", "authorization_code");
+        params.put("redirect_uri", redirect_uri);
+        AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
+        options.parameters = params;
+        AuthorizationRequest request = null;
+        try {
+            request = new AuthorizationRequest(getTokenUrl(), Request.POST);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        request.addHeader("authorization", header);
+        request.send(options.parameters, new ResponseListener() {
+            @Override
+            public void onSuccess(Response response) {
+                saveTokenFromResponse(response);
+                listener.onSuccess(response);
+            }
 
-
-    /**
-     * Adding current session id value to the headers map
-     * @param headers map of headers to add the new header
-     */
-    private void addSessionIdHeader(HashMap<String, String> headers) {
-        headers.put("X-WL-Session", sessionId);
+            @Override
+            public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+                listener.onFailure(response, t, extendedInfo);
+            }
+        });
     }
 
-
-//    /**
-//     * Generate the params that will be used during the authorization phase
-//     * @return Map with all the params
-//     */
-//    private HashMap<String, String> createAuthorizationParams() {
-//
-//        HashMap<String, String> params = new HashMap<>(3);
-//        params.put("response_type", "code");
-//        params.put("client_id", preferences.clientId.get());
-//        params.put("redirect_uri", HTTP_LOCALHOST);
-//
-//        return params;
-//    }
-
-//    /**
-//     * @param response response with location header
-//     * @return the extracted location header
-//     */
-//    private String extractLocationHeader(Response response) {
-//        List<String> location = response.getHeaders().get("Location");
-//
-//        if (location == null) {
-//            throw new RuntimeException("Failed to find 'Location' header");
-//        }
-//
-//        logger.debug("Location header extracted successfully");
-//        return location.get(0);
-//    }
-
-//    /**
-//     * Extract grant code from url string
-//     * @param urlString url that contain the grant code
-//     * @return grant code
-//     * @throws MalformedURLException in case of illegal url format
-//     */
-//    private String extractGrantCode(String urlString) throws MalformedURLException {
-//
-//        URL url = new URL(urlString);
-//        String code = Utils.getParameterValueFromQuery(url.getQuery(), "code");
-//
-//        if (code == null){
-//            throw new RuntimeException("Failed to extract grant code from url");
-//        }
-//
-//        logger.debug("Grant code extracted successfully");
-//        return code;
-//    }
-
-//    /**
-//     * Invoke request to get token, the result of the response should be a valid token
-//     * @param grantCode grant code that will be used during the request
-//     */
-//    private void invokeTokenRequest(String grantCode) {
-//
-//        AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
-//
-//        options.parameters = createTokenRequestParams(grantCode);
-//        options.headers = createTokenRequestHeaders(grantCode);
-//        addSessionIdHeader(options.headers);
-//        options.requestMethod = Request.POST;
-//
-//        com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationProcessManager.InnerAuthorizationResponseListener listener = new com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationProcessManager.InnerAuthorizationResponseListener() {
-//            @Override
-//            public void handleAuthorizationSuccessResponse(Response response) throws Exception {
-//                saveTokenFromResponse(response);
-//                handleAuthorizationSuccess(response);
-//            }
-//        };
-//
-//        authorizationRequestSend(null, "token", options, listener);
-//    }
-
-
-//    /**
-//     * Generate the headers that will be used during the token request phase
-//     * @param grantCode from the authorization phase
-//     * @return Map with all the headers
-//     */
-//    private HashMap<String, String> createTokenRequestHeaders(String grantCode) {
+    private String createTokenRequestHeaders() {
 //        JSONObject payload = new JSONObject();
-//        HashMap<String, String> headers;
+
+//
+//        String d = tenantId + ":YjQ0M2YzNjMtZTRlYy00N2ZlLWFjNjUtMDA4YjNkNjBhMTFj";
+//
+//        byte[] data = new byte[0];
+//        try {
+//            data = d.getBytes("UTF-8");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        String base64 = Base64.encodeToString(data, Base64.NO_WRAP);
+//        try{
+//            headers = new HashMap<>(1);
+//            headers.put("authorization", "basic " + base64);
+//        }
+//        catch (Exception e) {
+//            throw new RuntimeException("Failed to create token request headers", e);
+//        }
+
 //        try {
 //            payload.put("code", grantCode);
 //
@@ -309,126 +256,46 @@ public class AppIdAuthorizationProcessManager {
 //        } catch (Exception e) {
 //            throw new RuntimeException("Failed to create token request headers", e);
 //        }
-//
-//        return headers;
-//    }
 
-//    /**
-//     * Extract token from response and save it locally
-//     * @param response response that contain the token
-//     */
-//    void saveTokenFromResponse(Response response) {
-//        try {
-//            JSONObject responseJSON = ((ResponseImpl)response).getResponseJSON();
-//
-//            String accessToken = responseJSON.getString("access_token");
-//            String idToken = responseJSON.getString("id_token");
-//
-//            //save the tokens
-//            preferences.accessToken.set(accessToken);
-//            preferences.idToken.set(idToken);
-//
-//            //save the user identity separately
-//            String[] idTokenData = idToken.split("\\.");
-//            byte[] decodedIdTokenData = Base64.decode(idTokenData[1], Base64.DEFAULT);
-//            String decodedIdTokenString = new String(decodedIdTokenData);
-//            JSONObject idTokenJSON = new JSONObject(decodedIdTokenString);
-//
-//            if (idTokenJSON.has("imf.user")) {
-//                preferences.userIdentity.set(idTokenJSON.getJSONObject("imf.user"));
-//            }
-//
-//            logger.debug("token successfully saved");
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to save token from response", e);
-//        }
-//    }
-
-    /**
-     * Use authorization request agent for sending the request
-     * @param context android activity that will handle authentication (facebook, google)
-     * @param path path to the server
-     * @param options send options
-     * @param listener response listener
-     */
-    private void authorizationRequestSend(final Context context, String path, AuthorizationRequestManager.RequestOptions options, ResponseListener listener) {
+        PrivateKey privateKey = registrationKeyPair.getPrivate();
+        String userName = tenantId + "-" + preferences.clientId.get();
+        String tokenAuthHeader = null;
         try {
-            AuthorizationRequestManager authorizationRequestManager = new AuthorizationRequestManager();
-            authorizationRequestManager.initialize(context, listener);
-            authorizationRequestManager.sendRequest(path, options);
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(privateKey);
+            signature.update(userName.getBytes());
+            String password = Base64.encodeToString(signature.sign(), Base64.NO_WRAP);
+            tokenAuthHeader = "basic " + Base64.encodeToString((userName + ":" + password).getBytes(), Base64.NO_WRAP);
+            return tokenAuthHeader;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send authorization request", e);
+            e.printStackTrace();
         }
+        return tokenAuthHeader;
     }
 
-//    /**
-//     * Handle failure in the authorization process. All the response listeners will be updated with
-//     * failure
-//     * @param t the reason of failure
-//     */
-//    private void handleAuthorizationFailure(Throwable t) {
-//        handleAuthorizationFailure(null, t, null);
-//    }
-
-//    /**
-//     * Handle failure in the authorization process. All the response listeners will be updated with
-//     * failure
-//     * @param response response that caused to failure
-//     * @param t additional info about the failure
-//     */
-//    private void handleAuthorizationFailure(Response response, Throwable t, JSONObject extendedInfo) {
-//        logger.error("authorization process failed");
-//
-//        if (t != null) {
-//            t.printStackTrace();
-//        }
-//
-//        Iterator<ResponseListener> iterator = authorizationQueue.iterator();
-//
-//        while(iterator.hasNext()) {
-//            ResponseListener next = iterator.next();
-//            next.onFailure(response, t, extendedInfo);
-//            iterator.remove();
-//        }
-//    }
-
-//    /**
-//     * Handle success in the authorization process. All the response listeners will be updated with
-//     * success
-//     * @param response final success response from the server
-//     */
-//    private void handleAuthorizationSuccess(Response response) {
-//
-//        Iterator<ResponseListener> iterator = authorizationQueue.iterator();
-//
-//        while(iterator.hasNext()) {
-//            ResponseListener next = iterator.next();
-//            next.onSuccess(response);
-//            iterator.remove();
-//        }
-//    }
-
-//    /**
-//     * Inner response listener that is used during the authorization requests.
-//     * this listener handles all types of exception and calls to handleAuthorizationFailure in that
-//     * case
-//     */
-//    private abstract class InnerAuthorizationResponseListener implements ResponseListener {
-//
-//        abstract public void handleAuthorizationSuccessResponse(Response response) throws Exception;
-//
-//        @Override
-//        public void onSuccess(Response response) {
-//            try {
-//                handleAuthorizationSuccessResponse(response);
-//            } catch (Exception e) {
-//                handleAuthorizationFailure(e);
-//            }
-//        }
-//
-//        @Override
-//        public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
-//            handleAuthorizationFailure(response, t, extendedInfo);
-//        }
-//    }
+    /**
+     * Extract token from response and save it locally
+     *
+     * @param response response that contain the token
+     */
+    private void saveTokenFromResponse(Response response) {
+        try {
+            JSONObject responseJSON = ((ResponseImpl) response).getResponseJSON();
+            String accessToken = responseJSON.getString("access_token");
+            String idToken = responseJSON.getString("id_token");
+            //save the tokens
+            preferences.accessToken.set(accessToken);
+            preferences.idToken.set(idToken);
+            //save the user identity separately
+            String[] idTokenData = idToken.split("\\.");
+            byte[] decodedIdTokenData = Base64.decode(idTokenData[1], Base64.DEFAULT);
+            String decodedIdTokenString = new String(decodedIdTokenData);
+            JSONObject idTokenJSON = new JSONObject(decodedIdTokenString);
+            if (idTokenJSON.has("imf.user")) {
+                preferences.userIdentity.set(idTokenJSON.getJSONObject("imf.user"));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save token from response", e);
+        }
+    }
 }
