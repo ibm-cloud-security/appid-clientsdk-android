@@ -19,15 +19,12 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseAppId
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDeviceIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequestManager;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.Utils;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.CertificateStore;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.CertificatesUtility;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.DefaultJSONSigner;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.KeyPairUtility;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
-
 import org.json.JSONObject;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.security.KeyPair;
@@ -44,12 +41,10 @@ public class AppIdAuthorizationProcessManager {
     private AuthorizationManagerPreferences preferences;
     private KeyPair registrationKeyPair;
     private DefaultJSONSigner jsonSigner;
-
     private CertificateStore certificateStore;
     private Logger logger;
     private String sessionId;
     private ResponseListener listener;
-
     static final String redirect_uri = "http://localhost/code";
     private static final String serverName = "https://imf-authserver";
     private static final String authorizationPath = "/oauth/v2/authorization";
@@ -90,8 +85,9 @@ public class AppIdAuthorizationProcessManager {
     void setResponseListener(ResponseListener listener){
         this.listener = listener;
     }
+
     /**
-     * @return the authentication server host name
+     * @return the authentication server host url
      */
     private String getServerHost() {
         String serverHost = serverName + AppId.getInstance().getBluemixRegionSuffix();
@@ -133,32 +129,25 @@ public class AppIdAuthorizationProcessManager {
      */
     private HashMap<String, String> createRegistrationParams() {
         registrationKeyPair = KeyPairUtility.generateRandomKeyPair();
-
         JSONObject csrJSON = new JSONObject();
         HashMap<String, String> params;
-
         try {
             DeviceIdentity deviceData = new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
             AppIdentity applicationData = new BaseAppIdentity(preferences.appIdentity.getAsMap());
-
             csrJSON.put("deviceId", deviceData.getId());
             csrJSON.put("deviceOs", "" + deviceData.getOS());
             csrJSON.put("deviceModel", deviceData.getModel());
             csrJSON.put("applicationId", applicationData.getId());
             csrJSON.put("applicationVersion", applicationData.getVersion());
             csrJSON.put("environment", "android");
-
             String csrValue = jsonSigner.sign(registrationKeyPair, csrJSON);
-
             params = new HashMap<>(1);
             params.put("CSR", csrValue);
-
             return params;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create registration params", e);
         }
     }
-
 
     /**
      * Extract the certificate data from response and save it on local storage

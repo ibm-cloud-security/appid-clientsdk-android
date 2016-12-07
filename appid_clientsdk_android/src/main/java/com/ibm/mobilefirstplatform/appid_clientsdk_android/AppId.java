@@ -33,14 +33,11 @@ public class AppId {
     private String tenantId = null;
     private String bluemixRegionSuffix = null;
     private AuthorizationManagerPreferences preferences;
-
     AppIdAuthorizationProcessManager appIdAuthorizationProcessManager;
-
     public static String overrideServerHost = null;
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
-
 
     private AppId(Context context) {
         this.preferences = new AuthorizationManagerPreferences(context);
@@ -54,6 +51,13 @@ public class AppId {
         }
     }
 
+    /**
+     * Init singleton instance with context, tenantId and Bluemix region.
+     * @param context Application context
+     * @param tenantId the unique tenant id of the MCA service instance that the application connects to.
+     * @param bluemixRegion Specifies the Bluemix deployment to use.
+     * @return The singleton instance
+     */
     public static synchronized AppId createInstance(Context context, String tenantId, String bluemixRegion) {
         instance = new AppId(context.getApplicationContext());
         instance.tenantId = tenantId;
@@ -67,6 +71,7 @@ public class AppId {
         AuthorizationRequest.setup();
         return instance;
     }
+
     /**
      * @return The singleton instance
      */
@@ -77,6 +82,9 @@ public class AppId {
         return instance;
     }
 
+    /**
+     * Pop out AppId login widget, to prompt user authentication.
+     */
     public void login(final Context context, final ResponseListener listener) {
         this.appIdAuthorizationProcessManager.setResponseListener(listener);
         if (preferences.clientId.get() == null) {
@@ -135,22 +143,27 @@ public class AppId {
 //    }
 
 
-    public String getCachedAuthorizationHeader() {
-        String accessToken = preferences.accessToken.get();
-        String idToken = preferences.idToken.get();
+//    public String getCachedAuthorizationHeader() {
+//        String accessToken = preferences.accessToken.get();
+//        String idToken = preferences.idToken.get();
+//
+//        if (accessToken != null && idToken != null) {
+//            return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
+//        }
+//        return null;
+//    }
 
-        if (accessToken != null && idToken != null) {
-            return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
-        }
-        return null;
-    }
-
-
+    /**
+     * @return The authenticated user name, or null if no user is authenticated.
+     */
     public String getUserDisplayName() {
         Map map = preferences.userIdentity.getAsMap();
         return (map == null) ? null : (String) map.get("displayName");
     }
 
+    /**
+     * @return The URL of the authenticated user profile picture, or null if no user is authenticate.
+     */
     public URL getUserProfilePicture() {
         Map map = preferences.userIdentity.getAsMap();
         if(null != map){
