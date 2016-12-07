@@ -27,6 +27,7 @@ public class WebViewActivity extends AppCompatActivity {
         }else{
             webView.setWebViewClient(new WebViewClientOldAPI());
         }
+        webView.clearCache(true);
         webView.loadUrl(appIdAPM.getAuthorizationUrl());
     }
 
@@ -65,7 +66,7 @@ public class WebViewActivity extends AppCompatActivity {
             finish();
         } else {
             if(uri.getHost().equals("localhost")) { //only needed when working locally replace localhost with 10.0.2.2
-                url = "http://10.0.2.2" + url.substring(21, url.length());
+                url = "http://10.0.2.2" + url.substring(16, url.length());
             }
             view.loadUrl(url);
         }

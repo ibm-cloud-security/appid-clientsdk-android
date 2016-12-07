@@ -29,23 +29,13 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.prefe
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.KeyPair;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Signature;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.ibm.mobilefirstplatform.appid_clientsdk_android.AppId.overrideServerHost;
 
@@ -64,8 +54,7 @@ public class AppIdAuthorizationProcessManager {
     private static final String serverName = "https://imf-authserver";
     private static final String authorizationPath = "/oauth/v2/authorization";
     private static final String tokenPath = "/oauth/v2/token";
-    private static final String tenantId = AppId.getInstance().getTenantId();
-    private static final String registrationPath = "/imf-authserver/authorization/v1/apps/" + tenantId + "/clients/instance";
+    private static final String registrationPath = "/imf-authserver/authorization/v1/apps/";
 
     public AppIdAuthorizationProcessManager(Context context, AuthorizationManagerPreferences preferences) {
         this.logger = Logger.getLogger(Logger.INTERNAL_PREFIX + com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationProcessManager.class.getSimpleName());
@@ -91,7 +80,7 @@ public class AppIdAuthorizationProcessManager {
         //Rotem: ask if that ok for performance?
         String queryParams = "?";
         queryParams += "response_type=code";
-        queryParams += "&client_id=" + tenantId;
+        queryParams += "&client_id=" + AppId.getInstance().getTenantId();
         queryParams += "&redirect_uri="+ redirect_uri;
         queryParams += "&scope=openid";
         queryParams += "&use_login_widget=true";
@@ -113,7 +102,7 @@ public class AppIdAuthorizationProcessManager {
     }
 
     private String getRegistrationUrl() {
-        return getServerHost() + registrationPath;
+        return getServerHost() + registrationPath + AppId.getInstance().getTenantId() + "/clients/instance";
     }
 
     private String getTokenUrl() {
@@ -197,7 +186,7 @@ public class AppIdAuthorizationProcessManager {
         String header = createTokenRequestHeaders();
         HashMap<String, String> params = new HashMap<>();
         params.put("code", code);
-        params.put("client_id", tenantId);
+        params.put("client_id", AppId.getInstance().getTenantId());
         params.put("grant_type", "authorization_code");
         params.put("redirect_uri", redirect_uri);
         AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
@@ -224,48 +213,15 @@ public class AppIdAuthorizationProcessManager {
     }
 
     private String createTokenRequestHeaders() {
-//        JSONObject payload = new JSONObject();
-
-//
-//        String d = tenantId + ":YjQ0M2YzNjMtZTRlYy00N2ZlLWFjNjUtMDA4YjNkNjBhMTFj";
-//
-//        byte[] data = new byte[0];
-//        try {
-//            data = d.getBytes("UTF-8");
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        String base64 = Base64.encodeToString(data, Base64.NO_WRAP);
-//        try{
-//            headers = new HashMap<>(1);
-//            headers.put("authorization", "basic " + base64);
-//        }
-//        catch (Exception e) {
-//            throw new RuntimeException("Failed to create token request headers", e);
-//        }
-
-//        try {
-//            payload.put("code", grantCode);
-//
-//            KeyPair keyPair = certificateStore.getStoredKeyPair();
-//            String jws = jsonSigner.sign(keyPair, payload);
-//
-//            headers = new HashMap<>(1);
-//            headers.put("X-WL-Authenticate", jws);
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to create token request headers", e);
-//        }
-
         PrivateKey privateKey = registrationKeyPair.getPrivate();
-        String userName = tenantId + "-" + preferences.clientId.get();
+        String userName = AppId.getInstance().getTenantId() + "-" + preferences.clientId.get();
         String tokenAuthHeader = null;
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(privateKey);
             signature.update(userName.getBytes());
             String password = Base64.encodeToString(signature.sign(), Base64.NO_WRAP);
-            tokenAuthHeader = "basic " + Base64.encodeToString((userName + ":" + password).getBytes(), Base64.NO_WRAP);
+            tokenAuthHeader = "Basic " + Base64.encodeToString((userName + ":" + password).getBytes(), Base64.NO_WRAP);
             return tokenAuthHeader;
         } catch (Exception e) {
             e.printStackTrace();

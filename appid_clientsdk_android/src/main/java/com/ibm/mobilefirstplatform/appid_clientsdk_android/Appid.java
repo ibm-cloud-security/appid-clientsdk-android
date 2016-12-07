@@ -2,17 +2,26 @@ package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.util.Base64;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseAppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDeviceIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseUserIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationHeaderHelper;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.InputMismatchException;
+import java.util.Map;
 
 /**
  * Created by rotembr on 04/12/2016.
@@ -126,23 +135,39 @@ public class AppId {
 //    }
 
 
+    public String getCachedAuthorizationHeader() {
+        String accessToken = preferences.accessToken.get();
+        String idToken = preferences.idToken.get();
 
-//    public String getCachedAuthorizationHeader() {
-//        String accessToken = preferences.accessToken.get();
-//        String idToken = preferences.idToken.get();
-//
-//        if (accessToken != null && idToken != null) {
-//            return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
-//        }
-//        return null;
-//    }
+        if (accessToken != null && idToken != null) {
+            return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
+        }
+        return null;
+    }
 
 
-//
-//    public UserIdentity getUserIdentity() {
-//        Map map = preferences.userIdentity.getAsMap();
-//        return (map == null) ? null : new BaseUserIdentity(map);
-//    }
+    public String getUserDisplayName() {
+        Map map = preferences.userIdentity.getAsMap();
+        return (map == null) ? null : (String) map.get("displayName");
+    }
+
+    public URL getUserProfilePicture() {
+        Map map = preferences.userIdentity.getAsMap();
+        if(null != map){
+            try {
+                JSONObject attributes = (JSONObject) map.get("attributes");
+                JSONObject picture = (JSONObject) attributes.get("picture");
+                JSONObject data = (JSONObject) picture.get("data");
+                String stringUrl = data.getString("url");
+                return new URL(stringUrl);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+
 //
 //    public DeviceIdentity getDeviceIdentity() {
 //        return new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
