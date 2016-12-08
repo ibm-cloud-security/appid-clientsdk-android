@@ -43,8 +43,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
         // here we handle authentication success
         Log.i("Rotem", "success");
         Log.i("Rotem", response.toString());
-        showPicture();
-        showDetails("Hello " + appId.getUserDisplayName());
+        showDetailsAndPicture();
     }
 
     @Override
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
         });
     }
 
-    private void showPicture() {
+    private void showDetailsAndPicture() {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -90,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
                             profilePicture.getLayoutParams().width = 350;
                             profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                             profilePicture.setVisibility(View.VISIBLE);
+                            showDetails("Hello " + appId.getUserDisplayName());
                         }
                     });
                 } catch (Exception e) {
@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
     }
 
     private void showProgress(){
-        //run on main thread
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -112,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
     }
 
     private void hideProgress(){
-        //run on main thread
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
