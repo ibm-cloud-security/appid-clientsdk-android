@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.AppId;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 
@@ -36,6 +37,11 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
     public void onLoginClick(View v){
         showProgress();
         appId.login(this.getApplicationContext(), this);
+    }
+
+    public void onProtectedRequestClick(View v){
+        Request r = new Request( "http://appid-rotem.stage1.mybluemix.net" + "/protectedResource", Request.GET);
+        r.send(this,this);
     }
 
     @Override
