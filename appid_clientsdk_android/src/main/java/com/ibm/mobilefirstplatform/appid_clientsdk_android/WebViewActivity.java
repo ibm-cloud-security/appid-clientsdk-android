@@ -1,12 +1,16 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -28,7 +32,13 @@ public class WebViewActivity extends AppCompatActivity {
             webView.setWebViewClient(new WebViewClientOldAPI());
         }
         webView.clearCache(true);
+        clearCookies();
         webView.loadUrl(appIdAPM.getAuthorizationUrl());
+    }
+
+    private void clearCookies() {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setCookie(".facebook.com", "c_user=");
     }
 
     //we need to override here in order to avoid window leaks
