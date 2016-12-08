@@ -233,7 +233,7 @@ public class AppIdAuthorizationProcessManager {
             preferences.idToken.set(idToken);
             //save the user identity separately
             String[] idTokenData = idToken.split("\\.");
-            byte[] decodedIdTokenData = Base64.decode(idTokenData[1], Base64.DEFAULT);
+            byte[] decodedIdTokenData = Base64.decode(idTokenData[1], Base64.URL_SAFE);
             String decodedIdTokenString = new String(decodedIdTokenData);
             JSONObject idTokenJSON = new JSONObject(decodedIdTokenString);
             if (idTokenJSON.has("imf.user")) {
