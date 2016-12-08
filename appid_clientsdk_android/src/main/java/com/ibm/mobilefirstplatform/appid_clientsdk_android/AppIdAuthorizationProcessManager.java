@@ -202,10 +202,10 @@ public class AppIdAuthorizationProcessManager {
     }
 
     private String createTokenRequestHeaders() {
-        PrivateKey privateKey = registrationKeyPair.getPrivate();
-        String userName = AppId.getInstance().getTenantId() + "-" + preferences.clientId.get();
         String tokenAuthHeader = null;
         try {
+            String userName = AppId.getInstance().getTenantId() + "-" + preferences.clientId.get();
+            PrivateKey privateKey = certificateStore.getStoredKeyPair().getPrivate();
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(privateKey);
             signature.update(userName.getBytes());
