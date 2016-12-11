@@ -40,44 +40,48 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
     }
 
     public void onProtectedRequestClick(View v){
+        showProgress();
         Request r = new Request( "http://appid-rotem.stage1.mybluemix.net" + "/protectedResource", Request.GET);
-        r.send(this,this);
+        r.send(this, this);
     }
 
     @Override
     public void onSuccess(Response response) {
         // here we handle authentication success
-        Log.i("Rotem", "success");
-        Log.i("Rotem", response.toString());
-        showDetailsAndPicture();
+        Log.i("Login", "success");
+        Log.i("Login", response.toString());
+        showDetailsAndPicture(response.getResponseText());
     }
 
     @Override
     public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
         // handle auth failure
-        Log.i("Rotem", "fail");
+        Log.i("Login", "fail");
         if(response != null){
-            Log.i("Rotem",response.toString());
+            Log.i("Login",response.toString());
+            showDetails("Failure in Login/protected resource", response.getResponseText());
         }
         if(extendedInfo != null){
-            Log.i("Rotem",extendedInfo.toString());
+            Log.i("Login",extendedInfo.toString());
+            showDetails("Login canceled" ,extendedInfo.toString());
         }
-        showDetails("Failure in Login");
     }
 
-    private void showDetails(final String result) {
+    private void showDetails(final String result, final String response) {
         //run on main thread
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 TextView nameTextView = (TextView) findViewById(R.id.name);
                 nameTextView.setText(result);
+                TextView responseText = (TextView) findViewById(R.id.textViewProtectedResourceResponse);
+                responseText.setText(response);
                 hideProgress();
             }
         });
     }
 
-    private void showDetailsAndPicture() {
+    private void showDetailsAndPicture(final String response) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -95,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
                             profilePicture.getLayoutParams().width = 350;
                             profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                             profilePicture.setVisibility(View.VISIBLE);
-                            showDetails("Hello " + appId.getUserDisplayName());
+                            showDetails("Hello " + appId.getUserIdentity().getDisplayName(), response);
                         }
                     });
                 } catch (Exception e) {
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
                 findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
                 findViewById(R.id.loadingPanel).bringToFront();
                 findViewById(R.id.loginButton).setEnabled(false);
+                findViewById(R.id.protectedRequestButton).setEnabled(false);
             }
         });
     }
@@ -122,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
             public void run() {
                 findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                 findViewById(R.id.loginButton).setEnabled(true);
+                findViewById(R.id.protectedRequestButton).setEnabled(true);
+
             }
         });
     }
