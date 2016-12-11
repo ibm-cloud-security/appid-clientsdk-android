@@ -1,6 +1,5 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -8,17 +7,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class WebViewActivity extends AppCompatActivity {
 
+
+    /**
+     * Default return code when cancel is pressed during fb authentication (info)
+     */
+    private static final String AUTH_CANCEL_CODE = "100";
     private WebView webView;
-    private AppIdAuthorizationProcessManager appIdAPM = AppId.getInstance().appIdAuthorizationProcessManager;
-    private String redirect_uri = appIdAPM.redirect_uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +36,7 @@ public class WebViewActivity extends AppCompatActivity {
         }
         webView.clearCache(true);
         clearCookies();
-        webView.loadUrl(appIdAPM.getAuthorizationUrl());
+        webView.loadUrl(AppIdAuthorizationManager.getInstance().getAuthorizationUrl());
     }
 
     private void clearCookies() {
@@ -49,11 +52,24 @@ public class WebViewActivity extends AppCompatActivity {
         super.finish();
     }
 
+    @Override
+    public void onBackPressed() {
+        JSONObject cancelInfo = new JSONObject();
+        try {
+            cancelInfo.put("errorCode", AUTH_CANCEL_CODE);
+            cancelInfo.put("msg", "Authentication canceled by user");
+            AppIdAuthorizationManager.getInstance().handleAuthorizationFailure(null, null, cancelInfo);
+            finish();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private class WebViewClientOldAPI extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(final WebView view, String url) {
-            Uri uri=Uri.parse(url);
-            loadUrl(view, uri);
+            Uri uri = Uri.parse(url);
+            loadUri(view, uri);
             return true;
         }
     }
@@ -63,16 +79,17 @@ public class WebViewActivity extends AppCompatActivity {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
-            loadUrl(view, uri);
+            loadUri(view, uri);
             return true;
         }
     }
 
-    private void loadUrl(WebView view, Uri uri) {
+    private void loadUri(WebView view, Uri uri) {
         String code = uri.getQueryParameter("code");
         String url = uri.toString();
-        if (url.startsWith(redirect_uri) && code != null) {
-            appIdAPM.sendTokenRequest(code);
+        if (url.startsWith(AppIdAuthorizationManager.redirect_uri) && code != null) {
+            AppIdTokenManager appIdTM = AppIdAuthorizationManager.getInstance().getAppIdTokenManager();
+            appIdTM.sendTokenRequest(code);
             finish();
         } else {
             if(uri.getHost().equals("localhost")) { //only needed when working locally replace localhost with 10.0.2.2

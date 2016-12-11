@@ -2,24 +2,12 @@ package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.util.Base64;
-
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseAppIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDeviceIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseUserIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationHeaderHelper;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
-
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -31,26 +19,17 @@ import java.util.Map;
 public class AppId {
 
     private static AppId instance;
-    private String tenantId = null;
-    private String bluemixRegionSuffix = null;
-    private AuthorizationManagerPreferences preferences;
-    AppIdAuthorizationProcessManager appIdAuthorizationProcessManager;
+    private String tenantId;
+    private String bluemixRegionSuffix;
+    private AppIdAuthorizationManager appIdAuthorizationManager;
+    private AuthorizationManagerPreferences amPreferences;
+
     public static String overrideServerHost = null;
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 
-    private AppId(Context context) {
-        this.preferences = new AuthorizationManagerPreferences(context);
-        this.appIdAuthorizationProcessManager = new AppIdAuthorizationProcessManager(context, preferences);
-        //init generic data, like device data and application data
-        if (preferences.deviceIdentity.get() == null) {
-            preferences.deviceIdentity.set(new BaseDeviceIdentity(context));
-        }
-        if (preferences.appIdentity.get() == null) {
-            preferences.appIdentity.set(new BaseAppIdentity(context));
-        }
-    }
+    private AppId() {}
 
     /**
      * Init singleton instance with context, tenantId and Bluemix region.
@@ -60,16 +39,21 @@ public class AppId {
      * @return The singleton instance
      */
     public static synchronized AppId createInstance(Context context, String tenantId, String bluemixRegion) {
-        instance = new AppId(context.getApplicationContext());
-        instance.tenantId = tenantId;
-        instance.bluemixRegionSuffix = bluemixRegion;
-        if (null == tenantId || null == bluemixRegion) {
-            throw new InputMismatchException("tenantId can't be null");
+        if(instance == null) {
+            instance = new AppId();
+            instance.tenantId = tenantId;
+            instance.bluemixRegionSuffix = bluemixRegion;
+            if (null == tenantId) {
+                throw new InputMismatchException("tenantId can't be null");
+            }
+            if (null == bluemixRegion) {
+                throw new InputMismatchException("bluemixRegion can't be null");
+            }
+            BMSClient.getInstance().initialize(context, bluemixRegion);
+            instance.appIdAuthorizationManager = AppIdAuthorizationManager.createInstance(context);
+            BMSClient.getInstance().setAuthorizationManager(instance.appIdAuthorizationManager);
+            instance.amPreferences = instance.appIdAuthorizationManager.getPreferences();
         }
-        if (null == tenantId || null == bluemixRegion) {
-            throw new InputMismatchException("bluemixRegion can't be null");
-        }
-        AuthorizationRequest.setup();
         return instance;
     }
 
@@ -87,12 +71,13 @@ public class AppId {
      * Pop out AppId login widget, to prompt user authentication.
      */
     public void login(final Context context, final ResponseListener listener) {
-        this.appIdAuthorizationProcessManager.setResponseListener(listener);
-        if (preferences.clientId.get() == null) {
-            appIdAuthorizationProcessManager.invokeInstanceRegistrationRequest(new ResponseListener() {
+        this.appIdAuthorizationManager.setResponseListener(listener);
+        final AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
+        if (amPreferences.clientId.get() == null) {
+            appIdRM.invokeInstanceRegistrationRequest(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
-                    appIdAuthorizationProcessManager.saveCertificateFromResponse(response);
+                    appIdRM.saveCertificateFromResponse(response);
                     startWebViewActivity(context);
                 }
                 @Override
@@ -111,7 +96,6 @@ public class AppId {
         context.startActivity(intent);
     }
 
-
     /**
      * @return The MCA instance tenantId
      */
@@ -126,47 +110,22 @@ public class AppId {
         return bluemixRegionSuffix;
     }
 
-
-
-//    @Override
-//    public boolean isAuthorizationRequired(int statusCode, Map<String, List<String>> headers) {
-//        if (headers.containsKey(WWW_AUTHENTICATE_HEADER_NAME)){
-//            String authHeader = headers.get(WWW_AUTHENTICATE_HEADER_NAME).get(0);
-//            return AuthorizationHeaderHelper.isAuthorizationRequired(statusCode, authHeader);
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    @Override
-//    public boolean isAuthorizationRequired(HttpURLConnection urlConnection) throws IOException {
-//        return AuthorizationHeaderHelper.isAuthorizationRequired(urlConnection);
-//    }
-
-
-//    public String getCachedAuthorizationHeader() {
-//        String accessToken = preferences.accessToken.get();
-//        String idToken = preferences.idToken.get();
-//
-//        if (accessToken != null && idToken != null) {
-//            return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
-//        }
-//        return null;
-//    }
+    public String getCachedAuthorizationHeader() {
+        return appIdAuthorizationManager.getCachedAuthorizationHeader();
+    }
 
     /**
-     * @return The authenticated user name, or null if no user is authenticated.
+     * @return authorized user identity. Will return null if user is not yet authorized
      */
-    public String getUserDisplayName() {
-        Map map = preferences.userIdentity.getAsMap();
-        return (map == null) ? null : (String) map.get("displayName");
+    public UserIdentity getUserIdentity() {
+        return appIdAuthorizationManager.getUserIdentity();
     }
 
     /**
      * @return The URL of the authenticated user profile picture, or null if no user is authenticate.
      */
     public URL getUserProfilePicture() {
-        Map map = preferences.userIdentity.getAsMap();
+        Map map = amPreferences.userIdentity.getAsMap();
         if(null != map){
             try {
                 JSONObject attributes = (JSONObject) map.get("attributes");
@@ -180,16 +139,5 @@ public class AppId {
         }
         return null;
     }
-
-
-//
-//    public DeviceIdentity getDeviceIdentity() {
-//        return new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
-//    }
-//
-//    public AppIdentity getAppIdentity() {
-//        return new BaseAppIdentity(preferences.appIdentity.getAsMap());
-//    }
-
 
 }
