@@ -61,6 +61,7 @@ public class AppIdRegistrationManager {
     CertificateStore getCertificateStore() {
         return certificateStore;
     }
+
     /**
      * Invoke request for registration, the result of the request should contain ClientId.
      *

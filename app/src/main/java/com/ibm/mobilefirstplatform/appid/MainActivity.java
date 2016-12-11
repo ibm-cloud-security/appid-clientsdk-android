@@ -21,8 +21,9 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements ResponseListener {
 
-    private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2";
-    private final static String region = AppId.REGION_UK; // replace with server suffix url
+    private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2";//"11111111-1111-1111-1111-111111111aaa";//;
+    // replace with server suffix url
+    private final static String region = ".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
     private AppId appId;
 
     @Override
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
         setContentView(R.layout.activity_main);
 
         appId = AppId.createInstance(this.getApplicationContext(), mcaTenantId, region);
-        appId.overrideServerHost = "http://10.0.2.2:6001"; //only when working locally
+//        appId.overrideServerHost = "http://10.0.2.2:6001"; //only when working locally
     }
 
     public void onLoginClick(View v){

@@ -1,1 +1,1 @@
-include ':app', ':appid_clientsdk_android'
+include ':app', ':lib'
