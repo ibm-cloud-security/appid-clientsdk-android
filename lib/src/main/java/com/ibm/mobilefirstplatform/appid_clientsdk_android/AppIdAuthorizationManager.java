@@ -1,6 +1,8 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
 import android.content.Context;
+import android.net.Uri;
+
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
@@ -82,14 +84,13 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
     }
 
     String getAuthorizationUrl() {
-        //Rotem: ask if that ok for performance?
-        String queryParams = "?";
-        queryParams += "response_type=code";
-        queryParams += "&client_id=" + AppId.getInstance().getTenantId();
-        queryParams += "&redirect_uri="+ redirect_uri;
-        queryParams += "&scope=openid";
-        queryParams += "&use_login_widget=true";
-        return getServerHost() + authorizationPath + queryParams;
+        return Uri.parse(getServerHost() + authorizationPath).buildUpon()
+                .appendQueryParameter("response_type", "code")
+                .appendQueryParameter("client_id", AppId.getInstance().getTenantId())
+                .appendQueryParameter("redirect_uri", redirect_uri)
+                .appendQueryParameter("scope", "openid")
+                .appendQueryParameter("use_login_widget", "true")
+                .build().toString();
     }
 
     void setResponseListener(ResponseListener listener){
@@ -168,7 +169,6 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
     public synchronized String getCachedAuthorizationHeader() {
         String accessToken = preferences.accessToken.get();
         String idToken = preferences.idToken.get();
-
         if (accessToken != null && idToken != null) {
             return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
         }

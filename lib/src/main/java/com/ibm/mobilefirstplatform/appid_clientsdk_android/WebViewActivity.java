@@ -16,10 +16,7 @@ import org.json.JSONObject;
 
 public class WebViewActivity extends AppCompatActivity {
 
-
-    /**
-     * Default return code when cancel is pressed during fb authentication (info)
-     */
+    //Default return code when cancel is pressed during authentication.
     private static final String AUTH_CANCEL_CODE = "100";
     private WebView webView;
 
@@ -41,10 +38,10 @@ public class WebViewActivity extends AppCompatActivity {
 
     private void clearCookies() {
         CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setCookie(".facebook.com", "c_user=");
+        cookieManager.setCookie(".facebook.com", "c_user="); //TODO: check if we can do something better.
     }
 
-    //we need to override here in order to avoid window leaks
+    //override here in order to avoid window leaks
     @Override
     public void finish() {
         ViewGroup view = (ViewGroup) getWindow().getDecorView();
@@ -55,7 +52,7 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         JSONObject cancelInfo = new JSONObject();
-        try {
+        try{
             cancelInfo.put("errorCode", AUTH_CANCEL_CODE);
             cancelInfo.put("msg", "Authentication canceled by user");
             AppIdAuthorizationManager.getInstance().handleAuthorizationFailure(null, null, cancelInfo);
@@ -92,11 +89,12 @@ public class WebViewActivity extends AppCompatActivity {
             appIdTM.sendTokenRequest(code);
             finish();
         } else {
-            if(uri.getHost().equals("localhost")) { //only needed when working locally replace localhost with 10.0.2.2
-                url = "http://10.0.2.2" + url.substring(16, url.length());
-            }
+            //when working locally uncomment this 'if' (replacing localhost with 10.0.2.2)
+//            if(AppId.overrideServerHost != null && uri.getHost().equals("localhost")) {
+//                //when working locally replacing localhost with 10.0.2.2
+//                url = AppId.overrideServerHost + url.substring(21, url.length());
+//            }
             view.loadUrl(url);
         }
     }
-
 }

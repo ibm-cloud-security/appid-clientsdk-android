@@ -18,11 +18,16 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certi
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.KeyPairUtility;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyPair;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.UUID;
@@ -67,16 +72,36 @@ public class AppIdRegistrationManager {
      *
      */
     void invokeInstanceRegistrationRequest(final ResponseListener responseListener) {
-        AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
-        options.parameters = createRegistrationParams();
-        AuthorizationRequest request = null;
-        try {
-            request = new AuthorizationRequest(getRegistrationUrl(), Request.POST);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        try{
+            AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
+            options.parameters = createRegistrationParams();
+            AuthorizationRequest request = new AuthorizationRequest(getRegistrationUrl(), Request.POST);
+            request.addHeader("X-WL-Session", sessionId);
+            request.send(options.parameters, new ResponseListener() {
+                @Override
+                public void onSuccess(Response response) {
+                    try {
+                        saveCertificateFromResponse(response);
+                        responseListener.onSuccess(response);
+                    } catch (Exception e) {
+                        responseListener.onFailure(null, e, null);
+                        throw new RuntimeException("Failed to save certificate from response", e);
+                    }
+                }
+
+                @Override
+                public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+                    responseListener.onFailure(response ,t, extendedInfo);
+                }
+            });
+        }catch (MalformedURLException e) {
+            responseListener.onFailure(null, e, null);
+            throw new RuntimeException("Failed to create AuthorizationRequest", e);
         }
-        request.addHeader("X-WL-Session", sessionId);
-        request.send(options.parameters, responseListener);
+        catch (Exception e) {
+            responseListener.onFailure(null, e, null);
+            throw new RuntimeException("Failed to create registration params", e);
+        }
     }
 
     private String getRegistrationUrl() {
@@ -88,26 +113,22 @@ public class AppIdRegistrationManager {
      *
      * @return Map with all the parameters
      */
-    private HashMap<String, String> createRegistrationParams() {
+    private HashMap<String, String> createRegistrationParams() throws Exception {
         registrationKeyPair = KeyPairUtility.generateRandomKeyPair();
         JSONObject csrJSON = new JSONObject();
         HashMap<String, String> params;
-        try {
-            DeviceIdentity deviceData = new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
-            AppIdentity applicationData = new BaseAppIdentity(preferences.appIdentity.getAsMap());
-            csrJSON.put("deviceId", deviceData.getId());
-            csrJSON.put("deviceOs", "" + deviceData.getOS());
-            csrJSON.put("deviceModel", deviceData.getModel());
-            csrJSON.put("applicationId", applicationData.getId());
-            csrJSON.put("applicationVersion", applicationData.getVersion());
-            csrJSON.put("environment", "android");
-            String csrValue = jsonSigner.sign(registrationKeyPair, csrJSON);
-            params = new HashMap<>(1);
-            params.put("CSR", csrValue);
-            return params;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create registration params", e);
-        }
+        DeviceIdentity deviceData = new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
+        AppIdentity applicationData = new BaseAppIdentity(preferences.appIdentity.getAsMap());
+        csrJSON.put("deviceId", deviceData.getId());
+        csrJSON.put("deviceOs", "" + deviceData.getOS());
+        csrJSON.put("deviceModel", deviceData.getModel());
+        csrJSON.put("applicationId", applicationData.getId());
+        csrJSON.put("applicationVersion", applicationData.getVersion());
+        csrJSON.put("environment", "android");
+        String csrValue = jsonSigner.sign(registrationKeyPair, csrJSON);
+        params = new HashMap<>(1);
+        params.put("CSR", csrValue);
+        return params;
     }
 
     /**
@@ -115,20 +136,17 @@ public class AppIdRegistrationManager {
      *
      * @param response contains the certificate data
      */
-    void saveCertificateFromResponse(Response response) {
-        try {
-            String responseBody = response.getResponseText();
-            JSONObject jsonResponse = new JSONObject(responseBody);
-            //handle certificate
-            String certificateString = jsonResponse.getString("certificate");
-            X509Certificate certificate = CertificatesUtility.base64StringToCertificate(certificateString);
-            CertificatesUtility.checkValidityWithPublicKey(certificate, registrationKeyPair.getPublic());
-            certificateStore.saveCertificate(registrationKeyPair, certificate);
-            //save the clientId separately
-            preferences.clientId.set(jsonResponse.getString("clientId"));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to save certificate from response", e);
-        }
+    private void saveCertificateFromResponse(Response response) throws JSONException, CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
+        String responseBody = response.getResponseText();
+        JSONObject jsonResponse = new JSONObject(responseBody);
+        //handle certificate
+        String certificateString = jsonResponse.getString("certificate");
+        X509Certificate certificate = CertificatesUtility.base64StringToCertificate(certificateString);
+        CertificatesUtility.checkValidityWithPublicKey(certificate, registrationKeyPair.getPublic());
+        certificateStore.saveCertificate(registrationKeyPair, certificate);
+        //save the clientId separately
+        preferences.clientId.set(jsonResponse.getString("clientId"));
+
     }
 
 }

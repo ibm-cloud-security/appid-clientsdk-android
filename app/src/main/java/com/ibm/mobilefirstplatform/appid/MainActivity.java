@@ -21,23 +21,21 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements ResponseListener {
 
-    private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2";//"11111111-1111-1111-1111-111111111aaa";//;
-    // replace with server suffix url
+    private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2";
+    // server suffix url
     private final static String region = ".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
-    private AppId appId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        appId = AppId.createInstance(this.getApplicationContext(), mcaTenantId, region);
-//        appId.overrideServerHost = "http://10.0.2.2:6001"; //only when working locally
+        AppId.createInstance(this.getApplicationContext(), mcaTenantId, region);
+//        AppId.overrideServerHost = "http://10.0.2.2:6001"; //only when working locally
     }
 
     public void onLoginClick(View v){
         showProgress();
-        appId.login(this.getApplicationContext(), this);
+        AppId.getInstance().login(this.getApplicationContext(), this);
     }
 
     public void onProtectedRequestClick(View v){
@@ -66,6 +64,10 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
             Log.i("Login",extendedInfo.toString());
             showDetails("Login canceled" ,extendedInfo.toString());
         }
+        if(null != t){
+            Log.i("Login",t.getMessage());
+            showDetails("Login error" ,t.getMessage());
+        }
     }
 
     private void showDetails(final String result, final String response) {
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                URL picUrl = appId.getUserProfilePicture();
+                URL picUrl = AppId.getInstance().getUserProfilePicture();
                 try {
                     final Bitmap bmp = BitmapFactory.decodeStream(picUrl.openConnection().getInputStream());
                     //run on main thread
@@ -100,10 +102,11 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
                             profilePicture.getLayoutParams().width = 350;
                             profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                             profilePicture.setVisibility(View.VISIBLE);
-                            showDetails("Hello " + appId.getUserIdentity().getDisplayName(), response);
+                            showDetails("Hello " + AppId.getInstance().getUserIdentity().getDisplayName(), response);
                         }
                     });
                 } catch (Exception e) {
+                    showDetails("Login error" + e.getMessage(), response);
                     e.printStackTrace();
                 }
             }

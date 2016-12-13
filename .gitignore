@@ -1,19 +1,14 @@
 /.gradle
 .idea
-*.lock
-
 *.iml
-
+*.lock
 *.pro
-
-
 .gradle
 /local.properties
 /.idea
 .DS_Store
 /build
 /captures
-*.iml
 *.png
 
 

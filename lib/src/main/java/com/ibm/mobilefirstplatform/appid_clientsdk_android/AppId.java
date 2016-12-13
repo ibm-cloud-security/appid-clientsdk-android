@@ -1,5 +1,6 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
@@ -7,6 +8,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
+
 import org.json.JSONObject;
 import java.net.URL;
 import java.util.InputMismatchException;
@@ -23,6 +25,8 @@ public class AppId {
     private String bluemixRegionSuffix;
     private AppIdAuthorizationManager appIdAuthorizationManager;
     private AuthorizationManagerPreferences amPreferences;
+    private String facebookRealm = "wl_facebookRealm";
+    private String googleRealm = "wl_googleRealm";
 
     public static String overrideServerHost = null;
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
@@ -39,16 +43,16 @@ public class AppId {
      * @return The singleton instance
      */
     public static synchronized AppId createInstance(Context context, String tenantId, String bluemixRegion) {
-        if(instance == null) {
-            instance = new AppId();
-            instance.tenantId = tenantId;
-            instance.bluemixRegionSuffix = bluemixRegion;
+        if(null == instance ) {
             if (null == tenantId) {
                 throw new InputMismatchException("tenantId can't be null");
             }
             if (null == bluemixRegion) {
                 throw new InputMismatchException("bluemixRegion can't be null");
             }
+            instance = new AppId();
+            instance.tenantId = tenantId;
+            instance.bluemixRegionSuffix = bluemixRegion;
             BMSClient.getInstance().initialize(context, bluemixRegion);
             instance.appIdAuthorizationManager = AppIdAuthorizationManager.createInstance(context);
             BMSClient.getInstance().setAuthorizationManager(instance.appIdAuthorizationManager);
@@ -68,16 +72,17 @@ public class AppId {
     }
 
     /**
+     * @param context Application context
+     * @param listener The listener whose onSuccess or onFailure methods will be called when the login ends
      * Pop out AppId login widget, to prompt user authentication.
      */
     public void login(final Context context, final ResponseListener listener) {
         this.appIdAuthorizationManager.setResponseListener(listener);
-        final AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
         if (amPreferences.clientId.get() == null) {
+            final AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
             appIdRM.invokeInstanceRegistrationRequest(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
-                    appIdRM.saveCertificateFromResponse(response);
                     startWebViewActivity(context);
                 }
                 @Override
@@ -85,15 +90,19 @@ public class AppId {
                     listener.onFailure(response, t, extendedInfo);
                 }
             });
-        }else{
+        }else {
               startWebViewActivity(context);
         }
     }
 
-    private void startWebViewActivity(Context context){
-        Intent intent = new Intent(context, WebViewActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+    private void startWebViewActivity(Context context) {
+        try {
+            Intent intent = new Intent(context, WebViewActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }catch (ActivityNotFoundException e) {
+            appIdAuthorizationManager.handleAuthorizationFailure(null, e, null);
+        }
     }
 
     /**
@@ -129,10 +138,16 @@ public class AppId {
         if(null != map){
             try {
                 JSONObject attributes = (JSONObject) map.get("attributes");
-                JSONObject picture = (JSONObject) attributes.get("picture");
-                JSONObject data = (JSONObject) picture.get("data");
-                String stringUrl = data.getString("url");
-                return new URL(stringUrl);
+                if(getUserIdentity().getAuthBy().equals(facebookRealm)) {
+                    JSONObject picture = (JSONObject) attributes.get("picture");
+                    JSONObject data = (JSONObject) picture.get("data");
+                    String stringUrl = data.getString("url");
+                    return new URL(stringUrl);
+                }
+                if(getUserIdentity().getAuthBy().equals(googleRealm)){
+
+                }
+                return null;
             } catch (Exception e) {
                 e.printStackTrace();
             }

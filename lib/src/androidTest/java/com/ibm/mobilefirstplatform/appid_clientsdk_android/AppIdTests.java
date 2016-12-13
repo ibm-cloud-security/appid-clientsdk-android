@@ -1,46 +1,25 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
-import android.support.test.runner.AndroidJUnit4;
-import android.test.InstrumentationTestCase;
-
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 /**
  * Created by rotembr on 11/12/2016.
  */
-@RunWith(MockitoJUnitRunner.class)
+
 public class AppIdTests {
 
-    @Mock
-    AppIdRegistrationManager appIdRM;
-
     @Before
-    public void setUp() {
+    public void setup() {
         AppId.createInstance(getInstrumentation().getTargetContext(),"testTenant", "TestRegion");
     }
 
-
-//    @Test
-//    public void loginTest() {
+    @Test
+    public void loginTest() {
+        fail();
 //        final ResponseListener testListener = new ResponseListener() {
 //            @Override
 //            public void onSuccess(Response response) {
@@ -68,12 +47,13 @@ public class AppIdTests {
 //        doAnswer(new Answer() {
 //            @Override
 //            public Object answer(InvocationOnMock invocation) throws Throwable {
-//                testListener.onFailure(null,null,info);
+//                ResponseListener r = (ResponseListener) invocation.getArguments()[0];
+//                r.onFailure(null,null,info);
 //                return null;
 //            }
 //        }).when(appIdRM).invokeInstanceRegistrationRequest(testListener);
 //
 //        AppId.getInstance().login(getInstrumentation().getTargetContext(), testListener);
-//    }
+    }
 
 }
