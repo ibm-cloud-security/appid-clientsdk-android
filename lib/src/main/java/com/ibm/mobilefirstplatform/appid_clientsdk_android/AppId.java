@@ -10,6 +10,7 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
 
 import org.json.JSONObject;
+
 import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -72,14 +73,15 @@ public class AppId {
     }
 
     /**
+     * Pop out AppId login widget, to prompt user authentication.
      * @param context Application context
      * @param listener The listener whose onSuccess or onFailure methods will be called when the login ends
-     * Pop out AppId login widget, to prompt user authentication.
+     *
      */
     public void login(final Context context, final ResponseListener listener) {
-        this.appIdAuthorizationManager.setResponseListener(listener);
+        appIdAuthorizationManager.setResponseListener(listener);
         if (amPreferences.clientId.get() == null) {
-            final AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
+            AppIdRegistrationManager appIdRM = appIdAuthorizationManager.getAppIdRegistrationManager();
             appIdRM.invokeInstanceRegistrationRequest(new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -90,7 +92,7 @@ public class AppId {
                     listener.onFailure(response, t, extendedInfo);
                 }
             });
-        }else {
+        } else {
               startWebViewActivity(context);
         }
     }
@@ -131,28 +133,32 @@ public class AppId {
     }
 
     /**
-     * @return The URL of the authenticated user profile picture, or null if no user is authenticate.
+     * @return The URL of the authenticated user profile picture or null in case there is no an authenticated user.
      */
     public URL getUserProfilePicture() {
-        Map map = amPreferences.userIdentity.getAsMap();
-        if(null != map){
-            try {
+        try {
+            Map map = amPreferences.userIdentity.getAsMap();
+            if(null != map) {
                 JSONObject attributes = (JSONObject) map.get("attributes");
-                if(getUserIdentity().getAuthBy().equals(facebookRealm)) {
-                    JSONObject picture = (JSONObject) attributes.get("picture");
-                    JSONObject data = (JSONObject) picture.get("data");
+                String authBy = (String) map.get(UserIdentity.AUTH_BY);
+                if(null == authBy) {
+                    return null;
+                }
+                if(authBy.equals(facebookRealm)) {
+                    JSONObject picture = attributes.getJSONObject("picture");
+                    JSONObject data = picture.getJSONObject("data");
                     String stringUrl = data.getString("url");
                     return new URL(stringUrl);
                 }
-                if(getUserIdentity().getAuthBy().equals(googleRealm)){
-
+                if(authBy.equals(googleRealm)) {
+                    String picture = attributes.getString("picture");
+                    return new URL(picture);
                 }
                 return null;
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
-
 }

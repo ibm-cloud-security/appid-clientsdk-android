@@ -38,7 +38,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     private void clearCookies() {
         CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setCookie(".facebook.com", "c_user="); //TODO: check if we can do something better.
+        cookieManager.setCookie(".facebook.com", "c_user=");
     }
 
     //override here in order to avoid window leaks
