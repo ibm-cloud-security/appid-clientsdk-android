@@ -1,5 +1,11 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,48 +18,28 @@ import static org.junit.Assert.*;
 
 public class AppIdTests {
 
+    private static final  String testTenantId = "testTenant";
+    private static  final String testRegion = "TestRegion";
+
     @Before
     public void setup() {
-        AppId.createInstance(getInstrumentation().getTargetContext(),"testTenant", "TestRegion");
+        AppId.createInstance(getInstrumentation().getTargetContext(), testTenantId, testRegion);
     }
 
     @Test
-    public void loginTest() {
-        fail();
-//        final ResponseListener testListener = new ResponseListener() {
-//            @Override
-//            public void onSuccess(Response response) {
-//                fail("The login should be rejected");
-//            }
-//
-//            @Override
-//            public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
-//                try {
-//                    assertEquals(extendedInfo.getString("msg"), "test msg");
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//
-//        final JSONObject info = new JSONObject();
-//        try {
-//            info.put("msg", "test msg");
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        doAnswer(new Answer() {
-//            @Override
-//            public Object answer(InvocationOnMock invocation) throws Throwable {
-//                ResponseListener r = (ResponseListener) invocation.getArguments()[0];
-//                r.onFailure(null,null,info);
-//                return null;
-//            }
-//        }).when(appIdRM).invokeInstanceRegistrationRequest(testListener);
-//
-//        AppId.getInstance().login(getInstrumentation().getTargetContext(), testListener);
+    public void authManagerTest() {
+        assertEquals(BMSClient.getInstance().getAuthorizationManager(), AppIdAuthorizationManager.getInstance());
+    }
+
+    @Test
+    public void getTenantIdTest() {
+        assertEquals(AppId.getInstance().getTenantId(), testTenantId);
+    }
+
+    @Test
+    public void getRegionTest() {
+        assertEquals(AppId.getInstance().getBluemixRegionSuffix(), testRegion);
     }
 
 }
+
