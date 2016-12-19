@@ -35,13 +35,13 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
     private static final String authorizationPath = "/oauth/v2/authorization";
 
     private static AppIdAuthorizationManager instance;
-    private AuthorizationManagerPreferences preferences;
+    private AppIdPreferences preferences;
     private ResponseListener listener;
     private AppIdRegistrationManager appIdRegistrationManager;
     private AppIdTokenManager appIdTokenManager;
 
     private AppIdAuthorizationManager (Context context) {
-        this.preferences = new AuthorizationManagerPreferences(context);
+        this.preferences = new AppIdPreferences(context);
         //init generic data, like device data and application data
         if (preferences.deviceIdentity.get() == null) {
             preferences.deviceIdentity.set(new BaseDeviceIdentity(context));
@@ -79,7 +79,7 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
         return appIdTokenManager;
     }
 
-    AuthorizationManagerPreferences getPreferences() {
+    AppIdPreferences getPreferences() {
         return preferences;
     }
 
@@ -156,7 +156,7 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
     }
 
     /**
-     * @return this will pop the login widget in case user access protected resource.
+     *  this will pop the login widget in case user access protected resource.
      */
     @Override
     public void obtainAuthorization(Context context, ResponseListener listener, Object... params) {

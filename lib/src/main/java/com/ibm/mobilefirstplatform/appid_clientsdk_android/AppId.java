@@ -7,7 +7,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
 
 import org.json.JSONObject;
 import java.net.URL;
@@ -24,7 +23,7 @@ public class AppId {
     private String tenantId;
     private String bluemixRegionSuffix;
     private AppIdAuthorizationManager appIdAuthorizationManager;
-    private AuthorizationManagerPreferences amPreferences;
+    private AppIdPreferences preferences;
     private String facebookRealm = "wl_facebookRealm";
     private String googleRealm = "wl_googleRealm";
 
@@ -56,7 +55,7 @@ public class AppId {
             BMSClient.getInstance().initialize(context, bluemixRegion);
             instance.appIdAuthorizationManager = AppIdAuthorizationManager.createInstance(context);
             BMSClient.getInstance().setAuthorizationManager(instance.appIdAuthorizationManager);
-            instance.amPreferences = instance.appIdAuthorizationManager.getPreferences();
+            instance.preferences = instance.appIdAuthorizationManager.getPreferences();
         }
         return instance;
     }
@@ -78,11 +77,12 @@ public class AppId {
      */
     public void login(final Context context, final ResponseListener listener) {
         this.appIdAuthorizationManager.setResponseListener(listener);
-        if (amPreferences.clientId.get() == null) {
+        if (preferences.clientId.get() == null || !preferences.tenantId.get().equals(this.tenantId)) {
             final AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
-            appIdRM.invokeInstanceRegistrationRequest(new ResponseListener() {
+            appIdRM.invokeInstanceRegistrationRequest(context, new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
+                    preferences.tenantId.set(AppId.getInstance().getTenantId());
                     startWebViewActivity(context);
                 }
                 @Override
@@ -134,7 +134,7 @@ public class AppId {
      * @return The URL of the authenticated user profile picture, or null if no user is authenticate.
      */
     public URL getUserProfilePicture() {
-        Map map = amPreferences.userIdentity.getAsMap();
+        Map map = preferences.userIdentity.getAsMap();
         if(null != map){
             try {
                 JSONObject attributes = (JSONObject) map.get("attributes");
