@@ -32,7 +32,7 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
 
     private static final String serverName = "https://imf-authserver";
     static final String redirect_uri = "http://localhost/code";
-    private static final String authorizationPath = "/oauth/v2/authorization";
+    private static final String authorizationPath = "/oauth/v3/authorization";
 
     private static AppIdAuthorizationManager instance;
     private AppIdPreferences preferences;

@@ -50,7 +50,7 @@ import java.util.UUID;
 
 public class AppIdRegistrationManager {
 
-    private static final String registrationPath = "/imf-authserver/authorization/v3/apps/";
+    private static final String registrationPath = "/oauth/v3/";
     private AuthorizationManagerPreferences preferences;
     private KeyPair registrationKeyPair;
     private String sessionId;
@@ -111,7 +111,7 @@ public class AppIdRegistrationManager {
     }
 
     private String getRegistrationUrl() {
-        return AppIdAuthorizationManager.getInstance().getServerHost() + registrationPath + AppId.getInstance().getTenantId() + "/clients/instance";
+        return AppIdAuthorizationManager.getInstance().getServerHost() + registrationPath + AppId.getInstance().getTenantId() + "/clients";
     }
 
     /**

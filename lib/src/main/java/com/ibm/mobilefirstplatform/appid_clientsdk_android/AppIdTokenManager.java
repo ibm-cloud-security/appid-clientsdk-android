@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 public class AppIdTokenManager {
 
-    private static final String tokenPath = "/oauth/v2/token";
+    private static final String tokenPath = "/oauth/v3/token";
     private AuthorizationManagerPreferences preferences;
 
     AppIdTokenManager(AuthorizationManagerPreferences preferences) {
