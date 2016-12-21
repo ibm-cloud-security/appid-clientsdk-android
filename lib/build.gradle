@@ -21,6 +21,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -31,4 +34,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
+    testCompile 'org.powermock:powermock-api-mockito:1.6.2'
+
 }

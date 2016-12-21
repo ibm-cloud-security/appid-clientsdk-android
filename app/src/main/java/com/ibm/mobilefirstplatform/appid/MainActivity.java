@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
 
     public void onLoginClick(View v){
         showProgress();
+        //This call start the login process
         AppId.getInstance().login(this.getApplicationContext(), this);
     }
 
@@ -54,17 +55,17 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
 
     @Override
     public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
-        // handle auth failure
+        // handle authentication failure
         Log.i("Login", "fail");
-        if(response != null){
+        if(response != null) {
             Log.i("Login",response.toString());
             showDetails("Failure in Login/protected resource", response.getResponseText());
         }
-        if(extendedInfo != null){
+        if(extendedInfo != null) {
             Log.i("Login",extendedInfo.toString());
             showDetails("Login canceled" ,extendedInfo.toString());
         }
-        if(null != t){
+        if(null != t) {
             Log.i("Login",t.getMessage());
             showDetails("Login error" ,t.getMessage());
         }
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
+                //get the user profile picture
                 URL picUrl = AppId.getInstance().getUserProfilePicture();
                 try {
                     final Bitmap bmp = BitmapFactory.decodeStream(picUrl.openConnection().getInputStream());
@@ -102,7 +104,9 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
                             profilePicture.getLayoutParams().width = 350;
                             profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                             profilePicture.setVisibility(View.VISIBLE);
-                            showDetails("Hello " + AppId.getInstance().getUserIdentity().getDisplayName(), response);
+                            //get the user display name
+                            String userDisplayName = AppId.getInstance().getUserIdentity().getDisplayName();
+                            showDetails("Hello " + userDisplayName, response);
                         }
                     });
                 } catch (Exception e) {
