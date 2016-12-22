@@ -53,17 +53,13 @@ public class AppIdRegistrationManager {
     private static final String registrationPath = "/oauth/v3/";
     private AuthorizationManagerPreferences preferences;
     private KeyPair registrationKeyPair;
-    private String sessionId;
-    private DefaultJSONSigner jsonSigner;
     private CertificateStore certificateStore;
-
+    protected static String redirectUri;
     AppIdRegistrationManager(Context context, AuthorizationManagerPreferences preferences){
         this.preferences = preferences;
-        this.jsonSigner = new DefaultJSONSigner();
         File keyStoreFile = new File(context.getFilesDir().getAbsolutePath(), "mfp.keystore");
         String uuid = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.certificateStore = new CertificateStore(keyStoreFile, uuid);
-        this.sessionId = UUID.randomUUID().toString();
     }
 
     /**
@@ -82,7 +78,6 @@ public class AppIdRegistrationManager {
         try {
             JSONObject reqJson =  createRegistrationParams(context);
             AppIDRequest request = new AppIDRequest(getRegistrationUrl(), Request.POST);
-            request.addHeader("X-WL-Session", sessionId);
             request.send(reqJson, new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
@@ -99,6 +94,7 @@ public class AppIdRegistrationManager {
                 public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
                     responseListener.onFailure(response ,t, extendedInfo);
                 }
+
             });
         }catch (MalformedURLException e) {
             responseListener.onFailure(null, e, null);
@@ -136,7 +132,8 @@ public class AppIdRegistrationManager {
         keys.put(0, key);
         JSONObject jwks = new JSONObject();
         jwks.put("keys", keys);
-        redirectUris.put(0, "https://" + deviceData.getId() + "/mobile/callback");
+        AppIdRegistrationManager.redirectUri = "https://" + deviceData.getId() + "/mobile/callback";
+        redirectUris.put(0, AppIdRegistrationManager.redirectUri);
         responseTypes.put(0, "code");
         grantTypes.put(0, "authorization_code");
         grantTypes.put(1, "password");
@@ -152,8 +149,6 @@ public class AppIdRegistrationManager {
         params.put("device_os", deviceData.getOS());
         params.put("client_type", "mobileapp");
         params.put("jwks", jwks);
-        String base64StringParams = Base64.encodeToString(params.toString().getBytes(Charset.forName("UTF-8")),Base64.URL_SAFE | Base64.NO_WRAP);
-        params.put("software_statement", base64StringParams + "." + encodeUrlSafe(signData(base64StringParams, registrationKeyPair.getPrivate())));
         return params;
     }
 

@@ -78,7 +78,7 @@ public class WebViewActivity extends AppCompatActivity {
     private void loadUri(WebView view, Uri uri) {
         String code = uri.getQueryParameter("code");
         String url = uri.toString();
-        if (url.startsWith(AppIdAuthorizationManager.redirect_uri) && code != null) {
+        if (url.startsWith(AppIdRegistrationManager.redirectUri) && code != null) {
             AppIdTokenManager appIdTM = AppIdAuthorizationManager.getInstance().getAppIdTokenManager();
             appIdTM.sendTokenRequest(code);
             finish();

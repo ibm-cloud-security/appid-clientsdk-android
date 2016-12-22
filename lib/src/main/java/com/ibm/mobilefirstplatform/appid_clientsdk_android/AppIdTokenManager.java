@@ -31,7 +31,7 @@ import java.util.HashMap;
 
 public class AppIdTokenManager {
 
-    private static final String tokenPath = "/oauth/v3/token";
+    private static final String tokenPath = "/oauth/v3/";
     private AuthorizationManagerPreferences preferences;
 
     AppIdTokenManager(AuthorizationManagerPreferences preferences) {
@@ -46,7 +46,7 @@ public class AppIdTokenManager {
             params.put("code", code);
             params.put("client_id", AppId.getInstance().getTenantId());
             params.put("grant_type", "authorization_code");
-            params.put("redirect_uri", AppIdAuthorizationManager.redirect_uri);
+            params.put("redirect_uri", AppIdRegistrationManager.redirectUri);
             AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
             options.parameters = params;
             AuthorizationRequest request = null;
@@ -80,12 +80,12 @@ public class AppIdTokenManager {
     }
 
     private String getTokenUrl() {
-        return AppIdAuthorizationManager.getInstance().getServerHost() + tokenPath;
+        return AppIdAuthorizationManager.getInstance().getServerHost() +  tokenPath + AppId.getInstance().getTenantId() + "/token";
     }
 
     private String createTokenRequestHeaders() throws Exception {
         String tokenAuthHeader = null;
-        String userName = AppId.getInstance().getTenantId() + "-" + preferences.clientId.get();
+        String userName = preferences.clientId.get();
         AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
         PrivateKey privateKey = appIdRM.getCertificateStore().getStoredKeyPair().getPrivate();
         Signature signature = Signature.getInstance("SHA256withRSA");
