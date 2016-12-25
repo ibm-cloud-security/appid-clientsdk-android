@@ -86,7 +86,7 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
         return Uri.parse(getServerHost() + authorizationPath + AppId.getInstance().getTenantId() + "/authorization").buildUpon()
                 .appendQueryParameter("response_type", "code")
                 .appendQueryParameter("client_id", preferences.clientId.get())
-                .appendQueryParameter("redirect_uri", AppIdRegistrationManager.redirectUri)
+                .appendQueryParameter("redirect_uri", AppId.redirectUri)
                 .appendQueryParameter("scope", "openid")
                 .appendQueryParameter("use_login_widget", "true")
                 .build().toString();

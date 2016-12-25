@@ -54,7 +54,7 @@ public class AppIdRegistrationManager {
     private AuthorizationManagerPreferences preferences;
     private KeyPair registrationKeyPair;
     private CertificateStore certificateStore;
-    protected static String redirectUri;
+
     AppIdRegistrationManager(Context context, AuthorizationManagerPreferences preferences){
         this.preferences = preferences;
         File keyStoreFile = new File(context.getFilesDir().getAbsolutePath(), "mfp.keystore");
@@ -132,8 +132,7 @@ public class AppIdRegistrationManager {
         keys.put(0, key);
         JSONObject jwks = new JSONObject();
         jwks.put("keys", keys);
-        AppIdRegistrationManager.redirectUri = "https://" + deviceData.getId() + "/mobile/callback";
-        redirectUris.put(0, AppIdRegistrationManager.redirectUri);
+        redirectUris.put(0, AppId.redirectUri);
         responseTypes.put(0, "code");
         grantTypes.put(0, "authorization_code");
         grantTypes.put(1, "password");

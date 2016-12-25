@@ -46,7 +46,7 @@ public class AppIdTokenManager {
             params.put("code", code);
             params.put("client_id", preferences.clientId.get());
             params.put("grant_type", "authorization_code");
-            params.put("redirect_uri", AppIdRegistrationManager.redirectUri);
+            params.put("redirect_uri", AppId.redirectUri);
             AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
             options.parameters = params;
             AuthorizationRequest request = null;

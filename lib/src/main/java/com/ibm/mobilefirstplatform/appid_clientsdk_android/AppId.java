@@ -27,6 +27,7 @@ public class AppId {
     private String facebookRealm = "wl_facebookRealm";
     private String googleRealm = "wl_googleRealm";
 
+    protected static String redirectUri;
     public static String overrideServerHost = null;
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
@@ -56,6 +57,7 @@ public class AppId {
             instance.appIdAuthorizationManager = AppIdAuthorizationManager.createInstance(context);
             BMSClient.getInstance().setAuthorizationManager(instance.appIdAuthorizationManager);
             instance.preferences = instance.appIdAuthorizationManager.getPreferences();
+            AppId.redirectUri = "https://" + instance.appIdAuthorizationManager.getAppIdentity().getId() + "/mobile/callback";
         }
         return instance;
     }
