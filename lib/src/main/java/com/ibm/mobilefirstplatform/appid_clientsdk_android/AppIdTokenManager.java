@@ -44,7 +44,7 @@ public class AppIdTokenManager {
             header = createTokenRequestHeaders();
             HashMap<String, String> params = new HashMap<>();
             params.put("code", code);
-            params.put("client_id", AppId.getInstance().getTenantId());
+            params.put("client_id", preferences.clientId.get());
             params.put("grant_type", "authorization_code");
             params.put("redirect_uri", AppIdRegistrationManager.redirectUri);
             AuthorizationRequestManager.RequestOptions options = new AuthorizationRequestManager.RequestOptions();
