@@ -31,7 +31,7 @@ import static com.ibm.mobilefirstplatform.appid_clientsdk_android.AppId.override
 public class AppIdAuthorizationManager implements AuthorizationManager {
 
     private static final String serverName = "https://imf-authserver";
-    private static final String authorizationPath = "/oauth/v3/authorization";
+    private static final String authorizationPath = "/oauth/v3/";
 
     private static AppIdAuthorizationManager instance;
     private AppIdPreferences preferences;
@@ -83,9 +83,9 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
     }
 
     String getAuthorizationUrl() {
-        return Uri.parse(getServerHost() + authorizationPath).buildUpon()
+        return Uri.parse(getServerHost() + authorizationPath + AppId.getInstance().getTenantId() + "/authorization").buildUpon()
                 .appendQueryParameter("response_type", "code")
-                .appendQueryParameter("client_id", AppId.getInstance().getTenantId())
+                .appendQueryParameter("client_id", preferences.clientId.get())
                 .appendQueryParameter("redirect_uri", AppIdRegistrationManager.redirectUri)
                 .appendQueryParameter("scope", "openid")
                 .appendQueryParameter("use_login_widget", "true")
