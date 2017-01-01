@@ -80,12 +80,12 @@ public class AppId {
      */
     public void login(final Context context, final ResponseListener listener) {
         this.appIdAuthorizationManager.setResponseListener(listener);
-        if (preferences.clientId.get() == null || !preferences.tenantId.get().equals(this.tenantId)) {
-            final AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
+        if (preferences.clientId.get() == null || !preferences.tenantId.get().equals(tenantId)) {
+            final AppIdRegistrationManager appIdRM = appIdAuthorizationManager.getAppIdRegistrationManager();
             appIdRM.invokeInstanceRegistrationRequest(context, new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
-                    preferences.tenantId.set(AppId.getInstance().getTenantId());
+                    preferences.tenantId.set(tenantId);
                     startWebViewActivity(context);
                 }
                 @Override

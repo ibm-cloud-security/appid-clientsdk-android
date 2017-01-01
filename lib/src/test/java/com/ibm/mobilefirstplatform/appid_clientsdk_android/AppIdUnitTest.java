@@ -39,7 +39,7 @@ public class AppIdUnitTest {
 
     private AppId mockAppId;
     private AppIdAuthorizationManager mockAppIdAM;
-    private AuthorizationManagerPreferences mockPreferences;
+    private AppIdPreferences mockPreferences;
     private AppIdRegistrationManager mockAppIdRM;
     private Context mockContext;
     private ResponseListener testListener;
@@ -49,23 +49,26 @@ public class AppIdUnitTest {
     private String googleRealm = "wl_googleRealm";
     private String googlePicUrl = "http://googlePicUrl.test";
     private String facebookPicUrl = "http://facebookPicUrl.test";
-
+    private String testTenant = "TestTenantId";
     @Before
     public void setUp() throws Exception{
         mockContext = mock(Context.class);
         mockAppIdAM = mock(AppIdAuthorizationManager.class);
-        mockPreferences = mock(AuthorizationManagerPreferences.class);
+        mockPreferences = mock(AppIdPreferences.class);
 
         mockPreferences.clientId =  mock(SharedPreferencesManager.StringPreference.class);
         SharedPreferencesManager.JSONPreference userIdentity = mock(SharedPreferencesManager.JSONPreference.class);
         mockPreferences.userIdentity = userIdentity;
+
+        mockPreferences.tenantId = mock(AppIdPreferences.StringPreference.class);
 
         mockAppIdRM = mock(AppIdRegistrationManager.class);
         when(mockAppIdAM.getAppIdRegistrationManager()).thenReturn(mockAppIdRM);
 
         mockAppId = Whitebox.invokeConstructor(AppId.class);
         Whitebox.setInternalState(mockAppId, "appIdAuthorizationManager",mockAppIdAM);
-        Whitebox.setInternalState(mockAppId, "amPreferences", mockPreferences);
+        Whitebox.setInternalState(mockAppId, "preferences", mockPreferences);
+        Whitebox.setInternalState(mockAppId, "tenantId", testTenant);
         PowerMockito.mockStatic(AppId.class);
 
         testListener = new ResponseListener() {
@@ -104,18 +107,42 @@ public class AppIdUnitTest {
         doAnswer(new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
-                ResponseListener listener = (ResponseListener) args[0];
+                ResponseListener listener = (ResponseListener) args[1];
                 listener.onSuccess(mock(Response.class));
                 return null;
             }
-        }).when(mockAppIdRM).invokeInstanceRegistrationRequest(any(ResponseListener.class));
+        }).when(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
 
         mockAppId.login(mockContext, testListener);
 
         verify(mockAppIdAM).setResponseListener(testListener);
         verify(mockAppIdAM).getAppIdRegistrationManager();
-        verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(ResponseListener.class));
+        verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
         verify(mockContext).startActivity(any(Intent.class));
+        verify(mockPreferences.tenantId).set(testTenant);
+
+    }
+
+    @Test
+    public void loginTestDifferentTenant() throws Exception {
+        when(mockPreferences.clientId.get()).thenReturn("clientId");
+        when(mockPreferences.tenantId.get()).thenReturn("diff_tenantId");
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                ResponseListener listener = (ResponseListener) args[1];
+                listener.onSuccess(mock(Response.class));
+                return null;
+            }
+        }).when(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
+
+        mockAppId.login(mockContext, testListener);
+
+        verify(mockAppIdAM).setResponseListener(testListener);
+        verify(mockAppIdAM).getAppIdRegistrationManager();
+        verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
+        verify(mockContext).startActivity(any(Intent.class));
+        verify(mockPreferences.tenantId).set(testTenant);
 
     }
 
@@ -126,13 +153,13 @@ public class AppIdUnitTest {
         doAnswer(new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) throws JSONException {
                 Object[] args = invocation.getArguments();
-                ResponseListener listener = (ResponseListener) args[0];
+                ResponseListener listener = (ResponseListener) args[1];
                 JSONObject extendedInfo = mock(JSONObject.class);
                 extendedInfo.put("test_error", "ErrorCode");
                 listener.onFailure(null,null,extendedInfo);
                 return null;
             }
-        }).when(mockAppIdRM).invokeInstanceRegistrationRequest(any(ResponseListener.class));
+        }).when(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
 
         ResponseListener testListener = new ResponseListener() {
             @Override
@@ -153,13 +180,14 @@ public class AppIdUnitTest {
         mockAppId.login(null, testListener);
         verify(mockAppIdAM).setResponseListener(testListener);
         verify(mockAppIdAM).getAppIdRegistrationManager();
-        verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(ResponseListener.class));
+        verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
 
     }
 
     @Test
-    public void loginTessNoRegistration() throws Exception {
+    public void loginTestNoRegistration() throws Exception {
         when(mockPreferences.clientId.get()).thenReturn("clientId");
+        when(mockPreferences.tenantId.get()).thenReturn(testTenant);
         mockAppId.login(mockContext, testListener);
         verify(mockContext).startActivity(any(Intent.class));
     }
