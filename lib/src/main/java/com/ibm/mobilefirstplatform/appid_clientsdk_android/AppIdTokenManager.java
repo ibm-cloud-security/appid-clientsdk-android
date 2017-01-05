@@ -13,16 +13,9 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.prefe
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Signature;
-import java.security.SignatureException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
 
 /**
@@ -87,7 +80,7 @@ public class AppIdTokenManager {
         String tokenAuthHeader = null;
         String userName = preferences.clientId.get();
         AppIdRegistrationManager appIdRM = AppIdAuthorizationManager.getInstance().getAppIdRegistrationManager();
-        PrivateKey privateKey = appIdRM.getCertificateStore().getStoredKeyPair().getPrivate();
+        PrivateKey privateKey = appIdRM.getAppIdKeyStore().getStoredKeyPair().getPrivate();
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
         signature.update(userName.getBytes());

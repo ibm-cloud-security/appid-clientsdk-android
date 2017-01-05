@@ -11,10 +11,8 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.DeviceIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseAppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDeviceIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.CertificateStore;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.DefaultJSONSigner;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.certificate.KeyPairUtility;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,27 +20,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
-import java.nio.charset.Charset;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Created by rotembr on 08/12/2016.
@@ -53,21 +33,19 @@ public class AppIdRegistrationManager {
     private static final String registrationPath = "/oauth/v3/";
     private AuthorizationManagerPreferences preferences;
     private KeyPair registrationKeyPair;
-    private CertificateStore certificateStore;
+    private AppIdKeyStore appIdKeyStore;
 
     AppIdRegistrationManager(Context context, AuthorizationManagerPreferences preferences){
         this.preferences = preferences;
-        File keyStoreFile = new File(context.getFilesDir().getAbsolutePath(), "mfp.keystore");
-        String uuid = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        this.certificateStore = new CertificateStore(keyStoreFile, uuid);
+        this.appIdKeyStore = new AppIdKeyStore();
     }
 
     /**
      *
      * @return the certificate store
      */
-    public CertificateStore getCertificateStore(){
-        return certificateStore;
+    public AppIdKeyStore getAppIdKeyStore(){
+        return appIdKeyStore;
     }
 
     /**
@@ -116,8 +94,7 @@ public class AppIdRegistrationManager {
      * @return JSONObject with all the parameters
      */
     private JSONObject createRegistrationParams(Context context) throws Exception {
-        registrationKeyPair = KeyPairUtility.generateRandomKeyPair();
-        this.certificateStore.saveCertificate(registrationKeyPair, createX509Certificate(registrationKeyPair));
+        registrationKeyPair = this.appIdKeyStore.generateKeypair(context);
         JSONObject params = new JSONObject();
         DeviceIdentity deviceData = new BaseDeviceIdentity(preferences.deviceIdentity.getAsMap());
         AppIdentity applicationData = new BaseAppIdentity(preferences.appIdentity.getAsMap());
@@ -155,13 +132,6 @@ public class AppIdRegistrationManager {
         return new String(Base64.encode(data, Base64.URL_SAFE | Base64.NO_WRAP),"UTF-8");
     }
 
-    private byte[] signData(String csrJSONData, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        Signature signature = Signature.getInstance("SHA256withRSA");
-        signature.initSign(privateKey);
-        signature.update(csrJSONData.getBytes());
-        return signature.sign();
-    }
-
     /**
      * Extract the certificate data from response and save it on local storage
      *
@@ -175,137 +145,4 @@ public class AppIdRegistrationManager {
 
     }
 
-    private X509Certificate createX509Certificate(final KeyPair keyPair) {
-        return new X509Certificate() {
-            @Override
-            public void checkValidity() throws CertificateExpiredException, CertificateNotYetValidException {
-
-            }
-
-            @Override
-            public void checkValidity(Date date) throws CertificateExpiredException, CertificateNotYetValidException {
-
-            }
-
-            @Override
-            public int getVersion() {
-                return 0;
-            }
-
-            @Override
-            public BigInteger getSerialNumber() {
-                return null;
-            }
-
-            @Override
-            public Principal getIssuerDN() {
-                return null;
-            }
-
-            @Override
-            public Principal getSubjectDN() {
-                return null;
-            }
-
-            @Override
-            public Date getNotBefore() {
-                return null;
-            }
-
-            @Override
-            public Date getNotAfter() {
-                return null;
-            }
-
-            @Override
-            public byte[] getTBSCertificate() throws CertificateEncodingException {
-                return new byte[0];
-            }
-
-            @Override
-            public byte[] getSignature() {
-                return new byte[0];
-            }
-
-            @Override
-            public String getSigAlgName() {
-                return null;
-            }
-
-            @Override
-            public String getSigAlgOID() {
-                return null;
-            }
-
-            @Override
-            public byte[] getSigAlgParams() {
-                return new byte[0];
-            }
-
-            @Override
-            public boolean[] getIssuerUniqueID() {
-                return new boolean[0];
-            }
-
-            @Override
-            public boolean[] getSubjectUniqueID() {
-                return new boolean[0];
-            }
-
-            @Override
-            public boolean[] getKeyUsage() {
-                return new boolean[0];
-            }
-
-            @Override
-            public int getBasicConstraints() {
-                return 0;
-            }
-
-            @Override
-            public byte[] getEncoded() throws CertificateEncodingException {
-                return new byte[0];
-            }
-
-            @Override
-            public void verify(PublicKey publicKey) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
-
-            }
-
-            @Override
-            public void verify(PublicKey publicKey, String s) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
-
-            }
-
-            @Override
-            public String toString() {
-                return null;
-            }
-
-            @Override
-            public PublicKey getPublicKey() {
-                return keyPair.getPublic();
-            }
-
-            @Override
-            public boolean hasUnsupportedCriticalExtension() {
-                return false;
-            }
-
-            @Override
-            public Set<String> getCriticalExtensionOIDs() {
-                return null;
-            }
-
-            @Override
-            public Set<String> getNonCriticalExtensionOIDs() {
-                return null;
-            }
-
-            @Override
-            public byte[] getExtensionValue(String s) {
-                return new byte[0];
-            }
-        };
-    }
 }
