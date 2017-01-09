@@ -7,6 +7,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -17,6 +18,9 @@ import java.security.NoSuchProviderException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.Calendar;
+
+import javax.security.auth.x500.X500Principal;
 
 /**
  * Created by rotembr on 04/01/2017.
@@ -27,27 +31,33 @@ public class AppIdKeyStore {
     private static final String alias = "registration";
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private KeyStore keyStore;
+    private static final String KEY_ALGORITHM_RSA = "RSA";
 
     public KeyPair generateKeypair(Context context) throws CertificateException, KeyStoreException, IOException, UnrecoverableEntryException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         loadKeyStore();
         KeyPair keyPair = null;
         if (!keyStore.containsAlias(alias)) {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
+            KeyPairGenerator generator = KeyPairGenerator.getInstance(KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 KeyGenParameterSpec spec  = new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_SIGN)
                         .setDigests(KeyProperties.DIGEST_SHA256)
                         .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1)
                         .build();
                 generator.initialize(spec);
-
             }else {
+                Calendar start = Calendar.getInstance();
+                Calendar end = Calendar.getInstance();
+                end.add(Calendar.YEAR, 1);
                 KeyPairGeneratorSpec spec = new KeyPairGeneratorSpec.Builder(context)
                         .setAlias(alias)
-                        .setKeyType(KeyProperties.KEY_ALGORITHM_RSA)
+                        .setSubject(new X500Principal("CN=fake"))
+                        .setSerialNumber(BigInteger.ONE)
+                        .setStartDate(start.getTime())
+                        .setEndDate(end.getTime())
+                        .setKeyType(KEY_ALGORITHM_RSA)
                         .build();
                 generator.initialize(spec);
-
             }
             keyPair = generator.generateKeyPair();
         }else {
