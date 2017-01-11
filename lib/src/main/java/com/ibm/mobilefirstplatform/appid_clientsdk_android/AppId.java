@@ -1,14 +1,16 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
-import android.content.ActivityNotFoundException;
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+import android.net.Uri;
+
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 
 import org.json.JSONObject;
+
 import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -33,17 +35,19 @@ public class AppId {
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 
-    private AppId() {}
+    private AppId() {
+    }
 
     /**
      * Init singleton instance with context, tenantId and Bluemix region.
-     * @param context Application context
-     * @param tenantId the unique tenant id of the MCA service instance that the application connects to.
+     *
+     * @param context       Application context
+     * @param tenantId      the unique tenant id of the MCA service instance that the application connects to.
      * @param bluemixRegion Specifies the Bluemix deployment to use.
      * @return The singleton instance
      */
     public static synchronized AppId createInstance(Context context, String tenantId, String bluemixRegion) {
-        if(null == instance ) {
+        if (null == instance) {
             if (null == tenantId) {
                 throw new InputMismatchException("tenantId can't be null");
             }
@@ -57,7 +61,8 @@ public class AppId {
             instance.appIdAuthorizationManager = AppIdAuthorizationManager.createInstance(context);
             BMSClient.getInstance().setAuthorizationManager(instance.appIdAuthorizationManager);
             instance.preferences = instance.appIdAuthorizationManager.getPreferences();
-            AppId.redirectUri = "https://" + instance.appIdAuthorizationManager.getAppIdentity().getId() + "/mobile/callback";
+            AppId.redirectUri = instance.appIdAuthorizationManager.getAppIdentity().getId() + ":/mobile/callback";
+
         }
         return instance;
     }
@@ -74,51 +79,45 @@ public class AppId {
 
     /**
      * Pop out AppId login widget, to prompt user authentication.
-     * @param context Application context
-     * @param listener The listener whose onSuccess or onFailure methods will be called when the login ends
      *
+     * @param activity Application activity
+     * @param listener The listener whose onSuccess or onFailure methods will be called when the login ends
      */
-    public void login(final Context context, final ResponseListener listener) {
+    public void login(final Activity activity, final ResponseListener listener) {
+        appIdAuthorizationManager.isAuthorizationCompleted = false;
         this.appIdAuthorizationManager.setResponseListener(listener);
         if (preferences.clientId.get() == null || !preferences.tenantId.get().equals(tenantId)) {
             final AppIdRegistrationManager appIdRM = appIdAuthorizationManager.getAppIdRegistrationManager();
-            appIdRM.invokeInstanceRegistrationRequest(context, new ResponseListener() {
+            appIdRM.invokeInstanceRegistrationRequest(activity.getApplicationContext(), new ResponseListener() {
                 @Override
                 public void onSuccess(Response response) {
                     preferences.tenantId.set(tenantId);
-                    startWebViewActivity(context);
+                    Uri authorizationUri = Uri.parse(appIdAuthorizationManager.getAuthorizationUrl());
+                    appIdAuthorizationManager.getCustomTabManager().launchBrowserTab(activity, authorizationUri);
                 }
+
                 @Override
                 public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
                     listener.onFailure(response, t, extendedInfo);
                 }
             });
         } else {
-              startWebViewActivity(context);
-        }
-    }
-
-    private void startWebViewActivity(Context context) {
-        try {
-            Intent intent = new Intent(context, WebViewActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        }catch (ActivityNotFoundException e) {
-            appIdAuthorizationManager.handleAuthorizationFailure(null, e, null);
+            Uri authorizationUri = Uri.parse(appIdAuthorizationManager.getAuthorizationUrl());
+            appIdAuthorizationManager.getCustomTabManager().launchBrowserTab(activity, authorizationUri);
         }
     }
 
     /**
      * @return The MCA instance tenantId
      */
-    public String getTenantId(){
+    public String getTenantId() {
         return tenantId;
     }
 
     /**
      * @return Bluemix region suffix ,use to build URLs
      */
-    public String getBluemixRegionSuffix(){
+    public String getBluemixRegionSuffix() {
         return bluemixRegionSuffix;
     }
 
@@ -138,20 +137,20 @@ public class AppId {
      */
     public URL getUserProfilePicture() {
         try {
-        Map map = preferences.userIdentity.getAsMap();
-        if(null != map){
+            Map map = preferences.userIdentity.getAsMap();
+            if (null != map) {
                 JSONObject attributes = (JSONObject) map.get("attributes");
                 String authBy = (String) map.get(UserIdentity.AUTH_BY);
-                if(null == authBy) {
+                if (null == authBy) {
                     return null;
                 }
-                if(authBy.equals(facebookRealm)) {
+                if (authBy.equals(facebookRealm)) {
                     JSONObject picture = attributes.getJSONObject("picture");
                     JSONObject data = picture.getJSONObject("data");
                     String stringUrl = data.getString("url");
                     return new URL(stringUrl);
                 }
-                if(authBy.equals(googleRealm)) {
+                if (authBy.equals(googleRealm)) {
                     String picture = attributes.getString("picture");
                     return new URL(picture);
                 }

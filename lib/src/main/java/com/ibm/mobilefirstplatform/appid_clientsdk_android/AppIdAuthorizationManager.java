@@ -1,5 +1,6 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 
@@ -14,7 +15,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDevic
 import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseUserIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationHeaderHelper;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.AuthorizationRequest;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
 
 import org.json.JSONObject;
 import java.io.IOException;
@@ -28,16 +28,17 @@ import static com.ibm.mobilefirstplatform.appid_clientsdk_android.AppId.override
  * Created by rotembr on 08/12/2016.
  */
 
-public class AppIdAuthorizationManager implements AuthorizationManager {
+class AppIdAuthorizationManager implements AuthorizationManager {
 
     private static final String serverName = "https://imf-authserver";
     private static final String authorizationPath = "/oauth/v3/";
-
     private static AppIdAuthorizationManager instance;
     private AppIdPreferences preferences;
     private ResponseListener listener;
     private AppIdRegistrationManager appIdRegistrationManager;
     private AppIdTokenManager appIdTokenManager;
+    private CustomTabManager customTabManager;
+    Boolean isAuthorizationCompleted = false;
 
     private AppIdAuthorizationManager (Context context) {
         this.preferences = new AppIdPreferences(context);
@@ -50,6 +51,7 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
         }
         this.appIdRegistrationManager = new AppIdRegistrationManager(context, preferences);
         this.appIdTokenManager = new AppIdTokenManager(preferences);
+        this.customTabManager = new CustomTabManager();
     }
 
     static synchronized AppIdAuthorizationManager createInstance(Context context) {
@@ -80,6 +82,10 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
 
     AppIdPreferences getPreferences() {
         return preferences;
+    }
+
+    CustomTabManager getCustomTabManager(){
+        return customTabManager;
     }
 
     String getAuthorizationUrl() {
@@ -159,7 +165,8 @@ public class AppIdAuthorizationManager implements AuthorizationManager {
      */
     @Override
     public void obtainAuthorization(Context context, ResponseListener listener, Object... params) {
-        AppId.getInstance().login(context, listener);
+        Activity activity = (Activity) context;
+        AppId.getInstance().login(activity,listener);
     }
 
     /**
