@@ -11,7 +11,7 @@ import java.net.MalformedURLException;
  * Created by odedb on 19/12/2016.
  */
 
-public class AppIDRequest extends AuthorizationRequest{
+class AppIDRequest extends AuthorizationRequest{
 
     /**
      * Constructs the authorization request
@@ -20,7 +20,7 @@ public class AppIDRequest extends AuthorizationRequest{
      * @param method request method
      * @throws MalformedURLException if url is not valid
      */
-    public AppIDRequest(String url, String method) throws MalformedURLException {
+    AppIDRequest(String url, String method) throws MalformedURLException {
         super(url, method);
     }
 

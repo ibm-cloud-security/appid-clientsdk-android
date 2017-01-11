@@ -1,7 +1,6 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
 import android.content.Context;
-import android.provider.Settings;
 import android.util.Base64;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
@@ -18,7 +17,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.security.KeyPair;
@@ -28,7 +26,7 @@ import java.security.interfaces.RSAPublicKey;
  * Created by rotembr on 08/12/2016.
  */
 
-public class AppIdRegistrationManager {
+class AppIdRegistrationManager {
 
     private static final String registrationPath = "/oauth/v3/";
     private AuthorizationManagerPreferences preferences;
@@ -44,7 +42,7 @@ public class AppIdRegistrationManager {
      *
      * @return the certificate store
      */
-    public AppIdKeyStore getAppIdKeyStore(){
+    AppIdKeyStore getAppIdKeyStore(){
         return appIdKeyStore;
     }
 

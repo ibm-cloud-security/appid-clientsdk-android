@@ -26,14 +26,14 @@ import javax.security.auth.x500.X500Principal;
  * Created by rotembr on 04/01/2017.
  */
 
-public class AppIdKeyStore {
+class AppIdKeyStore {
 
     private static final String alias = "registration";
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private KeyStore keyStore;
     private static final String KEY_ALGORITHM_RSA = "RSA";
 
-    public KeyPair generateKeypair(Context context) throws CertificateException, KeyStoreException, IOException, UnrecoverableEntryException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    KeyPair generateKeypair(Context context) throws CertificateException, KeyStoreException, IOException, UnrecoverableEntryException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         loadKeyStore();
         KeyPair keyPair = null;
         if (!keyStore.containsAlias(alias)) {
@@ -73,7 +73,7 @@ public class AppIdKeyStore {
         }
     }
 
-    public KeyPair getStoredKeyPair() throws CertificateException, KeyStoreException, IOException, UnrecoverableEntryException, NoSuchAlgorithmException {
+    KeyPair getStoredKeyPair() throws CertificateException, KeyStoreException, IOException, UnrecoverableEntryException, NoSuchAlgorithmException {
         loadKeyStore();
         KeyPair keyPair = null;
         if (keyStore.containsAlias(alias)) {

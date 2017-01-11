@@ -22,7 +22,7 @@ import java.util.HashMap;
  * Created by rotembr on 11/12/2016.
  */
 
-public class AppIdTokenManager {
+class AppIdTokenManager {
 
     private static final String tokenPath = "/oauth/v3/";
     private AuthorizationManagerPreferences preferences;

@@ -8,17 +8,17 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.prefe
  * Created by odedb on 19/12/2016.
  */
 
-public class AppIdPreferences extends AuthorizationManagerPreferences {
+class AppIdPreferences extends AuthorizationManagerPreferences {
 
-    public StringPreference tenantId = new StringPreference("tenantId");
-    public AppIdPreferences(Context context) {
+    StringPreference tenantId = new StringPreference("tenantId");
+    AppIdPreferences(Context context) {
         super(context);
     }
 
     /**
      * Holds single string preference value
      */
-    public class StringPreference {
+    class StringPreference {
 
         String prefName;
         String value;
@@ -32,7 +32,7 @@ public class AppIdPreferences extends AuthorizationManagerPreferences {
             this.value = sharedPreferences.getString(prefName, defaultValue);
         }
 
-        public String get() {
+        String get() {
             return value == null ? null : stringEncryption.decrypt(value);
         }
 
