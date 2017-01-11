@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
     public void onLoginClick(View v){
         showProgress();
         //This call start the login process
-        AppId.getInstance().login(this.getApplicationContext(), this);
+        AppId.getInstance().login(this, this);
     }
 
     public void onProtectedRequestClick(View v){
