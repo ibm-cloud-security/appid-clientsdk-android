@@ -1,12 +1,12 @@
 package com.ibm.mobilefirstplatform.appid_clientsdk_android;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+import android.net.Uri;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.AuthorizationManagerPreferences;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.SharedPreferencesManager;
 
 import org.json.JSONException;
@@ -41,7 +41,8 @@ public class AppIdUnitTest {
     private AppIdAuthorizationManager mockAppIdAM;
     private AppIdPreferences mockPreferences;
     private AppIdRegistrationManager mockAppIdRM;
-    private Context mockContext;
+    private CustomTabManager mockCustomTabManager;
+    private Activity mockActivity;
     private ResponseListener testListener;
     private Map facebookMap;
     private Map googleMap;
@@ -52,7 +53,7 @@ public class AppIdUnitTest {
     private String testTenant = "TestTenantId";
     @Before
     public void setUp() throws Exception{
-        mockContext = mock(Context.class);
+        mockActivity = mock(Activity.class);
         mockAppIdAM = mock(AppIdAuthorizationManager.class);
         mockPreferences = mock(AppIdPreferences.class);
 
@@ -64,6 +65,9 @@ public class AppIdUnitTest {
 
         mockAppIdRM = mock(AppIdRegistrationManager.class);
         when(mockAppIdAM.getAppIdRegistrationManager()).thenReturn(mockAppIdRM);
+
+        mockCustomTabManager = mock(CustomTabManager.class);
+        when(mockAppIdAM.getCustomTabManager()).thenReturn(mockCustomTabManager);
 
         mockAppId = Whitebox.invokeConstructor(AppId.class);
         Whitebox.setInternalState(mockAppId, "appIdAuthorizationManager",mockAppIdAM);
@@ -113,12 +117,12 @@ public class AppIdUnitTest {
             }
         }).when(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
 
-        mockAppId.login(mockContext, testListener);
+        mockAppId.login(mockActivity, testListener);
 
         verify(mockAppIdAM).setResponseListener(testListener);
         verify(mockAppIdAM).getAppIdRegistrationManager();
         verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
-        verify(mockContext).startActivity(any(Intent.class));
+        verify(mockCustomTabManager).launchBrowserTab(any(Activity.class),any(Uri.class));
         verify(mockPreferences.tenantId).set(testTenant);
 
     }
@@ -136,12 +140,12 @@ public class AppIdUnitTest {
             }
         }).when(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
 
-        mockAppId.login(mockContext, testListener);
+        mockAppId.login(mockActivity, testListener);
 
         verify(mockAppIdAM).setResponseListener(testListener);
         verify(mockAppIdAM).getAppIdRegistrationManager();
         verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
-        verify(mockContext).startActivity(any(Intent.class));
+        verify(mockCustomTabManager).launchBrowserTab(any(Activity.class),any(Uri.class));
         verify(mockPreferences.tenantId).set(testTenant);
 
     }
@@ -177,7 +181,7 @@ public class AppIdUnitTest {
             }
         };
 
-        mockAppId.login(null, testListener);
+        mockAppId.login(mockActivity, testListener);
         verify(mockAppIdAM).setResponseListener(testListener);
         verify(mockAppIdAM).getAppIdRegistrationManager();
         verify(mockAppIdRM).invokeInstanceRegistrationRequest(any(Context.class), any(ResponseListener.class));
@@ -188,8 +192,8 @@ public class AppIdUnitTest {
     public void loginTestNoRegistration() throws Exception {
         when(mockPreferences.clientId.get()).thenReturn("clientId");
         when(mockPreferences.tenantId.get()).thenReturn(testTenant);
-        mockAppId.login(mockContext, testListener);
-        verify(mockContext).startActivity(any(Intent.class));
+        mockAppId.login(mockActivity, testListener);
+        verify(mockCustomTabManager).launchBrowserTab(any(Activity.class),any(Uri.class));
     }
 
     @Test
