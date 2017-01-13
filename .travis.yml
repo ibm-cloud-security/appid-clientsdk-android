@@ -1,0 +1,11 @@
+language: android
+android:
+  components:
+    - tools
+    - build-tools-24.0.2
+    - android-24
+    - extra
+jdk:
+  - oraclejdk8
+script:
+   - ./gradlew clean test
