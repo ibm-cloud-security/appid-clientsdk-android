@@ -14,7 +14,7 @@ import org.json.JSONObject;
  * Created by rotembr on 08/01/2017.
  */
 
-class RedirectUriReceiverActivity extends Activity {
+public class RedirectUriReceiverActivity extends Activity {
 
     private static final String TAG = "RedirectUriActivity";
     private static final String ERROR = "error";
