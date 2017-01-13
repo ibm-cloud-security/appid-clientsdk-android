@@ -33,16 +33,16 @@ public class RedirectUriReceiverActivity extends Activity {
         redirectUri = intent.getData();
         mCompleteIntent = AppIdAuthorizationManager.getInstance().getCustomTabManager().authorizationCompletePendingIntent;
         responseIntent = new Intent();
-        responseIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        responseIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if(mCompleteIntent == null) {
             Log.e(TAG,"Authorization Complete pending Intent can not be null");
         }else if(redirectUri == null) {
             Log.e(TAG,"got null redirect Uri");
         } else {
-            if(redirectUri.getQueryParameterNames().contains("error")) {
-                handleAuthorizationError();
-            } else {
+            if(!redirectUri.getQueryParameterNames().contains("error")) {
                 handleAuthorizationComplete();
+            } else {
+                handleAuthorizationError();
             }
         }
         this.finish();
@@ -53,7 +53,6 @@ public class RedirectUriReceiverActivity extends Activity {
             Log.d(TAG, "Forwarding redirect");
             String code = redirectUri.getQueryParameter(KEY_CODE);
             AppIdAuthorizationManager.getInstance().getAppIdTokenManager().sendTokenRequest(code);
-            AppIdAuthorizationManager.getInstance().isAuthorizationCompleted = true;
             mCompleteIntent.send(this, 0, responseIntent);
         } catch (PendingIntent.CanceledException ex) {
             Log.e(TAG, "Unable to send pending intent", ex);
@@ -68,7 +67,6 @@ public class RedirectUriReceiverActivity extends Activity {
             errorInfo.put("errorCode", redirectUri.getQueryParameter(ERROR_CODE));
             errorInfo.put("msg", redirectUri.getQueryParameter(ERROR_DESCRIPTION));
             AppIdAuthorizationManager.getInstance().handleAuthorizationFailure(null, null, errorInfo);
-            AppIdAuthorizationManager.getInstance().isAuthorizationCompleted = true;
             Log.e(TAG, error);
             mCompleteIntent.send(this, 0, responseIntent);
         } catch (JSONException e) {
