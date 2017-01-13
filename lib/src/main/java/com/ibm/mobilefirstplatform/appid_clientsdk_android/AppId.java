@@ -11,7 +11,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 
 import org.json.JSONObject;
 
-import java.net.URL;
 import java.util.InputMismatchException;
 import java.util.Map;
 
@@ -84,9 +83,8 @@ public class AppId {
      * @param listener The listener whose onSuccess or onFailure methods will be called when the login ends
      */
     public void login(final Activity activity, final ResponseListener listener) {
-        appIdAuthorizationManager.isAuthorizationCompleted = false;
         this.appIdAuthorizationManager.setResponseListener(listener);
-        if (preferences.clientId.get() == null || !preferences.tenantId.get().equals(tenantId)) {
+        if (preferences.clientId.get() == null || !tenantId.equals(preferences.tenantId.get())) {
             final AppIdRegistrationManager appIdRM = appIdAuthorizationManager.getAppIdRegistrationManager();
             appIdRM.invokeInstanceRegistrationRequest(activity.getApplicationContext(), new ResponseListener() {
                 @Override
@@ -133,9 +131,9 @@ public class AppId {
     }
 
     /**
-     * @return The URL of the authenticated user profile picture or null in case there is no an authenticated user.
+     * @return The url string of the authenticated user profile picture or null in case there is no an authenticated user.
      */
-    public URL getUserProfilePicture() {
+    public String getUserProfilePicture() {
         try {
             Map map = preferences.userIdentity.getAsMap();
             if (null != map) {
@@ -148,11 +146,11 @@ public class AppId {
                     JSONObject picture = attributes.getJSONObject("picture");
                     JSONObject data = picture.getJSONObject("data");
                     String stringUrl = data.getString("url");
-                    return new URL(stringUrl);
+                    return stringUrl;
                 }
                 if (authBy.equals(googleRealm)) {
                     String picture = attributes.getString("picture");
-                    return new URL(picture);
+                    return picture;
                 }
                 return null;
             }
