@@ -221,13 +221,13 @@ public class AppIdUnitTest {
     @Test
     public void getUserProfilePictureTestFacebookUser() throws JSONException, MalformedURLException {
         when(mockPreferences.userIdentity.getAsMap()).thenReturn(facebookMap);
-        assertEquals(mockAppId.getUserProfilePicture(), new URL(facebookPicUrl));
+        assertEquals(mockAppId.getUserProfilePicture(), facebookPicUrl);
     }
 
     @Test
     public void getUserProfilePictureTestGoogleUser() throws MalformedURLException {
         when(mockPreferences.userIdentity.getAsMap()).thenReturn(googleMap);
-        assertEquals(mockAppId.getUserProfilePicture(), new URL(googlePicUrl));
+        assertEquals(mockAppId.getUserProfilePicture(), googlePicUrl);
 
     }
 
