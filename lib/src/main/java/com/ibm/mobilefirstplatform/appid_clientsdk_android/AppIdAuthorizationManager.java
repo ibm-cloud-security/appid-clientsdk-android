@@ -38,7 +38,6 @@ class AppIdAuthorizationManager implements AuthorizationManager {
     private AppIdRegistrationManager appIdRegistrationManager;
     private AppIdTokenManager appIdTokenManager;
     private CustomTabManager customTabManager;
-    Boolean isAuthorizationCompleted = false;
 
     private AppIdAuthorizationManager (Context context) {
         this.preferences = new AppIdPreferences(context);
@@ -65,7 +64,7 @@ class AppIdAuthorizationManager implements AuthorizationManager {
     /**
      * @return The singleton instance
      */
-    static AppIdAuthorizationManager getInstance() {
+    public static AppIdAuthorizationManager getInstance() {
         if (instance == null) {
             throw new IllegalStateException("getInstance can't be called before createInstance");
         }
