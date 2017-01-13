@@ -29,18 +29,18 @@ A call to Login will pop-up the login widgit and triggers the autentication proc
 AppId.getInstance().login(this, new ResponseListener() {
 @Override
 public void onSuccess (Response response) {
-Log.d("Myapp", "onSuccess :: " + response.getResponseText());
+    Log.d("Myapp", "onSuccess :: " + response.getResponseText());
 }
 @Override
 public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
-if (null != t) {
-Log.d("Myapp", "onFailure :: " + t.getMessage());
-} else if (null != extendedInfo) {
-Log.d("Myapp", "onFailure :: " + extendedInfo.toString());
-} else {
-Log.d("Myapp", "onFailure :: " + response.getResponseText());
-}
-}
+    if (null != t) {
+        Log.d("Myapp", "onFailure :: " + t.getMessage());
+    } else if (null != extendedInfo) {
+        Log.d("Myapp", "onFailure :: " + extendedInfo.toString());
+    } else {
+        Log.d("Myapp", "onFailure :: " + response.getResponseText());
+        }
+    }
 });
 ```
 
@@ -72,17 +72,17 @@ Request request = new Request("http://my-mobile-backend.mybluemix.net/protected"
 request.send(this, new ResponseListener() {
 @Override
 public void onSuccess (Response response) {
-Log.d("Myapp", "onSuccess :: " + response.getResponseText());
+    Log.d("Myapp", "onSuccess :: " + response.getResponseText());
 }
 @Override
 public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
-if (null != t) {
-Log.d("Myapp", "onFailure :: " + t.getMessage());
-} else if (null != extendedInfo) {
-Log.d("Myapp", "onFailure :: " + extendedInfo.toString());
-} else {
-Log.d("Myapp", "onFailure :: " + response.getResponseText());
-}
-}
+    if (null != t) {
+        Log.d("Myapp", "onFailure :: " + t.getMessage());
+    } else if (null != extendedInfo) {
+        Log.d("Myapp", "onFailure :: " + extendedInfo.toString());
+    } else {
+        Log.d("Myapp", "onFailure :: " + response.getResponseText());
+        }
+    }
 });
 ```
