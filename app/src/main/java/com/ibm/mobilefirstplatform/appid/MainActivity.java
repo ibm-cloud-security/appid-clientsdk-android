@@ -21,16 +21,15 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements ResponseListener {
 
-    private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2";
+    private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2"; //"11111111-1111-1111-1111-111111111bbb";
     // server suffix url
-    private final static String region = ".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
+    private final static String region = ".stage1.mybluemix.net";//".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         AppId.createInstance(this.getApplicationContext(), mcaTenantId, region);
-//        AppId.overrideServerHost = "http://10.0.2.2:6001"; //only when working locally
     }
 
     public void onLoginClick(View v){
@@ -90,9 +89,9 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
             @Override
             public void run() {
                 //get the user profile picture
-                URL picUrl = AppId.getInstance().getUserProfilePicture();
+                String picUrl = AppId.getInstance().getUserProfilePicture();
                 try {
-                    final Bitmap bmp = BitmapFactory.decodeStream(picUrl.openConnection().getInputStream());
+                    final Bitmap bmp = BitmapFactory.decodeStream(new URL(picUrl).openConnection().getInputStream());
                     //run on main thread
                     runOnUiThread(new Runnable() {
                         @Override
