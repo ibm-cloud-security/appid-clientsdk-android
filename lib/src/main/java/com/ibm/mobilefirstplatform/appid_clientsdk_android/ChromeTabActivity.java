@@ -15,7 +15,7 @@ import org.json.JSONObject;
  * Created by rotembr on 12/01/2017.
  */
 
-public class ChromeTabActivity extends Activity {
+class ChromeTabActivity extends Activity {
 
     private CustomTabManager customTabManager;
     private static final int URI_ANDROID_APP_SCHEME = 2;

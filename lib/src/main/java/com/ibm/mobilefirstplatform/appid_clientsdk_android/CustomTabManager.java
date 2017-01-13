@@ -105,8 +105,6 @@ class CustomTabManager {
      * @param context {@link Context} to use for accessing {@link PackageManager}.
      * @return The package name recommended to use for connecting to custom tabs related components.
      */
-
-    // TODO check if there is no chrome. And return package. webview?
     static String getPackageNameToUse(Context context) {
         if (sPackageNameToUse != null) {
             return sPackageNameToUse;

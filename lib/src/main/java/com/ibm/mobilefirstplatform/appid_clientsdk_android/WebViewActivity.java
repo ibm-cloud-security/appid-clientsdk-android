@@ -14,7 +14,7 @@ import android.webkit.WebViewClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class WebViewActivity extends AppCompatActivity {
+class WebViewActivity extends AppCompatActivity {
 
     //Default return code when cancel is pressed during authentication.
     private static final String AUTH_CANCEL_CODE = "100";
