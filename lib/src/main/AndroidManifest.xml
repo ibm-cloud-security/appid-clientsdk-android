@@ -7,14 +7,14 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true">
-        <activity android:name=".WebViewActivity" android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
-        <activity android:name=".ChromeTabActivity" >
+        <activity android:name="com.ibm.bluemix.appid.android.internal.WebViewActivity" android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+        <activity android:name="com.ibm.bluemix.appid.android.internal.ChromeTabActivity" >
             <intent-filter>
             <action android:name="com.ibm.mobilefirstplatform.appid_clientsdk_android.HANDLE_AUTHORIZATION_RESPONSE"/>
             <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".RedirectUriReceiverActivity">
+        <activity android:name="com.ibm.bluemix.appid.android.internal.RedirectUriReceiverActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

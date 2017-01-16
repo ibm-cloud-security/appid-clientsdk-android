@@ -4,6 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 
+import com.ibm.bluemix.appid.android.api.AppId;
+import com.ibm.bluemix.appid.android.api.AppIdAuthorizationManager;
+import com.ibm.bluemix.appid.android.internal.AppIdPreferences;
+import com.ibm.bluemix.appid.android.internal.AppIdRegistrationManager;
+import com.ibm.bluemix.appid.android.internal.CustomTabManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
@@ -19,7 +24,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 

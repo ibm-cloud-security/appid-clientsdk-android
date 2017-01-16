@@ -1,4 +1,18 @@
-package com.ibm.mobilefirstplatform.appid_clientsdk_android;
+/*
+	Copyright 2014-17 IBM Corp.
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+
+package com.ibm.bluemix.appid.android.internal.registration;
 
 import android.content.Context;
 import android.os.Build;
@@ -22,22 +36,17 @@ import java.util.Calendar;
 
 import javax.security.auth.x500.X500Principal;
 
-/**
- * Created by rotembr on 04/01/2017.
- */
-
-class AppIdKeyStore {
+class RegistrationKeyStore {
 
     private static final String alias = "registration";
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private KeyStore keyStore;
-    private static final String KEY_ALGORITHM_RSA = "RSA";
 
     KeyPair generateKeypair(Context context) throws CertificateException, KeyStoreException, IOException, UnrecoverableEntryException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         loadKeyStore();
         KeyPair keyPair = null;
         if (!keyStore.containsAlias(alias)) {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance(KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
+            KeyPairGenerator generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 KeyGenParameterSpec spec  = new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_SIGN)
@@ -55,7 +64,7 @@ class AppIdKeyStore {
                         .setSerialNumber(BigInteger.ONE)
                         .setStartDate(start.getTime())
                         .setEndDate(end.getTime())
-                        .setKeyType(KEY_ALGORITHM_RSA)
+                        .setKeyType(KeyProperties.KEY_ALGORITHM_RSA)
                         .build();
                 generator.initialize(spec);
             }
@@ -81,7 +90,7 @@ class AppIdKeyStore {
             Certificate cert = pke.getCertificate();
             keyPair = new KeyPair(cert.getPublicKey(), pke.getPrivateKey());
         }else{
-            throw new IOException("No keyPair found");
+            throw new IOException("No KeyPair found");
         }
         return keyPair;
     }

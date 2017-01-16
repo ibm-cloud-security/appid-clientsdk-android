@@ -10,7 +10,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ibm.mobilefirstplatform.appid_clientsdk_android.AppId;
+import com.ibm.bluemix.appid.android.api.AppId;
+import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
@@ -25,17 +26,18 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
     // server suffix url
     private final static String region = ".stage1.mybluemix.net";//".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
 
+    private AppId appId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        AppId.createInstance(this.getApplicationContext(), mcaTenantId, region);
+        this.appId = new AppId(getApplicationContext(), mcaTenantId, region);
     }
 
     public void onLoginClick(View v){
         showProgress();
-        //This call start the login process
-        AppId.getInstance().login(this, this);
+        LoginWidget loginWidget = new LoginWidget(appId, null);
     }
 
     public void onProtectedRequestClick(View v){
