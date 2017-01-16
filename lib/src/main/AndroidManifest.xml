@@ -14,7 +14,7 @@
             <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.ibm.mobilefirstplatform.appid_clientsdk_android.RedirectUriReceiverActivity">
+        <activity android:name=".RedirectUriReceiverActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
