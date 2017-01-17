@@ -62,7 +62,4 @@ public class AppIdPreferences extends AuthorizationManagerPreferences {
         deviceIdentity.clear();
         appIdentity.clear();
     }
-
-
-
 }
