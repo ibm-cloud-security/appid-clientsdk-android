@@ -8,9 +8,10 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.prefe
  * Created by odedb on 19/12/2016.
  */
 
-class AppIdPreferences extends AuthorizationManagerPreferences {
+public class AppIdPreferences extends AuthorizationManagerPreferences {
 
     StringPreference tenantId = new StringPreference("tenantId");
+
     AppIdPreferences(Context context) {
         super(context);
     }
@@ -52,6 +53,11 @@ class AppIdPreferences extends AuthorizationManagerPreferences {
         }
     }
 
-
-
+    public void clearAll(){
+        tenantId.clear();
+        clientId.clear();
+        accessToken.clear();
+        idToken.clear();
+        userIdentity.clear();
+    }
 }

@@ -160,4 +160,10 @@ public class AppId {
         return null;
     }
 
+    /**
+     * Clear all saved preferences data
+     */
+    public void clearPreferencesData(){
+        preferences.clearAll();
+    }
 }
