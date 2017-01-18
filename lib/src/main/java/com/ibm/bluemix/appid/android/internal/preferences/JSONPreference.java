@@ -19,7 +19,7 @@ public class JSONPreference extends StringPreference {
 
 	public JSONObject getAsJSON() throws JSONException {
 		String stringValue = super.get();
-		return new JSONObject(stringValue);
+		return (stringValue == null) ? null : new JSONObject(stringValue);
 	}
 //
 //	public Map getAsMap() throws JSONException {

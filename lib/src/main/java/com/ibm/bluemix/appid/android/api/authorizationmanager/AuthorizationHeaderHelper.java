@@ -1,4 +1,4 @@
-package com.ibm.bluemix.appid.android.internal.authorization;
+package com.ibm.bluemix.appid.android.api.authorizationmanager;
 
 import com.squareup.okhttp.Response;
 

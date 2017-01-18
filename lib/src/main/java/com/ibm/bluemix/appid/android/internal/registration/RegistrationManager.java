@@ -17,7 +17,8 @@ import android.content.Context;
 import android.util.Base64;
 
 import com.ibm.bluemix.appid.android.api.AppId;
-import com.ibm.bluemix.appid.android.internal.AppIDRequest;
+import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
@@ -35,19 +36,27 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 public class RegistrationManager {
 
-    private static final String OAUTH_CLIENT_REGISTRATION_PATH = "/clients";
-	private static final String OAUTH_CLIENT_REGISTRATION_DATA_PREF_NAME
+    private static final String OAUTH_REGISTRATION_PATH = "/clients";
+	private static final String OAUTH_CLIENT_REGISTRATION_DATA_PREF
 			= "com.ibm.bluemix.appid.android.registrationdata";
-	private static final String OAUTH_CLIENT_ID_PREF_NAME = "com.ibm.bluemix.appid.android.clientid";
-	private static final String TENANT_ID_PREF_NAME = "com.ibm.bluemix.appid.android.tenantid";
-	private static final String OAUTH_CLIENT_REDIRECT_URI_PATH = "://mobile/callback";
-	private static final String OAUTH_CLIENT_ID = "client_id";
+	private static final String TENANT_ID_PREF = "com.ibm.bluemix.appid.android.tenantid";
+	private static final String OAUTH_CLIENT_REDIRECT_URI_PATH = ":/mobile/callback";
+
+	public static final String CLIENT_ID = "client_id";
+	public static final String CLIENT_NAME = "client_name";
+	public static final String SOFTWARE_ID = "software_id";
+	public static final String SOFTWARE_VERSION = "software_version";
+	public static final String DEVICE_ID = "device_id";
+	public static final String DEVICE_MODEL = "device_model";
+	public static final String DEVICE_OS = "device_os";
+	public static final String CLIENT_TYPE = "client_type";
+	public static final String REDIRECT_URIS = "redirect_uris";
 
 	private AppId appId;
 	private PreferenceManager preferenceManager;
@@ -56,20 +65,19 @@ public class RegistrationManager {
 
 	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + RegistrationManager.class.getName());
 
-    public RegistrationManager (AppId appId, PreferenceManager preferenceManager){
-		this.appId = appId;
-		this.preferenceManager = preferenceManager;
-        this.registrationKeyStore = new RegistrationKeyStore();
+    public RegistrationManager (OAuthManager oAuthManager){
+		this.appId = oAuthManager.getAppId();
+		this.preferenceManager = oAuthManager.getPreferenceManager();
+		this.registrationKeyStore = new RegistrationKeyStore();
     }
 
 	public void ensureRegistered(Context context, final RegistrationListener registrationListener){
-		logger.debug("-> ensureRegistered");
-		String storedClientId = preferenceManager.getStringPreference(OAUTH_CLIENT_ID_PREF_NAME).get();
-		String storedTenantId = preferenceManager.getStringPreference(TENANT_ID_PREF_NAME).get();
+		String storedClientId = getRegistrationDataString(CLIENT_ID);
+		String storedTenantId = preferenceManager.getStringPreference(TENANT_ID_PREF).get();
 
 		if (storedClientId != null && appId.getTenantId().equals(storedTenantId)){
 			// OAuth client is already registered
-			logger.debug("OAuth client is already registered. Returning success.");
+			logger.debug("OAuth client is already registered.");
 			registrationListener.onRegistrationSuccess();
 		} else {
 			// Oauth client is not registered yet or registered for a different tenantId.
@@ -84,8 +92,7 @@ public class RegistrationManager {
 
 				@Override
 				public void onSuccess (Response response) {
-					preferenceManager.getStringPreference(TENANT_ID_PREF_NAME).set(appId.getTenantId());
-					logger.info("OAuth client successfully registered. Returning success.");
+					logger.info("OAuth client successfully registered.");
 					registrationListener.onRegistrationSuccess();
 				}
 			});
@@ -98,37 +105,34 @@ public class RegistrationManager {
      */
     void registerOAuthClient(Context context, final ResponseListener responseListener) {
         try {
-			String registrationUrl = Config.getServerUrl(appId) + OAUTH_CLIENT_REGISTRATION_PATH;
+			String registrationUrl = Config.getServerUrl(appId) + OAUTH_REGISTRATION_PATH;
 
-			JSONObject reqJson =  createRegistrationParams(context);
-            AppIDRequest request = new AppIDRequest(registrationUrl, Request.POST);
-            request.send(reqJson, new ResponseListener() {
-                @Override
-                public void onSuccess(Response response) {
-                    try {
-						// Registration success, persist client_id to shared prefs
+			JSONObject reqJson = createRegistrationParams(context);
+			AppIDRequest request = new AppIDRequest(registrationUrl, Request.POST);
+			logger.debug("Sending registration request to " + registrationUrl);
+			request.send(reqJson, new ResponseListener() {
+				@Override
+				public void onSuccess (Response response) {
+					try {
+						// Registration success, persist registration data and tenantId to shared prefs
 						String responseBody = response.getResponseText();
 						JSONObject jsonResponse = new JSONObject(responseBody);
-						String clientId = jsonResponse.getString(OAUTH_CLIENT_ID);
-						preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF_NAME).set(jsonResponse);
-						preferenceManager.getStringPreference(OAUTH_CLIENT_ID_PREF_NAME).set(clientId);
-                        responseListener.onSuccess(response);
-                    } catch (Exception e) {
+						preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF).set(jsonResponse);
+						preferenceManager.getStringPreference(TENANT_ID_PREF).set(appId.getTenantId());
+						responseListener.onSuccess(response);
+					} catch (Exception e) {
 						logger.error("Failed to save OAuth client registration data", e);
-                        responseListener.onFailure(null, e, null);
-                    }
-                }
+						responseListener.onFailure(null, e, null);
+					}
+				}
 
-                @Override
-                public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
-                    responseListener.onFailure(response ,t, extendedInfo);
-                }
+				@Override
+				public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
+					responseListener.onFailure(response, t, extendedInfo);
+				}
 
-            });
-        } catch (MalformedURLException e) {
-			logger.error("Failed to create registration request", e);
-            responseListener.onFailure(null, e, null);
-        }
+			});
+		}
         catch (Exception e) {
 			logger.error("Failed to create registration parameters", e);
             responseListener.onFailure(null, e, null);
@@ -142,7 +146,7 @@ public class RegistrationManager {
      */
     private JSONObject createRegistrationParams(Context context) throws Exception {
 		logger.info("Creating OAuth client registration parameters");
-        registrationKeyPair = this.registrationKeyStore.generateKeypair(context);
+        registrationKeyPair = this.registrationKeyStore.generateKeyPair(context);
         JSONObject params = new JSONObject();
         DeviceIdentity deviceData = new BaseDeviceIdentity(context);
         AppIdentity applicationData = new BaseAppIdentity(context);
@@ -157,21 +161,21 @@ public class RegistrationManager {
         keys.put(0, key);
         JSONObject jwks = new JSONObject();
         jwks.put("keys", keys);
-        redirectUris.put(0, applicationData.getId() + OAUTH_CLIENT_REDIRECT_URI_PATH;
+        redirectUris.put(0, applicationData.getId() + OAUTH_CLIENT_REDIRECT_URI_PATH);
         responseTypes.put(0, "code");
         grantTypes.put(0, "authorization_code");
         grantTypes.put(1, "password");
-        params.put("redirect_uris", redirectUris);
+        params.put(REDIRECT_URIS, redirectUris);
         params.put("token_endpoint_auth_method", "client_secret_basic");
         params.put("response_types", responseTypes);
         params.put("grant_types", grantTypes);
-        params.put("client_name", context.getApplicationInfo().loadLabel(context.getPackageManager()).toString());
-        params.put("software_id", applicationData.getId());
-        params.put("software_version", applicationData.getVersion());
-        params.put("device_id", deviceData.getId());
-        params.put("device_model", deviceData.getModel());
-        params.put("device_os", deviceData.getOS());
-        params.put("client_type", "mobileapp");
+        params.put(CLIENT_NAME, context.getApplicationInfo().loadLabel(context.getPackageManager()).toString());
+        params.put(SOFTWARE_ID, applicationData.getId());
+        params.put(SOFTWARE_VERSION, applicationData.getVersion());
+        params.put(DEVICE_ID, deviceData.getId());
+        params.put(DEVICE_MODEL, deviceData.getModel());
+        params.put(DEVICE_OS, deviceData.getOS());
+        params.put(CLIENT_TYPE, "mobileapp");
         params.put("jwks", jwks);
 		logger.debug("OAuth client registration parameters");
 		logger.debug(params.toString(4));
@@ -182,31 +186,55 @@ public class RegistrationManager {
         return new String(Base64.encode(data, Base64.URL_SAFE | Base64.NO_WRAP),"UTF-8");
     }
 
+	public PrivateKey getPrivateKey(){
+		return registrationKeyStore.getKeyPair().getPrivate();
+	}
+
 	public JSONObject getRegistrationData(){
 		try {
-			return preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF_NAME).getAsJSON();
+			return preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF).getAsJSON();
 		} catch (JSONException e){
 			logger.error("Failed to retrieve registration data from preferences", e);
 			return null;
 		}
 	}
 
-	public String getRegisteredClientId(){
+	public String getRegistrationDataString(String name){
+		JSONObject registrationData = getRegistrationData();
 		try {
-			JSONObject registrationData = getRegistrationData();
-			return registrationData.getString(OAUTH_CLIENT_ID);
+			return (registrationData == null) ? null : registrationData.getString(name);
 		} catch (JSONException e){
-			logger.error("Failed to retrieve " + OAUTH_CLIENT_ID, e);
+			logger.error("Failed to retrieve " + name + " from registration data", e);
 			return null;
 		}
 	}
 
-	public String getRegisteredRedirectUri(){
+	public String getRegistrationDataString(String arrayName, int arrayIndex){
+		JSONObject registrationData = getRegistrationData();
 		try {
-			JSONObject registrationData = getRegistrationData();
-			return registrationData.getJSONArray("redirect_uris").getString(0);
+			return (registrationData == null) ? null : registrationData.getJSONArray(arrayName).getString(arrayIndex);
 		} catch (JSONException e){
-			logger.error("Failed to retrieve redirect_uris", e);
+			logger.error("Failed to retrieve " + arrayName + " from registration data", e);
+			return null;
+		}
+	}
+
+	public JSONObject getRegistrationDataObject(String name){
+		JSONObject registrationData = getRegistrationData();
+		try {
+			return (registrationData == null) ? null : registrationData.getJSONObject(name);
+		} catch (JSONException e){
+			logger.error("Failed to retrieve " + name + " from registration data", e);
+			return null;
+		}
+	}
+
+	public JSONArray getRegistrationDataArray(String name){
+		JSONObject registrationData = getRegistrationData();
+		try {
+			return (registrationData == null) ? null : registrationData.getJSONArray(name);
+		} catch (JSONException e){
+			logger.error("Failed to retrieve " + name + " from registration data", e);
 			return null;
 		}
 	}

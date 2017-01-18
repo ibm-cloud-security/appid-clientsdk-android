@@ -12,7 +12,7 @@
 */
 
 
-package com.ibm.bluemix.appid.android.internal;
+package com.ibm.bluemix.appid.android.internal.network;
 
 
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
@@ -48,9 +48,8 @@ public class AppIDRequest extends BaseRequest{
      * Constructs the authorization request
      * @param url request url
      * @param method request method
-     * @throws MalformedURLException if url is not valid
      */
-    public AppIDRequest(String url, String method) throws MalformedURLException {
+    public AppIDRequest(String url, String method) {
         super(url, method);
 
         // we want to handle redirects in-place
@@ -62,6 +61,12 @@ public class AppIDRequest extends BaseRequest{
         super.send(json, listener);
     }
 
+    @Override
+    public void send(Map<String, String> formParameters, ResponseListener listener) {
+        super.send(formParameters, listener);
+    }
+
+    // TODO: remove?
 //    /**
 //     * Override the base getter to return authrization http client
 //     * @return internal http client
@@ -75,8 +80,5 @@ public class AppIDRequest extends BaseRequest{
 //        super.send(listener);
 //    }
 //
-//    @Override
-//    public void send(Map<String, String> formParameters, ResponseListener listener) {
-//        super.send(formParameters, listener);
-//    }
+
 }

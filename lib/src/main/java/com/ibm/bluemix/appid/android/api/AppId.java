@@ -15,31 +15,28 @@ package com.ibm.bluemix.appid.android.api;
 
 import android.content.Context;
 
-import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
+import com.ibm.bluemix.appid.android.internal.OAuthManager;
 
 public class AppId {
 
     private final String tenantId;
     private final String bluemixRegionSuffix;
-	protected final PreferenceManager preferenceManager;
-//	private AppIdAuthorizationManager appIdAuthorizationManager;
-//	private static final String facebookRealm = "wl_facebookRealm";
-//	private static final String googleRealm = "wl_googleRealm";
+	private final OAuthManager oAuthManager;
 
-//    protected static String redirectUri;
     public static String overrideServerHost = null;
+
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 
-    public AppId(Context context, String tenantId, String bluemixRegionSuffix) {
+
+	// TODO: document
+	public AppId(Context context, String tenantId, String bluemixRegionSuffix) {
 		this.tenantId = tenantId;
 		this.bluemixRegionSuffix = bluemixRegionSuffix;
-		this.preferenceManager = PreferenceManager.getDefaultPreferenceManager(context);
-		//instance.appIdAuthorizationManager = AppIdAuthorizationManager.createInstance(context);
-		//instance.preferences = instance.appIdAuthorizationManager.getPreferences();
-		//AppId.redirectUri = instance.appIdAuthorizationManager.getAppIdentity().getId() + "://mobile/callback";
-    }
+
+		this.oAuthManager = new OAuthManager(context, this);
+	}
 
     /**
      * @return The AppId instance tenantId
@@ -55,5 +52,7 @@ public class AppId {
         return bluemixRegionSuffix;
     }
 
-
+	protected OAuthManager getOAuthManager(){
+		return oAuthManager;
+	}
 }

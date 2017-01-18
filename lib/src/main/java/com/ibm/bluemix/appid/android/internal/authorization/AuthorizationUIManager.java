@@ -12,12 +12,11 @@
 */
 
 
-package com.ibm.bluemix.appid.android.internal;
+package com.ibm.bluemix.appid.android.internal.authorization;
 
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -27,86 +26,123 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.ibm.bluemix.appid.android.api.AppIdAuthorizationManager;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.ibm.bluemix.appid.android.api.AuthorizationException;
+import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.internal.AuthorizationFlowContextStore;
+import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
-class CustomTabManager {
+class AuthorizationUIManager {
 
-    final static String HANDLE_AUTHORIZATION_RESPONSE = "com.ibm.mobilefirstplatform.appid_clientsdk_android.HANDLE_AUTHORIZATION_RESPONSE";
+    protected static final String POST_AUTHORIZATION_INTENT = "com.ibm.bluemix.appid.android.POST_AUTHORIZATION_INTENT";
     private static final String STABLE_PACKAGE = "com.android.chrome";
     private static final String BETA_PACKAGE = "com.chrome.beta";
     private static final String DEV_PACKAGE = "com.chrome.dev";
     private static final String LOCAL_PACKAGE = "com.google.android.apps.chrome";
     private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
-    private static final String TAG = "CustomTabManager";
+	public static final String EXTRA_URL = "com.ibm.bluemix.appid.android.URL";
+	public static final String EXTRA_AUTH_FLOW_CONTEXT_GUID = "com.ibm.bluemix.appid.android.AUTH_FLOW_CONTEXT_GUID";
+	public static final String EXTRA_REDIRECT_URL = "com.ibm.bluemix.appid.android.REDIRECT_URL";
 
     private CustomTabsClient mClient;
     private CustomTabsSession mCustomTabsSession;
     private static String sPackageNameToUse;
     PendingIntent authorizationCompletePendingIntent;
 
-    void launchBrowserTab(final Activity activity, final Uri uri) {
+    private final OAuthManager oAuthManager;
+	private final AuthorizationListener authorizationListener;
+    private final String serverUrl;
+	private final String redirectUrl;
+
+    private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationUIManager.class.getName());
+
+    // TODO: document
+    public AuthorizationUIManager (OAuthManager oAuthManager, AuthorizationListener authorizationListener, String serverUrl, String redirectUrl){
+        this.oAuthManager = oAuthManager;
+		this.authorizationListener = authorizationListener;
+        this.serverUrl = serverUrl;
+		this.redirectUrl = redirectUrl;
+    }
+
+    public void launch(final Activity activity){
         final Context context = activity.getApplicationContext();
-        //If we cant find a package name, it means theres no browser that supports
-        //Chrome Custom Tabs installed. So, we fallback to the webview (There might be a browser which is no chrome that support chrome tabs)
-        if(getPackageNameToUse(context) == null) {
+
+		// If we cant find a package name, it means there's no browser that supports
+        // Chrome Custom Tabs installed. So, we fallback to the WebView
+		// (There might be a browser other than Chrome that support Chrome tabs)
+
+		// TODO: Hardcoded 1==1 fallback to WebView for simplicity
+        if (getPackageNameToUse(context) == null || 1==1) {
+			// Fallback to WebViewActivity
+
+			logger.debug("Launching WebViewActivity");
             try {
-                Intent intent = new Intent(context, WebViewActivity.class);
+				Intent intent = new Intent(context, WebViewActivity.class);
+
+				String authFlowContextGuid = UUID.randomUUID().toString();
+				AuthorizationFlowContext ctx = new AuthorizationFlowContext(oAuthManager, authorizationListener);
+				AuthorizationFlowContextStore.push(authFlowContextGuid, ctx);
+				intent.putExtra(EXTRA_AUTH_FLOW_CONTEXT_GUID, authFlowContextGuid);
+
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra(EXTRA_URL, serverUrl);
+				intent.putExtra(EXTRA_REDIRECT_URL, redirectUrl);
                 context.startActivity(intent);
-            }catch (ActivityNotFoundException e) {
-                AppIdAuthorizationManager.getInstance().handleAuthorizationFailure(null, e, null);
+            } catch (ActivityNotFoundException e) {
+                logger.error("Activity not found", e);
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
             }
         } else {
-            CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
-                @Override
-                public void onCustomTabsServiceConnected(ComponentName componentName, CustomTabsClient client) {
-                    client.warmup(0); //for better performances
-                    mClient = client;
-                    getSession().mayLaunchUrl(uri, null, null); //for better performances
-                    //open ChromeTabActivity that will open the ChromeTab on top of it
-                    Intent intent = new Intent(activity, ChromeTabActivity.class);
-                    intent.putExtra("uri", uri);
-                    activity.startActivity(intent);
-                }
 
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    mClient = null;
-                }
-            };
+			// Use Chrome tabs
+			logger.debug("Launching ChromeTabActivity");
+			Intent intent = new Intent(activity, ChromeTabActivity.class);
+			intent.putExtra(EXTRA_URL, serverUrl);
+			activity.startActivity(intent);
 
-            //The intent that we deliver when the authorization process ends
-            Intent postAuthorizationIntent = new Intent(HANDLE_AUTHORIZATION_RESPONSE);
-            authorizationCompletePendingIntent = PendingIntent.getActivity(context, 0, postAuthorizationIntent, 0);
-            //This will trigger 'onCustomTabsServiceConnected' when success.
-            boolean bindSuccess = CustomTabsClient.bindCustomTabsService(context, sPackageNameToUse, connection);
-            if (!bindSuccess) {
-                JSONObject errorInfo = new JSONObject();
-                try{
-                    String errMsg = "failed to bindCustomTabsService";
-                    errorInfo.put("errorCode", 0);
-                    errorInfo.put("msg", errMsg);
-                    AppIdAuthorizationManager.getInstance().handleAuthorizationFailure(null, null, errorInfo);
-                    Log.e(TAG, errMsg);
-                    return;
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+//            CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+//                @Override
+//                public void onCustomTabsServiceConnected(ComponentName componentName, CustomTabsClient client) {
+//					logger.debug("onCustomTabsServiceConnected");
+//                    client.warmup(0); //for better performances
+//                    mClient = client;
+//                    getSession().mayLaunchUrl(serverUri, null, null); //for better performances
+//
+//					// Open ChromeTabActivity that will open the ChromeTab on top of it
+//                    Intent intent = new Intent(activity, ChromeTabActivity.class);
+//                    intent.putExtra(EXTRA_URL, serverUri);
+//                    activity.startActivity(intent);
+//                }
+//
+//                @Override
+//                public void onServiceDisconnected(ComponentName name) {
+//					logger.debug("onServiceDisconnected");
+//                    mClient = null;
+//					// TODO: do we need to report failure here?
+//                }
+//            };
+//
+//            // The intent that we deliver when the authorization process ends
+//            Intent postAuthorizationIntent = new Intent(POST_AUTHORIZATION_INTENT);
+//            authorizationCompletePendingIntent = PendingIntent.getActivity(context, 0, postAuthorizationIntent, 0);
+//
+//			// This will trigger 'onCustomTabsServiceConnected' when success.
+//            boolean bindSuccess = CustomTabsClient.bindCustomTabsService(context, sPackageNameToUse, connection);
+//            if (!bindSuccess) {
+//				logger.error("Failed to bind to CustomTabsService");
+//				authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to bind to CustomTabsService"));
+//            }
         }
     }
+
 
     /**
      * Goes through all apps that handle VIEW intents and have a warmup service. Picks
@@ -123,14 +159,16 @@ class CustomTabManager {
             return sPackageNameToUse;
         }
         PackageManager pm = context.getPackageManager();
-        // Get default VIEW intent handler.
+
+		// Get default VIEW intent handler.
         Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"));
         ResolveInfo defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0);
         String defaultViewHandlerPackageName = null;
         if (defaultViewHandlerInfo != null) {
             defaultViewHandlerPackageName = defaultViewHandlerInfo.activityInfo.packageName;
         }
-        // Get all apps that can handle VIEW intents.
+
+		// Get all apps that can handle VIEW intents.
         List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
         List<String> packagesSupportingCustomTabs = new ArrayList<>();
         for (ResolveInfo info : resolvedActivityList) {
@@ -185,7 +223,7 @@ class CustomTabManager {
                 return true;
             }
         } catch (RuntimeException e) {
-            Log.e(TAG, "Runtime exception while getting specialized handlers");
+			logger.error("Runtime exception while getting specialized handlers");
         }
         return false;
     }
@@ -197,7 +235,7 @@ class CustomTabManager {
             mCustomTabsSession = mClient.newSession(new CustomTabsCallback() {
                 @Override
                 public void onNavigationEvent(int navigationEvent, Bundle extras) {
-                    Log.d(TAG, "onNavigationEvent: Code = " + navigationEvent);
+					logger.debug("onNavigationEvent: Code = " + navigationEvent);
                 }
             });
         }

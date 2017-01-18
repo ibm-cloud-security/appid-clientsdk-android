@@ -11,7 +11,7 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.api;
+package com.ibm.bluemix.appid.android.api.authorizationmanager;
 
 import android.app.Activity;
 import android.content.Context;

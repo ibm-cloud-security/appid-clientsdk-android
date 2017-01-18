@@ -2,21 +2,25 @@ package com.ibm.bluemix.appid.android.api;
 
 import android.app.Activity;
 
+import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.authorization.AuthorizationManager;
 import com.ibm.bluemix.appid.android.internal.registration.RegistrationListener;
 import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
 
 public class LoginWidget {
 
-	private final AppId appId;
 	private final AuthorizationListener authorizationListener;
+	private final OAuthManager oAuthManager;
 
+	// TODO: document
 	public LoginWidget(AppId appId, AuthorizationListener authorizationListener){
-		this.appId = appId;
 		this.authorizationListener = authorizationListener;
+		this.oAuthManager = appId.getOAuthManager();
 	}
 
-	public void login(Activity activity){
-		RegistrationManager rm = new RegistrationManager(appId, appId.preferenceManager);
+	// TODO: document
+	public void launch (final Activity activity){
+		RegistrationManager rm = oAuthManager.getRegistrationManager();
 
 		rm.ensureRegistered(activity.getApplicationContext(), new RegistrationListener() {
 			@Override
@@ -26,32 +30,9 @@ public class LoginWidget {
 
 			@Override
 			public void onRegistrationSuccess () {
-				// continue with regular flow
+				AuthorizationManager am = oAuthManager.getAuthorizationManager();
+				am.lauchAuthorizationUI(activity, authorizationListener);
 			}
 		});
-
-
-
-//        this.appIdAuthorizationManager.setResponseListener(listener);
-//
-//        if (preferences.clientId.get() == null || !tenantId.equals(preferences.tenantId.get())) {
-//            final AppIdRegistrationManager appIdRM = appIdAuthorizationManager.getAppIdRegistrationManager();
-//            appIdRM.invokeInstanceRegistrationRequest(activity.getApplicationContext(), new ResponseListener() {
-//                @Override
-//                public void onRegistrationSuccess(Response response) {
-//                    preferences.tenantId.set(tenantId);
-//                    Uri authorizationUri = Uri.parse(appIdAuthorizationManager.getAuthorizationUrl());
-//                    appIdAuthorizationManager.getCustomTabManager().launchBrowserTab(activity, authorizationUri);
-//                }
-//
-//                @Override
-//                public void onRegistrationFailure(Response response, Throwable t, JSONObject extendedInfo) {
-//                    listener.onRegistrationFailure(response, t, extendedInfo);
-//                }
-//            });
-//        } else {
-//            Uri authorizationUri = Uri.parse(appIdAuthorizationManager.getAuthorizationUrl());
-//            appIdAuthorizationManager.getCustomTabManager().launchBrowserTab(activity, authorizationUri);
-//        }
 	}
 }

@@ -11,7 +11,7 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal;
+package com.ibm.bluemix.appid.android.internal.authorization;
 
 import android.net.Uri;
 import android.os.Build;
@@ -23,22 +23,29 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.ibm.bluemix.appid.android.api.AppId;
-import com.ibm.bluemix.appid.android.api.AppIdAuthorizationManager;
+import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.internal.AuthorizationFlowContextStore;
+import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.token.TokenManager;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.R;
+import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class WebViewActivity extends AppCompatActivity {
 
     //Default return code when cancel is pressed during authentication.
     private static final String AUTH_CANCEL_CODE = "100";
     private WebView webView;
+	private AuthorizationListener authorizationListener;
+	private OAuthManager oAuthManager;
+	private String redirectUrl;
+
+	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + WebViewActivity.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		logger.debug("onCreate");
         setContentView(R.layout.activity_web_view);
         webView = (WebView) findViewById(R.id.webView1);
         webView.getSettings().setJavaScriptEnabled(true);
@@ -48,7 +55,24 @@ public class WebViewActivity extends AppCompatActivity {
             webView.setWebViewClient(new WebViewClientOldAPI());
         }
         webView.clearCache(true);
-        webView.loadUrl(AppIdAuthorizationManager.getInstance().getAuthorizationUrl());
+
+		String serverUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_URL);
+		this.redirectUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_REDIRECT_URL);
+
+		String authFlowContextGuid = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_AUTH_FLOW_CONTEXT_GUID);
+		AuthorizationFlowContext ctx = AuthorizationFlowContextStore.remove(authFlowContextGuid);
+		this.oAuthManager = ctx.getOAuthManager();
+		this.authorizationListener = ctx.getAuthorizationListener();
+
+		logger.debug("serverUrl: " + serverUrl);
+		logger.debug("redirectUrl: " + redirectUrl);
+
+		if (authorizationListener == null || serverUrl == null || this.redirectUrl == null){
+			logger.error("Failed to retrieve one of the following: authorizationListener, serverUrl, redirectUrl");
+			finish();
+		} else {
+			webView.loadUrl(serverUrl);
+		}
     }
 
     //override here in order to avoid window leaks
@@ -61,15 +85,8 @@ public class WebViewActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        JSONObject cancelInfo = new JSONObject();
-        try{
-            cancelInfo.put("errorCode", AUTH_CANCEL_CODE);
-            cancelInfo.put("msg", "Authentication canceled by user");
-            AppIdAuthorizationManager.getInstance().handleAuthorizationFailure(null, null, cancelInfo);
-            finish();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+		finish();
+		authorizationListener.onAuthorizationCanceled();
     }
 
     private class WebViewClientOldAPI extends WebViewClient {
@@ -82,7 +99,7 @@ public class WebViewActivity extends AppCompatActivity {
     }
 
     private class WebViewClientNewAPI extends WebViewClient {
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        @RequiresApi (api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
@@ -92,12 +109,13 @@ public class WebViewActivity extends AppCompatActivity {
     }
 
     private void loadUri(WebView view, Uri uri) {
-        String code = uri.getQueryParameter("code");
-        String url = uri.toString();
-        if (url.startsWith(AppId.redirectUri) && code != null) {
-            AppIdTokenManager appIdTM = AppIdAuthorizationManager.getInstance().getAppIdTokenManager();
-            appIdTM.sendTokenRequest(code);
+		String url = uri.toString();
+		String code = uri.getQueryParameter("code");
+		if (url.startsWith(redirectUrl) && code != null) {
+			logger.debug("Grant code received from authorization server.");
             finish();
+			oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
+
         } else {
             //when working locally uncomment this 'if' (replacing localhost with 10.0.2.2)
 //            if(AppId.overrideServerHost != null && uri.getHost().equals("localhost")) {

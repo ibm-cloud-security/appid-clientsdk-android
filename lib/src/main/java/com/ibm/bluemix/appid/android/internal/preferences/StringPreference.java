@@ -18,12 +18,12 @@ public class StringPreference {
 		this.encryptor = encryptor;
 	}
 
-	public String get() {
+	public synchronized String get() {
 		String value = sharedPreferences.getString(name, null);
 		return value == null ? null : encryptor.decrypt(value);
 	}
 
-	public void set(String value) {
+	public synchronized void set(String value) {
 		value = (value == null) ? null : encryptor.encrypt(value);
 		editor.putString(name, value);
 		editor.commit();

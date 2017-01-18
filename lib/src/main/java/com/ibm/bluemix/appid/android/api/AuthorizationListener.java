@@ -1,8 +1,10 @@
 package com.ibm.bluemix.appid.android.api;
 
-import org.json.JSONObject;
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 
 public interface AuthorizationListener {
 	void onAuthorizationFailure(AuthorizationException exception);
-	void onAuthorizationSuccess(JSONObject accessToken, JSONObject identityToken);
+	void onAuthorizationCanceled();
+	void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken);
 }

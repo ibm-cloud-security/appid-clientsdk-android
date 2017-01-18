@@ -1,94 +1,75 @@
 package com.ibm.bluemix.appid.android.internal.authorization;
 
+import android.app.Activity;
+import android.net.Uri;
+
 import com.ibm.bluemix.appid.android.api.AppId;
+import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
 import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
 
-import java.util.List;
-import java.util.Map;
-
 public class AuthorizationManager {
-	private static final String OAUTH_CLIENT_AUTHORIZATION_PATH = "/oauth/v3/";
-	private static final String WWW_AUTHENTICATE_HEADER_NAME = "Www-Authenticate";
+	private static final String OAUTH_AUTHORIZATION_PATH = "/authorization";
 
 	private final AppId appId;
+	private final OAuthManager oAuthManager;
 	private final PreferenceManager preferenceManager;
 	private final RegistrationManager registrationManager;
 
-//	private ResponseListener listener;
-//	private AppIdRegistrationManager appIdRegistrationManager;
-//	private AppIdTokenManager appIdTokenManager;
-//	private CustomTabManager customTabManager;
+	private final static String CLIENT_ID = "client_id";
+	private final static String RESPONSE_TYPE = "response_type";
+	private final static String RESPONSE_TYPE_CODE = "code";
 
-	public AuthorizationManager (final AppId appId, final PreferenceManager preferenceManager) {
-		this.appId = appId;
-		this.preferenceManager = preferenceManager;
-		this.registrationManager = new RegistrationManager(appId, preferenceManager);
+	private final static String SCOPE = "scope";
+	private final static String SCOPE_OPENID = "openid";
+
+	private final static String REDIRECT_URI = "redirect_uri";
+	private final static String USE_LOGIN_WIDGET = "use_login_widget";
+
+	// TODO: document
+	public AuthorizationManager (final OAuthManager oAuthManager) {
+		this.oAuthManager = oAuthManager;
+		this.appId = oAuthManager.getAppId();
+		this.preferenceManager = oAuthManager.getPreferenceManager();
+		this.registrationManager = oAuthManager.getRegistrationManager();
 	}
 
+	// TODO: document
+	public String getAuthorizationUrl(boolean useLoginWidget) {
+		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
+		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
-//	public void AppIdAuthorizationManager (Context context) {
-//		this.preferences = new AppIdPreferences(context);
-//		//init generic data, like device data and application data
-//		if (preferences.deviceIdentity.get() == null) {
-//			preferences.deviceIdentity.set(new BaseDeviceIdentity(context));
-//		}
-//		if (preferences.appIdentity.get() == null) {
-//			preferences.appIdentity.set(new BaseAppIdentity(context));
-//		}
-//		this.appIdRegistrationManager = new AppIdRegistrationManager(context, preferences);
-//		this.appIdTokenManager = new AppIdTokenManager(preferences);
-//		this.customTabManager = new CustomTabManager();
-//	}
-
-	String getAuthorizationUrl() {
-		return Uri.parse(getServerHost() + OAUTH_CLIENT_AUTHORIZATION_PATH + AppId.getInstance().getTenantId() + "/authorization").buildUpon()
-				.appendQueryParameter("response_type", "code")
-				.appendQueryParameter("client_id", preferences.clientId.get())
-				.appendQueryParameter("redirect_uri", AppId.redirectUri)
-				.appendQueryParameter("scope", "openid")
-				.appendQueryParameter("use_login_widget", "true")
+		String serverUrl = Config.getServerUrl(this.appId) + OAUTH_AUTHORIZATION_PATH;
+		serverUrl = Uri.parse(serverUrl).buildUpon()
+				.appendQueryParameter(RESPONSE_TYPE, RESPONSE_TYPE_CODE)
+				.appendQueryParameter(CLIENT_ID, clientId)
+				.appendQueryParameter(REDIRECT_URI, redirectUri)
+				.appendQueryParameter(SCOPE, SCOPE_OPENID)
+				.appendQueryParameter(USE_LOGIN_WIDGET, String.valueOf(useLoginWidget))
 				.build().toString();
+		return serverUrl;
 	}
 
-	/**
-	 * Handle success in the authentication process. The response listeners will be updated with
-	 * success
-	 * @param response final success response from the server
-	 */
-	public void handleAuthorizationSuccess(Response response) {
-		listener.onSuccess(response);
+	// TODO: document
+	public void lauchAuthorizationUI(Activity activity, AuthorizationListener authorizationListener){
+		String authorizationUrl = getAuthorizationUrl(true);
+		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+		AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
+		auim.launch(activity);
 	}
 
-	/**
-	 * Handle failure in the authentication process. The response listener will be updated with
-	 * failure
-	 * @param response response that caused to failure
-	 * @param t additional info about the failure
-	 */
-	public void handleAuthorizationFailure(Response response, Throwable t, JSONObject extendedInfo) {
-		listener.onFailure(response, t, extendedInfo);
-	}
-
-
-	/**
-	 *  this will pop the login widget in case user access protected resource.
-	 */
-	@Override
-	public void obtainAuthorization(Context context, ResponseListener listener, Object... params) {
-		Activity activity = (Activity) context;
-		AppId.getInstance().login(activity,listener);
-	}
-
-	/**
-	 * @return the locally stored authorization header or null if the value is not exist.
-	 */
-	public synchronized String getCachedAuthorizationHeader() {
-		String accessToken = preferences.accessToken.get();
-		String idToken = preferences.idToken.get();
-		if (accessToken != null && idToken != null) {
-			return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
-		}
-		return null;
-	}
+//
+//	/**
+//	 * @return the locally stored authorization header or null if the value is not exist.
+//	 */
+//	public synchronized String getCachedAuthorizationHeader() {
+//		String accessToken = preferences.accessToken.get();
+//		String idToken = preferences.idToken.get();
+//		if (accessToken != null && idToken != null) {
+//			return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
+//		}
+//		return null;
+//	}
 }
