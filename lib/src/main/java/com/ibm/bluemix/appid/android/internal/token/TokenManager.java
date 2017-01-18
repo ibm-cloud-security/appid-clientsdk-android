@@ -11,11 +11,12 @@
 	limitations under the License.
 */
 
+
 package com.ibm.bluemix.appid.android.internal.token;
 
 import android.util.Base64;
 
-import com.ibm.bluemix.appid.android.api.AppId;
+import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
@@ -39,9 +40,11 @@ import java.util.HashMap;
 public class TokenManager {
 
 	private static final String OAUTH_TOKEN_PATH = "/token";
-	private final AppId appId;
-	private final PreferenceManager preferenceManager;
+	private final AppID appId;
 	private final RegistrationManager registrationManager;
+
+	private AccessToken latestAccessToken;
+	private IdentityToken latestIdentityToken;
 
 	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + TokenManager.class.getName());
 
@@ -55,7 +58,6 @@ public class TokenManager {
 
 	public TokenManager (OAuthManager oAuthManager) {
 		this.appId = oAuthManager.getAppId();
-		this.preferenceManager = oAuthManager.getPreferenceManager();
 		this.registrationManager = oAuthManager.getRegistrationManager();
 	}
 
@@ -144,6 +146,22 @@ public class TokenManager {
 			return;
 		}
 
+		latestAccessToken = accessToken;
+		latestIdentityToken = identityToken;
+
 		authorizationListener.onAuthorizationSuccess(accessToken, identityToken);
+	}
+
+	public AccessToken getLatestAccessToken () {
+		return latestAccessToken;
+	}
+
+	public IdentityToken getLatestIdentityToken () {
+		return latestIdentityToken;
+	}
+
+	public void clearStoredTokens(){
+		latestAccessToken = null;
+		latestIdentityToken = null;
 	}
 }

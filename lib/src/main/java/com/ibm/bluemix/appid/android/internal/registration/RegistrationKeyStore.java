@@ -11,7 +11,6 @@
 	limitations under the License.
 */
 
-
 package com.ibm.bluemix.appid.android.internal.registration;
 
 import android.content.Context;
@@ -22,28 +21,18 @@ import android.security.keystore.KeyProperties;
 
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.util.Calendar;
 
 import javax.security.auth.x500.X500Principal;
 
 class RegistrationKeyStore {
 
-    private static final String alias = "com.ibm.bluemix.appid.android.REGISTRATION";
+    private static final String ALIAS = "com.ibm.bluemix.appid.android.REGISTRATION";
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + RegistrationKeyStore.class.getName());
 
@@ -52,8 +41,8 @@ class RegistrationKeyStore {
 
 		// If keypair already exist
 		try {
-			if (keyStore.containsAlias(alias)) {
-				KeyStore.PrivateKeyEntry pke = (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, null);
+			if (keyStore.containsAlias(ALIAS)) {
+				KeyStore.PrivateKeyEntry pke = (KeyStore.PrivateKeyEntry) keyStore.getEntry(ALIAS, null);
 				Certificate cert = pke.getCertificate();
 				KeyPair keyPair = new KeyPair(cert.getPublicKey(), pke.getPrivateKey());
 				return keyPair;
@@ -66,19 +55,13 @@ class RegistrationKeyStore {
 	}
 
     KeyPair generateKeyPair (Context context) {
-//		// Check for existing keypair
-//		KeyPair keyPair = getKeyPair();
-//		if (keyPair != null){
-//			return keyPair;
-//		}
-
 		// Generate and store new keypair
 		KeyStore keyStore = loadKeyStore();
         try {
             KeyPairGenerator generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEY_STORE);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(alias,
+                KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(ALIAS,
                         KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
                         .setDigests(KeyProperties.DIGEST_SHA256)
                         .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1)
@@ -89,8 +72,8 @@ class RegistrationKeyStore {
                 Calendar end = Calendar.getInstance();
                 end.add(Calendar.YEAR, 20);
                 KeyPairGeneratorSpec spec = new KeyPairGeneratorSpec.Builder(context)
-                        .setAlias(alias)
-                        .setSubject(new X500Principal("CN=AppId"))
+                        .setAlias(ALIAS)
+                        .setSubject(new X500Principal("CN=AppID"))
                         .setSerialNumber(BigInteger.ONE)
                         .setStartDate(start.getTime())
                         .setEndDate(end.getTime())
@@ -98,7 +81,7 @@ class RegistrationKeyStore {
                         .build();
                 generator.initialize(spec);
             }
-			keyStore.deleteEntry(alias);
+			keyStore.deleteEntry(ALIAS);
             return generator.generateKeyPair();
         } catch (Exception e){
 			logger.error("Failed to generate key pair", e);

@@ -1,9 +1,22 @@
+/*
+	Copyright 2014-17 IBM Corp.
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
 package com.ibm.bluemix.appid.android.internal.authorization;
 
 import android.app.Activity;
 import android.net.Uri;
 
-import com.ibm.bluemix.appid.android.api.AppId;
+import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
@@ -13,9 +26,8 @@ import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
 public class AuthorizationManager {
 	private static final String OAUTH_AUTHORIZATION_PATH = "/authorization";
 
-	private final AppId appId;
+	private final AppID appId;
 	private final OAuthManager oAuthManager;
-	private final PreferenceManager preferenceManager;
 	private final RegistrationManager registrationManager;
 
 	private final static String CLIENT_ID = "client_id";
@@ -32,7 +44,6 @@ public class AuthorizationManager {
 	public AuthorizationManager (final OAuthManager oAuthManager) {
 		this.oAuthManager = oAuthManager;
 		this.appId = oAuthManager.getAppId();
-		this.preferenceManager = oAuthManager.getPreferenceManager();
 		this.registrationManager = oAuthManager.getRegistrationManager();
 	}
 
@@ -53,23 +64,11 @@ public class AuthorizationManager {
 	}
 
 	// TODO: document
-	public void lauchAuthorizationUI(Activity activity, AuthorizationListener authorizationListener){
+	public void launchAuthorizationUI (Activity activity, AuthorizationListener authorizationListener){
 		String authorizationUrl = getAuthorizationUrl(true);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 		AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
 		auim.launch(activity);
 	}
 
-//
-//	/**
-//	 * @return the locally stored authorization header or null if the value is not exist.
-//	 */
-//	public synchronized String getCachedAuthorizationHeader() {
-//		String accessToken = preferences.accessToken.get();
-//		String idToken = preferences.idToken.get();
-//		if (accessToken != null && idToken != null) {
-//			return AuthorizationHeaderHelper.BEARER + " " + accessToken + " " + idToken;
-//		}
-//		return null;
-//	}
 }

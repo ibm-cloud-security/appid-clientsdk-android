@@ -1,40 +1,11 @@
-package com.ibm.mobilefirstplatform.appid_clientsdk_android;
-
-import android.app.Activity;
-import android.content.Context;
-import android.net.Uri;
-
-import com.ibm.bluemix.appid.android.api.AppId;
-
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.mca.internal.preferences.SharedPreferencesManager;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.reflect.Whitebox;
-
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
+package com.ibm.bluemix.appid.android;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
 
-/**
- * Created by rotembr on 17/12/2016.
- */
 
 public class AppIdUnitTest {
 //

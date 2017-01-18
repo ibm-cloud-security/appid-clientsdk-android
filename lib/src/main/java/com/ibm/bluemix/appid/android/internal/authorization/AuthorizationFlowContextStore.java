@@ -11,16 +11,21 @@
 	limitations under the License.
 */
 
+package com.ibm.bluemix.appid.android.internal.authorization;
 
-package com.ibm.bluemix.appid.android.internal.preferences;
+import java.util.HashMap;
+import java.util.Map;
 
-import android.content.Context;
+public class AuthorizationFlowContextStore {
 
-class AppIdPreferences extends AuthorizationPreferenceManager {
+	private static Map<String, AuthorizationFlowContext> store = new HashMap();
 
-//    StringPreference tenantId = new StringPreference("tenantId");
-    AppIdPreferences(Context context) {
-        super(context);
-    }
+	public synchronized static void push(String guid, AuthorizationFlowContext ctx){
+		store.put(guid, ctx);
+	}
+
+	public synchronized static AuthorizationFlowContext remove(String guid){
+		return store.remove(guid);
+	}
 
 }

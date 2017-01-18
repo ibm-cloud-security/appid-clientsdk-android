@@ -16,7 +16,7 @@ package com.ibm.bluemix.appid.android.internal.registration;
 import android.content.Context;
 import android.util.Base64;
 
-import com.ibm.bluemix.appid.android.api.AppId;
+import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.config.Config;
@@ -44,7 +44,7 @@ public class RegistrationManager {
 
     private static final String OAUTH_REGISTRATION_PATH = "/clients";
 	private static final String OAUTH_CLIENT_REGISTRATION_DATA_PREF
-			= "com.ibm.bluemix.appid.android.registrationdata";
+			= "com.ibm.bluemix.appid.android.REGISTRATION_DATA";
 	private static final String TENANT_ID_PREF = "com.ibm.bluemix.appid.android.tenantid";
 	private static final String OAUTH_CLIENT_REDIRECT_URI_PATH = ":/mobile/callback";
 
@@ -58,7 +58,7 @@ public class RegistrationManager {
 	public static final String CLIENT_TYPE = "client_type";
 	public static final String REDIRECT_URIS = "redirect_uris";
 
-	private AppId appId;
+	private AppID appId;
 	private PreferenceManager preferenceManager;
     private KeyPair registrationKeyPair;
     private RegistrationKeyStore registrationKeyStore;

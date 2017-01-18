@@ -11,9 +11,7 @@
 	limitations under the License.
 */
 
-
 package com.ibm.bluemix.appid.android.internal.network;
-
 
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.BaseRequest;

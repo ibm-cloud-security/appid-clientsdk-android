@@ -11,6 +11,7 @@
 	limitations under the License.
 */
 
+
 package com.ibm.bluemix.appid.android.internal.authorization;
 
 import android.net.Uri;
@@ -24,17 +25,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
-import com.ibm.bluemix.appid.android.internal.AuthorizationFlowContextStore;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
-import com.ibm.bluemix.appid.android.internal.token.TokenManager;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.R;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 
 public class WebViewActivity extends AppCompatActivity {
 
-    //Default return code when cancel is pressed during authentication.
-    private static final String AUTH_CANCEL_CODE = "100";
     private WebView webView;
 	private AuthorizationListener authorizationListener;
 	private OAuthManager oAuthManager;

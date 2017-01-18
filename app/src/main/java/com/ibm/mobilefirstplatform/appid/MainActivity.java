@@ -10,28 +10,33 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ibm.bluemix.appid.android.api.AppId;
+import com.ibm.bluemix.appid.android.api.AppID;
+import com.ibm.bluemix.appid.android.api.AppIDAuthorizationManager;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements ResponseListener {
+public class MainActivity extends AppCompatActivity {
 
 	private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2"; //"11111111-1111-1111-1111-111111111bbb";
 	private final static String region = ".stage1.mybluemix.net";//".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
-	private AppId appId;
+	private BMSClient bmsClient;
+	private AppID appId;
+	private AppIDAuthorizationManager appIDAuthorizationManager;
 
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
@@ -39,7 +44,14 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
 		Logger.setSDKDebugLoggingEnabled(true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		this.appId = new AppId(getApplicationContext(), mcaTenantId, region);
+
+		bmsClient = BMSClient.getInstance();
+		bmsClient.initialize(this, region);
+
+		this.appId = new AppID(getApplicationContext(), mcaTenantId, region);
+		this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
+
+		bmsClient.setAuthorizationManager(appIDAuthorizationManager);
 	}
 
 	public void onLoginClick (View v) {
@@ -49,11 +61,13 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
 			@Override
 			public void onAuthorizationFailure (AuthorizationException exception) {
 				logger.info("onAuthorizationFailure");
+				hideProgress();
 			}
 
 			@Override
 			public void onAuthorizationCanceled () {
 				logger.info("onAuthorizationCanceled");
+				hideProgress();
 			}
 
 			@Override
@@ -62,51 +76,63 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
 				logger.info("access_token: " + accessToken.getPayload().toString());
 				logger.info("id_token: " + identityToken.getPayload().toString());
 				hideProgress();
-				showDetailsAndPicture(identityToken);
+				extractAndDisplayDataFromIdentityToken(identityToken);
 			}
 		});
 		loginWidget.launch(this);
 	}
 
 	public void onProtectedRequestClick (View v) {
+		showResponse("");
 		showProgress();
-		Request r = new Request("http://appid-rotem.stage1.mybluemix.net" + "/protectedResource", Request.GET);
-		r.send(this, this);
+		Request r = new Request("http://appid-rotem.stage1.mybluemix.net/protectedResource", Request.GET);
+		r.send(this, new ResponseListener() {
+			@Override
+			public void onSuccess (Response response) {
+				logger.info("Request onSuccess");
+				hideProgress();
+				IdentityToken identityToken = appIDAuthorizationManager.getIdentityToken();
+				extractAndDisplayDataFromIdentityToken(identityToken);
+				showResponse(response.getResponseText());
+			}
+
+			@Override
+			public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
+				logger.error("Request onFailure");
+				hideProgress();
+			}
+		});
 	}
 
-	@Override
-	public void onSuccess (Response response) {
-		// here we handle authentication success
-		Log.i("Login", "success");
-		Log.i("Login", response.toString());
-//        showDetailsAndPicture(response.getResponseText());
-	}
+	private void extractAndDisplayDataFromIdentityToken (IdentityToken identityToken) {
 
-	@Override
-	public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
-		// handle authentication failure
-		Log.i("Login", "fail");
-		if (response != null) {
-			Log.i("Login", response.toString());
-//            showDetails("Failure in Login/protected resource", response.getResponseText());
-		}
-		if (extendedInfo != null) {
-			Log.i("Login", extendedInfo.toString());
-//            showDetails("Login canceled" ,extendedInfo.toString());
-		}
-		if (null != t) {
-			Log.i("Login", t.getMessage());
-//            showDetails("Login error" ,t.getMessage());
+		try {
+			String picUrl = identityToken
+					.getPayload()
+					.getJSONObject("imf.user")
+					.getJSONObject("attributes")
+					.getJSONObject("picture")
+					.getJSONObject("data")
+					.getString("url");
+
+			final String displayName = identityToken
+					.getPayload()
+					.getJSONObject("imf.user")
+					.getString("displayName");
+			showPictureAndName(picUrl, displayName);
+		} catch (JSONException e){
+
 		}
 	}
 
-	//
-	private void showDetails (final String result) {
+
+
+	private void showResponse (final String result) {
 		//run on main thread
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run () {
-				TextView nameTextView = (TextView) findViewById(R.id.name);
+				TextView nameTextView = (TextView) findViewById(R.id.textViewProtectedResourceResponse);
 				nameTextView.setText(result);
 				hideProgress();
 			}
@@ -114,25 +140,11 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
 	}
 
 
-    private void showDetailsAndPicture(final IdentityToken identityToken) {
+    private void showPictureAndName (final String picUrl, final String displayName) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-
-					//get the user profile picture
-					String picUrl = identityToken
-							.getPayload()
-							.getJSONObject("imf.user")
-							.getJSONObject("attributes")
-							.getJSONObject("picture")
-							.getJSONObject("data")
-							.getString("url");
-
-					final String displayName = identityToken
-							.getPayload()
-							.getJSONObject("imf.user")
-							.getString("displayName");
 
                     final Bitmap bmp = BitmapFactory.decodeStream(new URL(picUrl).openConnection().getInputStream());
                     //run on main thread
@@ -146,12 +158,13 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
                             profilePicture.getLayoutParams().width = 350;
                             profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                             profilePicture.setVisibility(View.VISIBLE);
-                            //get the user display name
-                            showDetails("Hello " + displayName);
+
+							TextView nameTextView = (TextView) findViewById(R.id.name);
+							nameTextView.setText(displayName);
                         }
                     });
                 } catch (Exception e) {
-                    showDetails("Login error" + e.getMessage());
+                    showResponse("Login error" + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -177,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements ResponseListener 
 				findViewById(R.id.loadingPanel).setVisibility(View.GONE);
 				findViewById(R.id.loginButton).setEnabled(true);
 				findViewById(R.id.protectedRequestButton).setEnabled(true);
-
 			}
 		});
 	}
