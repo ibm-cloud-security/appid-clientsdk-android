@@ -17,7 +17,7 @@ import android.content.Context;
 
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 
-public class AppID {
+public class AppId {
 
     private final String tenantId;
     private final String bluemixRegionSuffix;
