@@ -31,7 +31,7 @@ public class AppId {
 
 
 	// TODO: document
-	public AppID (Context context, String tenantId, String bluemixRegionSuffix) {
+	public AppId (Context context, String tenantId, String bluemixRegionSuffix) {
 		this.tenantId = tenantId;
 		this.bluemixRegionSuffix = bluemixRegionSuffix;
 		this.oAuthManager = new OAuthManager(context, this);
