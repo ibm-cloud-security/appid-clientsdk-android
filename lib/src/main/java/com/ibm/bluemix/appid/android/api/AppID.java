@@ -17,7 +17,7 @@ import android.content.Context;
 
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 
-public class AppId {
+public class AppID {
 
     private final String tenantId;
     private final String bluemixRegionSuffix;
@@ -31,7 +31,7 @@ public class AppId {
 
 
 	// TODO: document
-	public AppId (Context context, String tenantId, String bluemixRegionSuffix) {
+	public AppID (Context context, String tenantId, String bluemixRegionSuffix) {
 		this.tenantId = tenantId;
 		this.bluemixRegionSuffix = bluemixRegionSuffix;
 		this.oAuthManager = new OAuthManager(context, this);
