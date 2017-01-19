@@ -11,14 +11,11 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal;
+package com.ibm.bluemix.appid.android.internal.authorization;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
-
-import com.ibm.bluemix.appid.android.internal.authorization.ChromeTabActivity;
 
 public class RedirectUriReceiverActivity extends Activity {
     @Override

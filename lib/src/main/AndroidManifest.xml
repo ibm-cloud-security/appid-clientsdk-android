@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.ibm.bluemix.appid.android.internal.RedirectUriReceiverActivity">
+        <activity android:name="com.ibm.bluemix.appid.android.internal.authorization.RedirectUriReceiverActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
