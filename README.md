@@ -28,17 +28,17 @@ A call to Login will pop-up the login widgit and triggers the autentication proc
 ```java
 AppId.getInstance().login(this, new ResponseListener() {
 @Override
-public void onSuccess (Response response) {
-    Log.d("Myapp", "onSuccess :: " + response.getResponseText());
+public void onRegistrationSuccess (Response response) {
+    Log.d("Myapp", "onRegistrationSuccess :: " + response.getResponseText());
 }
 @Override
-public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
+public void onRegistrationFailure (Response response, Throwable t, JSONObject extendedInfo) {
     if (null != t) {
-        Log.d("Myapp", "onFailure :: " + t.getMessage());
+        Log.d("Myapp", "onRegistrationFailure :: " + t.getMessage());
     } else if (null != extendedInfo) {
-        Log.d("Myapp", "onFailure :: " + extendedInfo.toString());
+        Log.d("Myapp", "onRegistrationFailure :: " + extendedInfo.toString());
     } else {
-        Log.d("Myapp", "onFailure :: " + response.getResponseText());
+        Log.d("Myapp", "onRegistrationFailure :: " + response.getResponseText());
         }
     }
 });
@@ -71,17 +71,17 @@ upon request to protected resource the authentication process will trigger, and 
 Request request = new Request("http://my-mobile-backend.mybluemix.net/protected", Request.GET);
 request.send(this, new ResponseListener() {
 @Override
-public void onSuccess (Response response) {
-    Log.d("Myapp", "onSuccess :: " + response.getResponseText());
+public void onRegistrationSuccess (Response response) {
+    Log.d("Myapp", "onRegistrationSuccess :: " + response.getResponseText());
 }
 @Override
-public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
+public void onRegistrationFailure (Response response, Throwable t, JSONObject extendedInfo) {
     if (null != t) {
-        Log.d("Myapp", "onFailure :: " + t.getMessage());
+        Log.d("Myapp", "onRegistrationFailure :: " + t.getMessage());
     } else if (null != extendedInfo) {
-        Log.d("Myapp", "onFailure :: " + extendedInfo.toString());
+        Log.d("Myapp", "onRegistrationFailure :: " + extendedInfo.toString());
     } else {
-        Log.d("Myapp", "onFailure :: " + response.getResponseText());
+        Log.d("Myapp", "onRegistrationFailure :: " + response.getResponseText());
         }
     }
 });

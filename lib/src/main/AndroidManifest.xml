@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ibm.mobilefirstplatform.appid_clientsdk_android">
+          package="com.ibm.mobilefirstplatform.appid_clientsdk_android">
+
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:allowBackup="true"
-        android:label="@string/app_name"
-        android:supportsRtl="true">
-        <activity android:name=".WebViewActivity" android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
-        <activity android:name=".ChromeTabActivity" >
+            android:allowBackup="true"
+            android:label="@string/app_name"
+            android:supportsRtl="true">
+
+        <activity
+                android:name="com.ibm.bluemix.appid.android.internal.authorization.WebViewActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+
+        <activity android:name="com.ibm.bluemix.appid.android.internal.authorization.ChromeTabActivity">
             <intent-filter>
-            <action android:name="com.ibm.mobilefirstplatform.appid_clientsdk_android.HANDLE_AUTHORIZATION_RESPONSE"/>
-            <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.ibm.bluemix.appid.android.POST_AUTHORIZATION_INTENT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".RedirectUriReceiverActivity">
+
+        <activity android:name="com.ibm.bluemix.appid.android.internal.authorization.RedirectUriReceiverActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
