@@ -20,7 +20,6 @@ import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
-import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
 import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
 
 public class AuthorizationManager {

@@ -238,4 +238,9 @@ public class RegistrationManager {
 			return null;
 		}
 	}
+
+	public void clearRegistrationData(){
+		preferenceManager.getStringPreference(TENANT_ID_PREF).clear();
+		preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF).clear();
+	}
 }
