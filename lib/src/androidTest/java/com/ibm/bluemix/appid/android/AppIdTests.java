@@ -13,15 +13,19 @@
 
 package com.ibm.bluemix.appid.android;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.ibm.bluemix.appid.android.api.AppID;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
+@RunWith(AndroidJUnit4.class)
 public class AppIdTests {
 
 	private static final String testTenantId = "testTenant";
@@ -35,12 +39,12 @@ public class AppIdTests {
 	}
 
 	@Test
-	public void getTenantIdTest () {
+	public void getTenantId () {
 		assertEquals(appId.getTenantId(), testTenantId);
 	}
 
 	@Test
-	public void getRegionTest () {
+	public void getRegion () {
 		assertEquals(appId.getBluemixRegionSuffix(), testRegion);
 	}
 }

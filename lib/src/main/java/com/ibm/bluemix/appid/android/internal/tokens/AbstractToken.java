@@ -80,12 +80,14 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public Date getExpiration () {
-		return (Date) getValue(EXPIRATION);
+		long epochTimestamp = (int)getValue(EXPIRATION);
+		return new Date(epochTimestamp * 1000);
 	}
 
 	@Override
 	public Date getIssuedAt () {
-		return (Date) getValue(ISSUED_AT);
+		long epochTimestamp = (int)getValue(ISSUED_AT);
+		return new Date(epochTimestamp * 1000);
 	}
 
 	@Override
