@@ -108,4 +108,8 @@ public abstract class AbstractToken implements Token {
 			return null;
 		}
 	}
+
+	public boolean isExpired(){
+		return new Date().before(getExpiration());
+	}
 }

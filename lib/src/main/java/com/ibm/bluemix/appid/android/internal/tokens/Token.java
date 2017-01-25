@@ -17,4 +17,5 @@ public interface Token {
 	Date getIssuedAt();
 	String getTenant();
 	String getAuthBy();
+	boolean isExpired();
 }
