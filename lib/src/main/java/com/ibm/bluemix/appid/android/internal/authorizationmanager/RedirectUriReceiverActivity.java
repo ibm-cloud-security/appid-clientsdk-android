@@ -11,21 +11,21 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal.authorization;
+package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 
-public class AuthorizationFlowContextStore {
+public class RedirectUriReceiverActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceBundle) {
+        super.onCreate(savedInstanceBundle);
 
-	private static Map<String, AuthorizationFlowContext> store = new HashMap();
+		Intent i = new Intent(ChromeTabActivity.INTENT_GOT_HTTP_REDIRECT);
+		i.putExtra(ChromeTabActivity.EXTRA_REDIRECT_URI, this.getIntent().getData());
+		sendBroadcast(i);
 
-	public synchronized static void push(String guid, AuthorizationFlowContext ctx){
-		store.put(guid, ctx);
-	}
-
-	public synchronized static AuthorizationFlowContext remove(String guid){
-		return store.remove(guid);
-	}
-
+        this.finish();
+    }
 }

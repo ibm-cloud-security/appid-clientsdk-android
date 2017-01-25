@@ -13,33 +13,39 @@
 
 package com.ibm.bluemix.appid.android;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import com.ibm.bluemix.appid.android.api.AppID;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static org.junit.Assert.*;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
+@RunWith(AndroidJUnit4.class)
 public class AppIdTests {
 
-    private static final  String testTenantId = "testTenant";
-    private static final String testRegion = "TestRegion";
+	private static final String testTenantId = "testTenant";
+	private static final String testRegion = "TestRegion";
+	private AppID appId;
 
-    @Before
-    public void setup() {
-    }
+	@Before
+	public void setup () {
+		this.appId = AppID.getInstance();
+		this.appId.initialize(getInstrumentation().getTargetContext(), testTenantId, testRegion);
+	}
 
-    @Test
-    public void getTenantIdTest() {
-        AppID appId = new AppID(getInstrumentation().getTargetContext(), testTenantId, testRegion);
-        assertEquals(appId.getTenantId(), testTenantId);
-    }
+	@Test
+	public void getTenantId () {
+		assertEquals(appId.getTenantId(), testTenantId);
+	}
 
-    @Test
-    public void getRegionTest() {
-        AppID appId = new AppID(getInstrumentation().getTargetContext(), testTenantId, testRegion);
-        assertEquals(appId.getBluemixRegionSuffix(), testRegion);
-    }
+	@Test
+	public void getRegion () {
+		assertEquals(appId.getBluemixRegionSuffix(), testRegion);
+	}
 }
 

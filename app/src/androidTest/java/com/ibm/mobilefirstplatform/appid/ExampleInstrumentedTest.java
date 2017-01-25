@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.ibm.mobilefirstplatform.appid_clientsdk_android", appContext.getPackageName());
+        assertEquals("com.ibm.bluemix.appid.android", appContext.getPackageName());
     }
 }

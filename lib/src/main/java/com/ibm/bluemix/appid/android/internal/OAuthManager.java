@@ -16,10 +16,10 @@ package com.ibm.bluemix.appid.android.internal;
 import android.content.Context;
 
 import com.ibm.bluemix.appid.android.api.AppID;
-import com.ibm.bluemix.appid.android.internal.authorization.AuthorizationManager;
+import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationManager;
 import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
-import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
-import com.ibm.bluemix.appid.android.internal.token.TokenManager;
+import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
+import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 
 public class OAuthManager {
 

@@ -22,15 +22,14 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "76ac844c-075c-41b3-b95e-86629713b6a2"; //"11111111-1111-1111-1111-111111111bbb";
-	private final static String region = ".stage1.mybluemix.net";//".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
+	private final static String mcaTenantId = "6f720c95-a0c4-408e-b2b2-9110c47c47e0"; //"11111111-1111-1111-1111-111111111bbb";
+	private final static String region = ".stage1-dev.ng.bluemix.net";//".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
 	private BMSClient bmsClient;
@@ -47,16 +46,22 @@ public class MainActivity extends AppCompatActivity {
 		bmsClient = BMSClient.getInstance();
 		bmsClient.initialize(this, region);
 
-		this.appId = new AppID(getApplicationContext(), mcaTenantId, region);
-		this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
+		// Initialize AppID SDK
+		appId = AppID.getInstance();
+		appId.initialize(this, mcaTenantId, region);
 
+		// Add integration with BMSClient. Optional.
+		this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
 		bmsClient.setAuthorizationManager(appIDAuthorizationManager);
 	}
 
 	public void onLoginClick (View v) {
 		logger.debug("onLoginClick");
 		showProgress();
-		LoginWidget loginWidget = new LoginWidget(appId, new AuthorizationListener() {
+
+		LoginWidget loginWidget = appId.getLoginWidget();
+
+		loginWidget.launch(this, new AuthorizationListener() {
 			@Override
 			public void onAuthorizationFailure (AuthorizationException exception) {
 				logger.info("onAuthorizationFailure");
@@ -72,13 +77,12 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
 				logger.info("onAuthorizationSuccess");
-				logger.info("access_token: " + accessToken.getPayload().toString());
-				logger.info("id_token: " + identityToken.getPayload().toString());
+				logger.info("access_token: " + accessToken.getRaw());
+				logger.info("id_token: " + identityToken.getRaw());
 				hideProgress();
 				extractAndDisplayDataFromIdentityToken(identityToken);
 			}
 		});
-		loginWidget.launch(this);
 	}
 
 	public void onProtectedRequestClick (View v) {
@@ -106,21 +110,26 @@ public class MainActivity extends AppCompatActivity {
 	private void extractAndDisplayDataFromIdentityToken (IdentityToken identityToken) {
 
 		try {
-			String picUrl = identityToken
-					.getPayload()
-					.getJSONObject("imf.user")
-					.getJSONObject("attributes")
-					.getJSONObject("picture")
-					.getJSONObject("data")
-					.getString("url");
+//			String picUrl = identityToken
+//					.getPayload()
+//					.getJSONObject("imf.user")
+//					.getJSONObject("attributes")
+//					.getJSONObject("picture")
+//					.getJSONObject("data")
+//					.getString("url");
 
-			final String displayName = identityToken
-					.getPayload()
-					.getJSONObject("imf.user")
-					.getString("displayName");
-			showPictureAndName(picUrl, displayName);
-		} catch (JSONException e){
+//			final String displayName = identityToken
+//					.getPayload()
+//					.getJSONObject("imf.user")
+//					.getString("displayName");
 
+//			String picUrl = identityToken.getPicture();
+//			String displayName = identityToken.getName();
+//
+//			showPictureAndName(picUrl, displayName);
+			logger.info("extractAndDisplayDataFromIdentityToken done");
+		} catch (Exception e){
+			logger.error("ERROR", e);
 		}
 	}
 

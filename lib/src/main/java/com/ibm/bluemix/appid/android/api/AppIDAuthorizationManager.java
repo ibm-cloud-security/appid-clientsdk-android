@@ -22,8 +22,6 @@ import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
-import com.ibm.bluemix.appid.android.internal.registration.RegistrationListener;
-import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
@@ -40,6 +38,7 @@ import java.util.Map;
 public class AppIDAuthorizationManager implements AuthorizationManager {
 
 	private final OAuthManager oAuthManager;
+	private static final String BEARER = "Bearer";
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AppIDAuthorizationManager.class.getName());
 
@@ -82,33 +81,21 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 	@Override
 	public void obtainAuthorization (final Context context, final ResponseListener listener, Object... params) {
 		logger.debug("obtainAuthorization");
-		RegistrationManager rm = oAuthManager.getRegistrationManager();
-		rm.ensureRegistered(context, new RegistrationListener() {
+
+		oAuthManager.getAuthorizationManager().launchAuthorizationUI((Activity)context, new AuthorizationListener() {
 			@Override
-			public void onRegistrationFailure (String message) {
-				logger.error("Registration failed: " + message);
-				listener.onFailure(null, new RuntimeException(message), null);
+			public void onAuthorizationFailure (AuthorizationException exception) {
+				listener.onFailure(null, exception, null);
 			}
 
 			@Override
-			public void onRegistrationSuccess () {
-				com.ibm.bluemix.appid.android.internal.authorization.AuthorizationManager am = oAuthManager.getAuthorizationManager();
-				am.launchAuthorizationUI((Activity)context, new AuthorizationListener() {
-					@Override
-					public void onAuthorizationFailure (AuthorizationException exception) {
-						listener.onFailure(null, exception, null);
-					}
+			public void onAuthorizationCanceled () {
+				listener.onFailure(null, new RuntimeException("Authorization canceled"), null);
+			}
 
-					@Override
-					public void onAuthorizationCanceled () {
-						listener.onFailure(null, new RuntimeException("Authorization canceled"), null);
-					}
-
-					@Override
-					public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-						listener.onSuccess(null);
-					}
-				});
+			@Override
+			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
+				listener.onSuccess(null);
 			}
 		});
 	}
@@ -121,7 +108,7 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 		if (accessToken == null || identityToken == null){
 			return null;
 		}
-		return AuthorizationHeaderHelper.BEARER + " " + accessToken.getRaw() + " " + identityToken.getRaw();
+		return BEARER + " " + accessToken.getRaw() + " " + identityToken.getRaw();
 	}
 
 	@Override

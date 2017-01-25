@@ -12,7 +12,7 @@
 */
 
 
-package com.ibm.bluemix.appid.android.internal.token;
+package com.ibm.bluemix.appid.android.internal.tokenmanager;
 
 import android.util.Base64;
 
@@ -24,7 +24,9 @@ import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
-import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
+import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
+import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
+import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
@@ -38,7 +40,6 @@ import java.util.HashMap;
 
 public class TokenManager {
 
-	private static final String OAUTH_TOKEN_PATH = "/token";
 	private final AppID appId;
 	private final RegistrationManager registrationManager;
 
@@ -47,6 +48,7 @@ public class TokenManager {
 
 	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + TokenManager.class.getName());
 
+	private static final String OAUTH_TOKEN_PATH = "/token";
 	private final static String CLIENT_ID = "client_id";
 	private final static String GRANT_TYPE = "grant_type";
 	private final static String GRANT_TYPE_AUTH_CODE = "authorization_code";
@@ -119,6 +121,7 @@ public class TokenManager {
 		IdentityToken identityToken;
 
 		logger.debug("Extracting tokens from server response");
+
 		try {
 			JSONObject responseJSON = new JSONObject(response.getResponseText());
 			accessTokenString = responseJSON.getString("access_token");
@@ -130,7 +133,7 @@ public class TokenManager {
 		}
 
 		try {
-			accessToken = new AccessToken(accessTokenString);
+			accessToken = new AccessTokenImpl(accessTokenString);
 		} catch (RuntimeException e){
 			logger.error("Failed to parse access_token", e);
 			authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to parse access_token"));
@@ -138,8 +141,9 @@ public class TokenManager {
 		}
 
 		try {
-			identityToken = new IdentityToken(idTokenString);
+			identityToken = new IdentityTokenImpl(idTokenString);
 		} catch (RuntimeException e){
+			clearStoredTokens();
 			logger.error("Failed to parse id_token", e);
 			authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to parse id_token"));
 			return;

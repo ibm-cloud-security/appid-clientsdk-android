@@ -12,7 +12,7 @@
 */
 
 
-package com.ibm.bluemix.appid.android.internal.authorization;
+package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 
 import android.net.Uri;
 import android.os.Build;
@@ -58,6 +58,7 @@ public class WebViewActivity extends AppCompatActivity {
 
 		String authFlowContextGuid = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_AUTH_FLOW_CONTEXT_GUID);
 		AuthorizationFlowContext ctx = AuthorizationFlowContextStore.remove(authFlowContextGuid);
+
 		this.oAuthManager = ctx.getOAuthManager();
 		this.authorizationListener = ctx.getAuthorizationListener();
 
