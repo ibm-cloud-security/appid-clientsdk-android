@@ -14,14 +14,21 @@
 package com.ibm.bluemix.appid.android.api;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
 
 public class AppID {
 
-    private final String tenantId;
-    private final String bluemixRegionSuffix;
-	private final OAuthManager oAuthManager;
+	private static AppID instance;
+
+    private String tenantId;
+    private String bluemixRegionSuffix;
+
+	private LoginWidgetImpl loginWidget;
+
+	private OAuthManager oAuthManager;
 
     public static String overrideServerHost = null;
 
@@ -29,29 +36,59 @@ public class AppID {
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 
+	// TODO: document
+	@NonNull
+	public static synchronized AppID getInstance(){
+		if (null == instance) {
+			synchronized (AppID.class) {
+				if (null == instance) {
+					instance = new AppID();
+				}
+			}
+		}
+		return instance;
+	}
+
+	private AppID(){}
 
 	// TODO: document
-	public AppID (Context context, String tenantId, String bluemixRegionSuffix) {
+	@NonNull
+	public AppID initialize (@NonNull Context context, @NonNull String tenantId, @NonNull String bluemixRegion) {
 		this.tenantId = tenantId;
-		this.bluemixRegionSuffix = bluemixRegionSuffix;
-		this.oAuthManager = new OAuthManager(context, this);
+		this.bluemixRegionSuffix = bluemixRegion;
+		this.oAuthManager = new OAuthManager(context.getApplicationContext(), this);
+		this.loginWidget = new LoginWidgetImpl(this.oAuthManager);
+		return instance;
 	}
 
     /**
      * @return The AppID instance tenantId
      */
     public String getTenantId() {
-        return tenantId;
+        return this.tenantId;
     }
 
     /**
      * @return Bluemix region suffix ,use to build URLs
      */
     public String getBluemixRegionSuffix() {
-        return bluemixRegionSuffix;
+        return this.bluemixRegionSuffix;
     }
 
-	protected OAuthManager getOAuthManager(){
-		return oAuthManager;
+	@NonNull
+	public LoginWidget getLoginWidget(){
+		if (null == this.loginWidget){
+			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
+		}
+		return this.loginWidget;
 	}
+
+	@NonNull
+	protected OAuthManager getOAuthManager(){
+		if (null == this.oAuthManager){
+			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
+		}
+		return this.oAuthManager;
+	}
+
 }

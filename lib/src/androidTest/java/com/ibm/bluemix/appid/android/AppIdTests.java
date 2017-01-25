@@ -17,29 +17,31 @@ import com.ibm.bluemix.appid.android.api.AppID;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
 public class AppIdTests {
 
-    private static final  String testTenantId = "testTenant";
-    private static final String testRegion = "TestRegion";
+	private static final String testTenantId = "testTenant";
+	private static final String testRegion = "TestRegion";
+	private AppID appId;
 
-    @Before
-    public void setup() {
-    }
+	@Before
+	public void setup () {
+		this.appId = AppID.getInstance();
+		this.appId.initialize(getInstrumentation().getTargetContext(), testTenantId, testRegion);
+	}
 
-    @Test
-    public void getTenantIdTest() {
-        AppID appId = new AppID(getInstrumentation().getTargetContext(), testTenantId, testRegion);
-        assertEquals(appId.getTenantId(), testTenantId);
-    }
+	@Test
+	public void getTenantIdTest () {
+		assertEquals(appId.getTenantId(), testTenantId);
+	}
 
-    @Test
-    public void getRegionTest() {
-        AppID appId = new AppID(getInstrumentation().getTargetContext(), testTenantId, testRegion);
-        assertEquals(appId.getBluemixRegionSuffix(), testRegion);
-    }
+	@Test
+	public void getRegionTest () {
+		assertEquals(appId.getBluemixRegionSuffix(), testRegion);
+	}
 }
 

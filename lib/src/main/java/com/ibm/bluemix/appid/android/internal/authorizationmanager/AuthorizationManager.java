@@ -11,16 +11,19 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal.authorization;
+package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 
 import android.app.Activity;
 import android.net.Uri;
 
 import com.ibm.bluemix.appid.android.api.AppID;
+import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
-import com.ibm.bluemix.appid.android.internal.registration.RegistrationManager;
+import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationListener;
+import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
+import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 public class AuthorizationManager {
 	private static final String OAUTH_AUTHORIZATION_PATH = "/authorization";
@@ -38,6 +41,9 @@ public class AuthorizationManager {
 
 	private final static String REDIRECT_URI = "redirect_uri";
 	private final static String USE_LOGIN_WIDGET = "use_login_widget";
+	private final static String IDP = "idp";
+
+	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationManager.class.getName());
 
 	// TODO: document
 	public AuthorizationManager (final OAuthManager oAuthManager) {
@@ -47,7 +53,7 @@ public class AuthorizationManager {
 	}
 
 	// TODO: document
-	public String getAuthorizationUrl(boolean useLoginWidget) {
+	public String getAuthorizationUrl(boolean useLoginWidget, String idpName) {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
@@ -58,16 +64,27 @@ public class AuthorizationManager {
 				.appendQueryParameter(REDIRECT_URI, redirectUri)
 				.appendQueryParameter(SCOPE, SCOPE_OPENID)
 				.appendQueryParameter(USE_LOGIN_WIDGET, String.valueOf(useLoginWidget))
+				//.appendQueryParameter(IDP, idpName)
 				.build().toString();
 		return serverUrl;
 	}
 
 	// TODO: document
-	public void launchAuthorizationUI (Activity activity, AuthorizationListener authorizationListener){
-		String authorizationUrl = getAuthorizationUrl(true);
-		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
-		AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
-		auim.launch(activity);
-	}
+	public void launchAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener){
+		registrationManager.ensureRegistered(activity, new RegistrationListener() {
+			@Override
+			public void onRegistrationFailure (String message) {
+				logger.error(message);
+				authorizationListener.onAuthorizationFailure(new AuthorizationException(message));
+			}
 
+			@Override
+			public void onRegistrationSuccess () {
+				String authorizationUrl = getAuthorizationUrl(true, "to-be-used-for-specifying-idp-name");
+				String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+				AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
+				auim.launch(activity);
+			}
+		});
+	}
 }

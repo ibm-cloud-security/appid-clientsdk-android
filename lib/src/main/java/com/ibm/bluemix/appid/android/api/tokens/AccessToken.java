@@ -12,11 +12,8 @@
 */
 
 package com.ibm.bluemix.appid.android.api.tokens;
+import com.ibm.bluemix.appid.android.internal.tokens.Token;
 
-// TODO: document
-public class AccessToken extends AbstractToken{
-
-	public AccessToken (String raw) throws RuntimeException {
-		super(raw);
-	}
+public interface AccessToken extends Token {
+	String getScope();
 }

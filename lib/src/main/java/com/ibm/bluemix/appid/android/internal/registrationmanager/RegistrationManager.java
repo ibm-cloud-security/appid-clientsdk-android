@@ -11,7 +11,7 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal.registration;
+package com.ibm.bluemix.appid.android.internal.registrationmanager;
 
 import android.content.Context;
 import android.util.Base64;

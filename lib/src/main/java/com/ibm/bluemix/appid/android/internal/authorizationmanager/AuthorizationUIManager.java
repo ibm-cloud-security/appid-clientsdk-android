@@ -11,10 +11,9 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal.authorization;
+package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;

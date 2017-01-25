@@ -11,21 +11,9 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal.authorization;
+package com.ibm.bluemix.appid.android.internal.registrationmanager;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-
-public class RedirectUriReceiverActivity extends Activity {
-    @Override
-    public void onCreate(Bundle savedInstanceBundle) {
-        super.onCreate(savedInstanceBundle);
-
-		Intent i = new Intent(ChromeTabActivity.INTENT_GOT_HTTP_REDIRECT);
-		i.putExtra(ChromeTabActivity.EXTRA_REDIRECT_URI, this.getIntent().getData());
-		sendBroadcast(i);
-
-        this.finish();
-    }
+public interface RegistrationListener {
+	void onRegistrationFailure (String message);
+	void onRegistrationSuccess ();
 }

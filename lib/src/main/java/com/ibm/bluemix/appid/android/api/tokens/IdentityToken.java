@@ -13,10 +13,16 @@
 
 package com.ibm.bluemix.appid.android.api.tokens;
 
-// TODO: document
-public class IdentityToken extends AbstractToken {
+import com.ibm.bluemix.appid.android.internal.tokens.Token;
 
-	public IdentityToken (String raw) throws RuntimeException {
-		super(raw);
-	}
+import org.json.JSONArray;
+
+public interface IdentityToken extends Token {
+	String getName();
+	String getEmail();
+	String getGender();
+	String getLocale();
+	String getPicture();
+	JSONArray getIdentities();
+	OAuthClient getOAuthClient();
 }
