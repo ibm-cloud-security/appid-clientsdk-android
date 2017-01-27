@@ -11,25 +11,33 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.internal.preferences;
+package com.ibm.bluemix.appid.android.api.userattributes;
 
-import android.content.SharedPreferences;
+public class UserAttributesException extends Exception {
 
-import org.json.JSONException;
-import org.json.JSONObject;
+	public enum Error {
+		FAILED_TO_CONNECT {
+			public String getDescription(){
+				return "Failed to connect to the server";
+			}
+		},
+		NOT_FOUND {
+			public String getDescription(){
+				return "Attribute not found";
+			}
+		};
 
-public class JSONPreference extends StringPreference {
-
-	JSONPreference(String name, SharedPreferences sharedPreferences) {
-		super(name, sharedPreferences);
+		public abstract String getDescription();
 	}
 
-	public void set(JSONObject json) {
-		super.set(json.toString());
+	private Error error;
+
+	public UserAttributesException(Error error, String message){
+		super(message);
+		this.error = error;
 	}
 
-	public JSONObject getAsJSON() throws JSONException {
-		String stringValue = super.get();
-		return (stringValue == null) ? null : new JSONObject(stringValue);
+	public Error getError(){
+		return error;
 	}
 }

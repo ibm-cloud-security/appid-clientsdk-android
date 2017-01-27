@@ -28,8 +28,8 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "6f720c95-a0c4-408e-b2b2-9110c47c47e0"; //"11111111-1111-1111-1111-111111111bbb";
-	private final static String region = ".stage1-dev.ng.bluemix.net";//".stage1-dev.ng.bluemix.net";//AppId.REGION_UK;
+	private final static String mcaTenantId = "66f79ab9-a54e-4fa2-ad3c-406df494d018";
+	private final static String region = ".stage1-dev.ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
 	private BMSClient bmsClient;
@@ -79,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
 				logger.info("onAuthorizationSuccess");
 				logger.info("access_token: " + accessToken.getRaw());
 				logger.info("id_token: " + identityToken.getRaw());
+				logger.info("access_token isExpired: " + accessToken.isExpired());
+				logger.info("id_token isExpired: " + identityToken.isExpired());
 				hideProgress();
 				extractAndDisplayDataFromIdentityToken(identityToken);
 			}
@@ -110,23 +112,10 @@ public class MainActivity extends AppCompatActivity {
 	private void extractAndDisplayDataFromIdentityToken (IdentityToken identityToken) {
 
 		try {
-//			String picUrl = identityToken
-//					.getPayload()
-//					.getJSONObject("imf.user")
-//					.getJSONObject("attributes")
-//					.getJSONObject("picture")
-//					.getJSONObject("data")
-//					.getString("url");
+			String picUrl = identityToken.getPicture();
+			String displayName = identityToken.getName();
 
-//			final String displayName = identityToken
-//					.getPayload()
-//					.getJSONObject("imf.user")
-//					.getString("displayName");
-
-//			String picUrl = identityToken.getPicture();
-//			String displayName = identityToken.getName();
-//
-//			showPictureAndName(picUrl, displayName);
+			showPictureAndName(picUrl, displayName);
 			logger.info("extractAndDisplayDataFromIdentityToken done");
 		} catch (Exception e){
 			logger.error("ERROR", e);

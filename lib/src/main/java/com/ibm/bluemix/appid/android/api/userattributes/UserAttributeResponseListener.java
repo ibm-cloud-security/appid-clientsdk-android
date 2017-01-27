@@ -11,18 +11,11 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.api.tokens;
+package com.ibm.bluemix.appid.android.api.userattributes;
 
-import com.ibm.bluemix.appid.android.internal.tokens.Token;
+import org.json.JSONObject;
 
-import org.json.JSONArray;
-
-public interface IdentityToken extends Token {
-	String getName();
-	String getEmail();
-	String getGender();
-	String getLocale();
-	String getPicture();
-	JSONArray getIdentities();
-	OAuthClient getOAuthClient();
+public interface UserAttributeResponseListener {
+	void onSuccess(JSONObject attributes);
+	void onFailure(UserAttributesException e);
 }
