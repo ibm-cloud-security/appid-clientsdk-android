@@ -19,10 +19,12 @@ import android.net.Uri;
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationListener;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
+import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 public class AuthorizationManager {
@@ -42,6 +44,7 @@ public class AuthorizationManager {
 	private final static String REDIRECT_URI = "redirect_uri";
 	private final static String USE_LOGIN_WIDGET = "use_login_widget";
 	private final static String IDP = "idp";
+	private final static String IDP_ANONYMOUS = "anon";
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationManager.class.getName());
 
@@ -58,15 +61,17 @@ public class AuthorizationManager {
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
 		String serverUrl = Config.getServerUrl(this.appId) + OAUTH_AUTHORIZATION_PATH;
-		serverUrl = Uri.parse(serverUrl).buildUpon()
+		Uri.Builder builder = Uri.parse(serverUrl).buildUpon()
 				.appendQueryParameter(RESPONSE_TYPE, RESPONSE_TYPE_CODE)
 				.appendQueryParameter(CLIENT_ID, clientId)
 				.appendQueryParameter(REDIRECT_URI, redirectUri)
 				.appendQueryParameter(SCOPE, SCOPE_OPENID)
-				.appendQueryParameter(USE_LOGIN_WIDGET, String.valueOf(useLoginWidget))
-				//.appendQueryParameter(IDP, idpName)
-				.build().toString();
-		return serverUrl;
+				.appendQueryParameter(USE_LOGIN_WIDGET, String.valueOf(useLoginWidget));
+
+		if (idpName != null){
+			builder.appendQueryParameter(IDP, idpName);
+		}
+		return builder.build().toString();
 	}
 
 	// TODO: document
@@ -80,11 +85,22 @@ public class AuthorizationManager {
 
 			@Override
 			public void onRegistrationSuccess () {
-				String authorizationUrl = getAuthorizationUrl(true, "to-be-used-for-specifying-idp-name");
+				String authorizationUrl = getAuthorizationUrl(true, null);
 				String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 				AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
 				auim.launch(activity);
 			}
 		});
+	}
+
+	public void loginAnonymously(String accessTokenString, AuthorizationListener listener){
+		AccessToken accessToken;
+		if (accessTokenString == null){
+			accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
+		} else {
+			accessToken = new AccessTokenImpl(accessTokenString);
+		}
+		String authorizationUrl = getAuthorizationUrl(false, IDP_ANONYMOUS);
+		// TODO: Implement anonymous flow
 	}
 }

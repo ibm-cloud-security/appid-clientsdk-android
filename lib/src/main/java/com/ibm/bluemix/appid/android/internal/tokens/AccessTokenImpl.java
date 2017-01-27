@@ -16,4 +16,5 @@ public class AccessTokenImpl extends AbstractToken implements AccessToken {
 	public String getScope () {
 		return (String) getValue(SCOPE);
 	}
+
 }
