@@ -1,5 +1,5 @@
 /*
-	Copyright 2014-17 IBM Corp.
+	Copyright 2017 IBM Corp.
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
 	You may obtain a copy of the License at
@@ -27,44 +27,45 @@ import java.util.Map;
 
 import javax.net.ssl.SSLSocketFactory;
 
-public class AppIDRequest extends BaseRequest{
-    private static OkHttpClient httpClient = new OkHttpClient();
+public class AppIDRequest extends BaseRequest {
+	private static OkHttpClient httpClient = new OkHttpClient();
 
-    static {
-        SSLSocketFactory tlsEnabledSSLSocketFactory;
-        try {
-            tlsEnabledSSLSocketFactory = new TLSEnabledSSLSocketFactory();
-            httpClient.setSslSocketFactory(tlsEnabledSSLSocketFactory);
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
+	static {
+		SSLSocketFactory tlsEnabledSSLSocketFactory;
+		try {
+			tlsEnabledSSLSocketFactory = new TLSEnabledSSLSocketFactory();
+			httpClient.setSslSocketFactory(tlsEnabledSSLSocketFactory);
+		} catch (KeyManagementException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+	}
 
-    /**
-     * Constructs the authorization request
-     * @param url request url
-     * @param method request method
-     */
-    public AppIDRequest(String url, String method) {
-        super(url, method);
+	/**
+	 * Constructs the authorization request
+	 *
+	 * @param url    request url
+	 * @param method request method
+	 */
+	public AppIDRequest (String url, String method) {
+		super(url, method);
 
-        // we want to handle redirects in-place
-        httpClient.setFollowRedirects(false);
-    }
+		// we want to handle redirects in-place
+		httpClient.setFollowRedirects(false);
+	}
 
-    @Override
-    public void send(JSONObject json, ResponseListener listener){
-        super.send(json, listener);
-    }
+	@Override
+	public void send (JSONObject json, ResponseListener listener) {
+		super.send(json, listener);
+	}
 
-    @Override
-    public void send(Map<String, String> formParameters, ResponseListener listener) {
-        super.send(formParameters, listener);
-    }
+	@Override
+	public void send (Map<String, String> formParameters, ResponseListener listener) {
+		super.send(formParameters, listener);
+	}
 
-    // TODO: remove?
+	// TODO: remove?
 //    /**
 //     * Override the base getter to return authrization http client
 //     * @return internal http client
