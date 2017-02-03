@@ -11,7 +11,6 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
-//        testInstrumentationRunner "android.test.InstrumentationTestRunner"
         testInstrumentationRunner "org.robolectric.RobolectricTestRunner"
         android.buildTypes.debug.manifestPlaceholders = [
             'appIdRedirectScheme': 'com.ibm.mobilefirstplatform.appid_clientsdk_android_test'
@@ -28,16 +27,9 @@ android {
         }
     }
 
-//    sourceSets {
-        // androidTest.setRoot('src/test')
-        // instrumentTest.setRoot('src/test')
-//    }
-
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.all {
-//            include '**/*Test.class'
-//            maxHeapSize = "2048m"
             jacoco {
                 includeNoLocationClasses = true
             }

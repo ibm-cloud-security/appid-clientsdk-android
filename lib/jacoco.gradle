@@ -45,14 +45,4 @@ task jacocoTestReport(type: JacocoCustomResport) {
     def executionDataFile = "${buildDir}/jacoco/testDebugUnitTest.exec"
     println("jacoco.gradle :: executionDataFile ::" + executionDataFile)
     executionData = files(executionDataFile)
-
-    // Bit hacky but fixes https://code.google.com/p/android/issues/detail?id=69174.
-    // We iterate through the compiled .class tree and rename $$ to $.
-//    doFirst {
-//        new File("$buildDir/intermediates/classes/").eachFileRecurse { file ->
-//            if (file.name.contains('$$')) {
-//                file.renameTo(file.path.replace('$$', '$'))
-//            }
-//        }
-//    }
 }
