@@ -1,0 +1,14 @@
+/.gradle
+.idea
+*.iml
+*.lock
+*.pro
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+*.png
+
+
