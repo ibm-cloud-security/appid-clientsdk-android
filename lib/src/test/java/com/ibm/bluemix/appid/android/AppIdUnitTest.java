@@ -13,14 +13,23 @@
 
 package com.ibm.bluemix.appid.android;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
+import static org.junit.Assert.*;
+
+@RunWith (RobolectricTestRunner.class)
+@Config (constants = BuildConfig.class)
 public class AppIdUnitTest {
+
+	@Test
+	public void test(){
+		assertEquals(1,1);
+	}
 //
 //    private AppId mockAppId;
 //    private AppIdAuthorizationManager mockAppIdAM;
