@@ -174,7 +174,7 @@ public class RegistrationManager {
         params.put(SOFTWARE_VERSION, applicationData.getVersion());
         params.put(DEVICE_ID, deviceData.getId());
         params.put(DEVICE_MODEL, deviceData.getModel());
-        params.put(DEVICE_OS, deviceData.getOS());
+        params.put(DEVICE_OS, "android");
         params.put(CLIENT_TYPE, "mobileapp");
         params.put("jwks", jwks);
 		logger.debug("OAuth client registration parameters");
