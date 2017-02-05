@@ -3,6 +3,7 @@ apply plugin: 'jacoco'
 class JacocoCustomResport extends JacocoReport {
     JacocoCustomResport() {
         super()
+        // Override upToDateWhen so the jacocoTestReport would always be executed
         outputs.upToDateWhen { false }
     }
 }

@@ -54,7 +54,9 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
  	@Override
 	public boolean isAuthorizationRequired (int statusCode, Map<String, List<String>> headers) {
 		logger.debug("isAuthorizationRequired");
-        if (headers.containsKey(WWW_AUTHENTICATE_HEADER_NAME)){
+        if ((statusCode == 401 || statusCode == 403) &&
+				headers != null &&
+				headers.containsKey(WWW_AUTHENTICATE_HEADER_NAME)){
             String authHeader = headers.get(WWW_AUTHENTICATE_HEADER_NAME).get(0);
             return AuthorizationHeaderHelper.isAuthorizationRequired(statusCode, authHeader);
         } else {

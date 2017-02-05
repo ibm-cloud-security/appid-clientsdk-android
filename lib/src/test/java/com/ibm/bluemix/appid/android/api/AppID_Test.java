@@ -15,6 +15,8 @@ package com.ibm.bluemix.appid.android.api;
 
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
+import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
+import com.ibm.bluemix.appid.android.testing.helpers.ClassHelper;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
 import org.assertj.core.api.ThrowableAssert;
@@ -95,9 +97,13 @@ public class AppID_Test {
 		assertThat(appId.getTenantId()).isEqualTo(testTenantId);
 		assertThat(appId.getBluemixRegionSuffix()).isEqualTo(testRegion);
 		assertThat(appId.getLoginWidget()).isNotNull();
-		assertThat(appId.getLoginWidget().getClass().getName()).isEqualTo(LoginWidgetImpl.class.getName());
+		ClassHelper.assertSame(appId.getLoginWidget(), LoginWidgetImpl.class);
 		assertThat(appId.getOAuthManager()).isNotNull();
-		assertThat(appId.getOAuthManager().getClass().getName()).isEqualTo(OAuthManager.class.getName());
+		ClassHelper.assertSame(appId.getOAuthManager(), OAuthManager.class);
+		assertThat(appId.getUserAttributeManager()).isNotNull();
+		ClassHelper.assertSame(appId.getUserAttributeManager(), UserAttributeManagerImpl.class);
+		appId.loginAnonymously(null);
+		appId.loginAnonymously(null, null);
 	}
 }
 
