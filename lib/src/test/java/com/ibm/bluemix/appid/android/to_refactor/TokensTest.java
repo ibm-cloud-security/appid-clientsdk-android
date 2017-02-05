@@ -11,7 +11,7 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android;
+package com.ibm.bluemix.appid.android.to_refactor;
 
 //import android.support.test.runner.AndroidJUnit4;
 //

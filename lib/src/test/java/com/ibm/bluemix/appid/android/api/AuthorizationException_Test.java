@@ -1,6 +1,6 @@
 package com.ibm.bluemix.appid.android.api;
 
-import com.ibm.bluemix.appid.android.testhelpers.ClassHelper;
+import com.ibm.bluemix.appid.android.testing.helpers.ClassHelper;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
 import org.junit.FixMethodOrder;
@@ -14,7 +14,7 @@ import static org.assertj.core.api.Java6Assertions.*;
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder (MethodSorters.NAME_ASCENDING)
 @Config (constants = BuildConfig.class)
-public class AuthoriationException_Test {
+public class AuthorizationException_Test {
 
 	@Test (expected = AuthorizationException.class)
 	public void test () throws AuthorizationException {

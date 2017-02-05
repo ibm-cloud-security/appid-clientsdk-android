@@ -1,8 +1,7 @@
 package com.ibm.bluemix.appid.android.api.tokens;
-import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.OAuthClientImpl;
-import com.ibm.bluemix.appid.android.testhelpers.Consts;
+import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
 import org.json.JSONException;
@@ -18,7 +17,7 @@ import static org.assertj.core.api.Java6Assertions.*;
 @FixMethodOrder (MethodSorters.NAME_ASCENDING)
 @Config (constants = BuildConfig.class)
 public class OAuthClient_Test {
-	
+
 	@Test ()
 	public void testWithValidIdToken ()  {
 		IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);

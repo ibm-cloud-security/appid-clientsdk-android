@@ -1,4 +1,4 @@
-package com.ibm.bluemix.appid.android.testhelpers;
+package com.ibm.bluemix.appid.android.testing.helpers;
 
 /**
  * Created on 2/4/17.

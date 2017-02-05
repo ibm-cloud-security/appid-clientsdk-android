@@ -17,6 +17,7 @@ public class UserAttributesException_Test {
 
 	@Test (expected = UserAttributesException.class)
 	public void test () throws UserAttributesException {
+
 		UserAttributesException uae1 = new UserAttributesException(UserAttributesException.Error.FAILED_TO_CONNECT);
 		assertThat(uae1.getError()).isEqualTo(UserAttributesException.Error.FAILED_TO_CONNECT);
 

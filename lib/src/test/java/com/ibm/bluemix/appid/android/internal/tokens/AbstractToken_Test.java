@@ -1,7 +1,7 @@
 package com.ibm.bluemix.appid.android.internal.tokens;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
-import com.ibm.bluemix.appid.android.testhelpers.Consts;
+import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
 import org.junit.FixMethodOrder;

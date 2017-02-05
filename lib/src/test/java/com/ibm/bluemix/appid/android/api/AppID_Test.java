@@ -16,7 +16,7 @@ package com.ibm.bluemix.appid.android.api;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
 import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
-import com.ibm.bluemix.appid.android.testhelpers.ClassHelper;
+import com.ibm.bluemix.appid.android.testing.helpers.ClassHelper;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
 import org.assertj.core.api.ThrowableAssert;

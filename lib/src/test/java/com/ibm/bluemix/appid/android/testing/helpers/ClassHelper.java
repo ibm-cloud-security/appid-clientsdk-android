@@ -1,4 +1,4 @@
-package com.ibm.bluemix.appid.android.testhelpers;
+package com.ibm.bluemix.appid.android.testing.helpers;
 
 import static org.assertj.core.api.Java6Assertions.*;
 
