@@ -13,14 +13,15 @@
 
 package com.ibm.bluemix.appid.android.internal.network;
 
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.BaseRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.TLSEnabledSSLSocketFactory;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.RequestBody;
 
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -55,6 +56,20 @@ public class AppIDRequest extends BaseRequest {
 		httpClient.setFollowRedirects(false);
 	}
 
+	public void send(final ResponseListener listener, final RequestBody requestBody, final AccessToken accessToken) {
+
+		if (accessToken != null) {
+			removeHeaders("Authorization");
+			addHeader("Authorization", "Bearer " + accessToken.getRaw());
+		}
+
+		if( requestBody != null){
+			super.sendRequest(listener, requestBody);
+		}else{
+			send(listener);
+		}
+	}
+
 	@Override
 	public void send (JSONObject json, ResponseListener listener) {
 		super.send(json, listener);
@@ -65,19 +80,10 @@ public class AppIDRequest extends BaseRequest {
 		super.send(formParameters, listener);
 	}
 
-	// TODO: remove?
-//    /**
-//     * Override the base getter to return authrization http client
-//     * @return internal http client
-//     */
-//    protected OkHttpClient getHttpClient() {
-//        return httpClient;
-//    }
-//
-//    @Override
-//    public void send(final ResponseListener listener) {
-//        super.send(listener);
-//    }
-//
+    @Override
+    public void send(final ResponseListener listener) {
+        super.send(listener);
+    }
+
 
 }

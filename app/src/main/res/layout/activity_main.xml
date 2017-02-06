@@ -12,6 +12,13 @@
     tools:context="com.ibm.mobilefirstplatform.appid.MainActivity"
     android:background="@android:color/background_light">
 
+    <!-- Dummy item to prevent attributes entry from receiving focus -->
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -26,6 +33,16 @@
             android:layout_alignParentTop="false"
             android:layout_centerHorizontal="true" />
 
+        <Button
+            android:text="Use Anonymously"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/anonloginButton"
+            android:onClick="onAnonLoginClick"
+            android:layout_below="@+id/profilePic"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="39dp" />
+
     </RelativeLayout>
 
     <TextView
@@ -38,7 +55,6 @@
         android:textSize="21sp"
         android:textAlignment="center"
         android:textStyle="bold"
-        android:layout_below="@+id/profilePic"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="127dp" />
@@ -54,13 +70,36 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onProtectedRequestClick"
+        android:id="@+id/protectedRequestButton"
+        android:text="Protected Resource Request"
+        android:layout_below="@+id/textView4"
+        android:layout_alignParentStart="true" />
+
+
+
+    <TextView
+        android:text="enter attribute"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textAttributes"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/protectedRequestButton"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="normal|bold"
+        android:textSize="16sp" />
+
     <TextView
         android:text="Response:"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textView2"
         android:layout_marginTop="16dp"
-        android:layout_below="@+id/protectedRequestButton"
+        android:layout_below="@+id/putAttribute"
         android:layout_centerHorizontal="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textStyle="normal|bold"
@@ -96,16 +135,6 @@
         android:textSize="16sp"
         android:textAlignment="center" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onProtectedRequestClick"
-        android:id="@+id/protectedRequestButton"
-        android:text="Protected Resource Request"
-        android:layout_below="@+id/textView4"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
     <ProgressBar
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
@@ -116,4 +145,70 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
+    <EditText
+        android:id="@+id/editAttrName"
+        android:hint="name"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:layout_margin="3dp"
+        android:layout_below="@+id/textAttributes"/>
+
+    <EditText
+        android:id="@+id/editAttrValue"
+        android:hint="value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:layout_margin="3dp"
+        android:layout_toEndOf="@+id/editAttrName"
+        android:layout_alignBottom="@+id/editAttrName"
+        android:layout_below="@+id/textAttributes"/>
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="60dp"
+        android:onClick="onPutAttributeClick"
+        android:id="@+id/putAttribute"
+        android:text="PUT"
+        android:layout_below="@+id/editAttrName"
+        android:layout_alignParentStart="true"
+        android:textSize="10sp"/>
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="60dp"
+        android:onClick="onGetAttributeClick"
+        android:id="@+id/getAttribute"
+        android:text="GET"
+        android:layout_below="@+id/editAttrName"
+        android:layout_alignParentStart="true"
+        android:textSize="10sp"
+        android:layout_toEndOf="@+id/putAttribute"
+        android:layout_alignBottom="@+id/putAttribute"
+        android:layout_marginLeft="70dp"/>
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="60dp"
+        android:onClick="onDeleteAttributeClick"
+        android:id="@+id/deleteAttribute"
+        android:text="DELETE"
+        android:textSize="10sp"
+        android:layout_toEndOf="@+id/getAttribute"
+        android:layout_alignBottom="@+id/getAttribute"
+        android:layout_marginLeft="70dp"
+        android:layout_below="@+id/editAttrName" />
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="100dp"
+        android:onClick="onGetAllAttributesClick"
+        android:id="@+id/getAllAttributes"
+        android:text="GET ALL"
+        android:textSize="10sp"
+        android:layout_toEndOf="@+id/deleteAttribute"
+        android:layout_alignBottom="@+id/deleteAttribute"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/editAttrName" />
 </RelativeLayout>

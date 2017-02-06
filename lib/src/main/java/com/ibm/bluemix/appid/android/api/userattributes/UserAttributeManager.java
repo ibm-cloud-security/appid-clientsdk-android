@@ -24,6 +24,6 @@ public interface UserAttributeManager {
 	void getAttribute(@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener);
 	void deleteAttribute(@NonNull String name, UserAttributeResponseListener listener);
 	void deleteAttribute(@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener);
-	// void getAllAttributes();
-	// void getAllAttributes(@NonNull AccessToken accessToken)
+	void getAllAttributes(@NonNull UserAttributeResponseListener listener);
+	void getAllAttributes(@NonNull AccessToken accessToken, @NonNull UserAttributeResponseListener listener);
 }

@@ -15,6 +15,7 @@ package com.ibm.bluemix.appid.android.internal.tokens;
 
 import android.util.Base64;
 
+import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 import org.json.JSONException;
@@ -23,6 +24,8 @@ import org.json.JSONObject;
 import java.util.Date;
 
 public abstract class AbstractToken implements Token {
+	public final static String IDP_ANONYMOUS = "appid_anon";
+
 	private final String raw;
 	private JSONObject header;
 	private JSONObject payload;
@@ -125,4 +128,9 @@ public abstract class AbstractToken implements Token {
 	public boolean isExpired(){
 		return getExpiration().before(new Date());
 	}
+
+	public boolean isAnonymous(){
+		return getAuthBy().equals(IDP_ANONYMOUS);
+	}
+
 }

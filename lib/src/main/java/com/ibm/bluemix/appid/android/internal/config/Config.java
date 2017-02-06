@@ -17,6 +17,7 @@ import com.ibm.bluemix.appid.android.api.AppID;
 
 public class Config {
 	private static final String serverUrlPrefix = "https://imf-authserver";
+	private static final String userProfilesPrefix = "https://appid-user-profile-service";
 
 	public static String getServerUrl(AppID appId) {
 		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + "/oauth/v3/";
@@ -24,6 +25,14 @@ public class Config {
 			serverUrl = appId.overrideServerHost;
 		}
 		serverUrl += appId.getTenantId();
+		return serverUrl;
+	}
+
+	public static String getUserProfilesUrl(AppID appId) {
+		String serverUrl = userProfilesPrefix + appId.getBluemixRegionSuffix() + "/api/v1/";
+		if (null != appId.userProfilesHost) {
+			serverUrl = appId.userProfilesHost;
+		}
 		return serverUrl;
 	}
 }

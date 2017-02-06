@@ -22,10 +22,15 @@ import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
+import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationListener;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+
+import org.json.JSONObject;
 
 public class AuthorizationManager {
 	private static final String OAUTH_AUTHORIZATION_PATH = "/authorization";
@@ -44,7 +49,9 @@ public class AuthorizationManager {
 	private final static String REDIRECT_URI = "redirect_uri";
 	private final static String USE_LOGIN_WIDGET = "use_login_widget";
 	private final static String IDP = "idp";
-	private final static String IDP_ANONYMOUS = "anon";
+	private final static String ACCESS_TOKEN = "appid_access_token";
+
+
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationManager.class.getName());
 
@@ -56,7 +63,7 @@ public class AuthorizationManager {
 	}
 
 	// TODO: document
-	public String getAuthorizationUrl(boolean useLoginWidget, String idpName) {
+	public String getAuthorizationUrl(boolean useLoginWidget, String idpName, AccessToken accessToken) {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
@@ -71,11 +78,17 @@ public class AuthorizationManager {
 		if (idpName != null){
 			builder.appendQueryParameter(IDP, idpName);
 		}
+		if(accessToken != null){
+			builder.appendQueryParameter(ACCESS_TOKEN, accessToken.getRaw());
+		}
 		return builder.build().toString();
+	}
+	public void launchAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener){
+		launchAuthorizationUI(activity, authorizationListener, null);
 	}
 
 	// TODO: document
-	public void launchAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener){
+	public void launchAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener, final AccessToken accessToken){
 		registrationManager.ensureRegistered(activity, new RegistrationListener() {
 			@Override
 			public void onRegistrationFailure (String message) {
@@ -85,7 +98,7 @@ public class AuthorizationManager {
 
 			@Override
 			public void onRegistrationSuccess () {
-				String authorizationUrl = getAuthorizationUrl(true, null);
+				String authorizationUrl = getAuthorizationUrl(true, null, accessToken);
 				String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 				AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
 				auim.launch(activity);
@@ -93,14 +106,43 @@ public class AuthorizationManager {
 		});
 	}
 
-	public void loginAnonymously(String accessTokenString, AuthorizationListener listener){
+	public void loginAnonymously(String accessTokenString, final AuthorizationListener listener){
 		AccessToken accessToken;
 		if (accessTokenString == null){
 			accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
 		} else {
 			accessToken = new AccessTokenImpl(accessTokenString);
 		}
-		String authorizationUrl = getAuthorizationUrl(false, IDP_ANONYMOUS);
-		// TODO: Implement anonymous flow
+		String authorizationUrl = getAuthorizationUrl(false, AccessTokenImpl.IDP_ANONYMOUS, accessToken);
+
+
+		AppIDRequest request = new AppIDRequest(authorizationUrl, AppIDRequest.GET);
+		request.send(new ResponseListener(){
+						 @Override
+						 public void onSuccess(Response response) {
+							 if (logger.isSDKDebugLoggingEnabled()){
+								 logger.debug("loginAnonymously.Response in onSuccess:" + response.getResponseText());
+							 }
+							 String location = response.getHeaders().get("Location").toString();
+							 String locationUrl = location.substring(1,location.length()-1); // removing []
+							 String code= Uri.parse(locationUrl).getQueryParameter("code");
+
+ 							 oAuthManager.getTokenManager().obtainTokens(code, listener);
+						 }
+
+						 @Override
+						 public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+							 if (logger.isSDKDebugLoggingEnabled()) {
+								 String message = response == null ? "" : response.getResponseText();
+								 logger.debug("loginAnonymously.Response in onFailure:" + message, t);
+							 }
+							 String message = t != null ? t.getLocalizedMessage() : "Authorization request failed.";
+							 message = extendedInfo !=null ? message + extendedInfo.toString() : message;
+							 listener.onAuthorizationFailure( new AuthorizationException(message));
+						 }
+					 }
+
+		);
+
 	}
 }

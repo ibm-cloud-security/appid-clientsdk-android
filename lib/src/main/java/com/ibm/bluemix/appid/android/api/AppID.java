@@ -16,7 +16,6 @@ package com.ibm.bluemix.appid.android.api;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
@@ -34,6 +33,7 @@ public class AppID {
 	private UserAttributeManager userAttributeManager;
 
     public static String overrideServerHost = null;
+	public static String userProfilesHost = null;
 
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
@@ -116,6 +116,7 @@ public class AppID {
 	}
 
 	public void loginAnonymously(String accessToken, AuthorizationListener authorizationListener){
+		oAuthManager.getAuthorizationManager().loginAnonymously(accessToken, authorizationListener);
 
 	}
 

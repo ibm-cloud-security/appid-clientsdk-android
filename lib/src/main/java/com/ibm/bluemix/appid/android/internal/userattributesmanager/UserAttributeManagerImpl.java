@@ -15,13 +15,25 @@ package com.ibm.bluemix.appid.android.internal.userattributesmanager;
 
 import android.support.annotation.NonNull;
 
+import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
+import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.config.Config;
+import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.RequestBody;
 
-// TODO: Implement user attribute manager
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class UserAttributeManagerImpl implements UserAttributeManager {
+	private static final String USER_PROFILE_ATTRIBUTES_PATH = "Attributes";
+
 	private final OAuthManager oAuthManager;
 
 	public UserAttributeManagerImpl(OAuthManager oAuthManager){
@@ -34,9 +46,48 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 		this.setAttribute(name, value, accessToken, listener);
 	}
 
+	private void sendProtectedRequest(String method, String name, String value, AccessToken accessToken, final UserAttributeResponseListener listener){
+		String url = Config.getUserProfilesUrl(AppID.getInstance()) + USER_PROFILE_ATTRIBUTES_PATH;
+		url =
+			name == null || name.length() == 0 ? url : url  + '/' + name;
+
+		AppIDRequest req =
+				new AppIDRequest( url, method);
+
+		ResponseListener resListener = new ResponseListener() {
+			@Override
+			public void onSuccess(Response response) {
+				try {
+					listener.onSuccess( new JSONObject( response.getResponseText()));
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+				String message = t != null ? t.getLocalizedMessage() : "";
+				message = extendedInfo !=null ? message + " : " + extendedInfo.toString() : message;
+
+				int errorCode = response !=null ? response.getStatus() : 500;
+				UserAttributesException.Error error;
+				switch(errorCode){
+					case 401: error = UserAttributesException.Error.UNAUTHORIZED; break;
+					case 404: error = UserAttributesException.Error.NOT_FOUND; break;
+					default: error = UserAttributesException.Error.FAILED_TO_CONNECT;
+				}
+
+				listener.onFailure(new UserAttributesException( error, message));
+			}
+		};
+
+		RequestBody requestBody =
+				value == null || value.length() == 0 ? null : RequestBody.create(MediaType.parse("application/json"), value);
+		req.send( resListener, requestBody, accessToken);
+	}
 	@Override
-	public void setAttribute (@NonNull String name, @NonNull String value, @NonNull AccessToken accessToken, UserAttributeResponseListener listener) {
-		throw new RuntimeException("Not Implemented");
+	public void setAttribute (@NonNull String name, @NonNull String value, @NonNull AccessToken accessToken, final UserAttributeResponseListener listener) {
+		sendProtectedRequest(AppIDRequest.PUT, name, value, accessToken, listener);
 	}
 
 	@Override
@@ -47,7 +98,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 
 	@Override
 	public void getAttribute (@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener) {
-		throw new RuntimeException("Not Implemented");
+		sendProtectedRequest( AppIDRequest.GET, name, null, accessToken, listener);
 	}
 
 	@Override
@@ -58,6 +109,17 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 
 	@Override
 	public void deleteAttribute (@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener) {
-		throw new RuntimeException("Not Implemented");
+		sendProtectedRequest( AppIDRequest.DELETE, name, null, accessToken, listener);
+	}
+
+	@Override
+	public void getAllAttributes(@NonNull UserAttributeResponseListener listener) {
+		AccessToken accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
+		this.getAllAttributes( accessToken, listener);
+	}
+
+	@Override
+	public void getAllAttributes(@NonNull AccessToken accessToken, @NonNull UserAttributeResponseListener listener) {
+		sendProtectedRequest( AppIDRequest.GET, null, null, accessToken, listener);
 	}
 }

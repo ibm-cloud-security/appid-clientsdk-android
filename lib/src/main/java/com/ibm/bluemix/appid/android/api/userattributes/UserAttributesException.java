@@ -25,6 +25,11 @@ public class UserAttributesException extends Exception {
 			public String getDescription(){
 				return "Attribute not found";
 			}
+		},
+		UNAUTHORIZED {
+			public String getDescription(){
+				return "Access to attribute is unauthorized";
+			}
 		};
 
 		public abstract String getDescription();
