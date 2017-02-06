@@ -27,8 +27,8 @@ public abstract class AbstractToken implements Token {
 	public final static String IDP_ANONYMOUS = "appid_anon";
 
 	private final String raw;
-	private JSONObject header;
-	private JSONObject payload;
+	private final JSONObject header;
+	private final JSONObject payload;
 	private final String signature;
 
 	private final static String ISSUER = "iss";
@@ -54,13 +54,20 @@ public abstract class AbstractToken implements Token {
 
 		try {
 			this.header = new JSONObject(decodedHeader);
+		} catch (JSONException e){
+			logger.error("Failed to parse JWT header", e);
+			throw new RuntimeException("Failed to parse JWT header");
+		}
+
+		try {
 			this.payload = new JSONObject(decodedPayload);
 		} catch (JSONException e){
-			this.header = null;
-			this.payload = null;
-			logger.error("Failed to parse JWT", e);
-			throw new RuntimeException("Failed to parse JWT");
+			logger.error("Failed to parse JWT payload", e);
+			throw new RuntimeException("Failed to parse JWT payload");
 		}
+
+
+
 	}
 
 	public String getRaw () {
