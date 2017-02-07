@@ -106,7 +106,23 @@ public class AuthorizationManager {
 		});
 	}
 
-	public void loginAnonymously(String accessTokenString, final AuthorizationListener listener){
+	private void registerAndLoginAnon(final String accessTokenString, final AuthorizationListener authorizationListener){
+
+		registrationManager.ensureRegistered(AppID.getInstance().getContext(), new RegistrationListener() {
+			@Override
+			public void onRegistrationFailure (String message) {
+				logger.error(message);
+				authorizationListener.onAuthorizationFailure(new AuthorizationException(message));
+			}
+
+			@Override
+			public void onRegistrationSuccess () {
+				continueAnonLogin( accessTokenString, authorizationListener);
+			}
+		});
+	}
+
+	public void continueAnonLogin(String accessTokenString, final AuthorizationListener listener){
 		AccessToken accessToken;
 		if (accessTokenString == null){
 			accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
@@ -127,7 +143,7 @@ public class AuthorizationManager {
 							 String locationUrl = location.substring(1,location.length()-1); // removing []
 							 String code= Uri.parse(locationUrl).getQueryParameter("code");
 
- 							 oAuthManager.getTokenManager().obtainTokens(code, listener);
+							 oAuthManager.getTokenManager().obtainTokens(code, listener);
 						 }
 
 						 @Override
@@ -143,6 +159,9 @@ public class AuthorizationManager {
 					 }
 
 		);
+	}
 
+	public void loginAnonymously(String accessTokenString, final AuthorizationListener listener){
+		registerAndLoginAnon(accessTokenString, listener);
 	}
 }

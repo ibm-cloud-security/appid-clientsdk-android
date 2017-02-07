@@ -39,7 +39,10 @@ public class AppID {
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 
-	// TODO: document
+    private Context context;
+
+
+    // TODO: document
 	@NonNull
 	public static synchronized AppID getInstance(){
 		if (null == instance) {
@@ -62,8 +65,16 @@ public class AppID {
 		this.oAuthManager = new OAuthManager(context.getApplicationContext(), this);
 		this.loginWidget = new LoginWidgetImpl(this.oAuthManager);
 		this.userAttributeManager = new UserAttributeManagerImpl(this.oAuthManager);
+		this.context = context;
 		return instance;
 	}
+
+    /**
+     * @return The Context this AppID was initialized with
+     */
+    public Context getContext() {
+        return context;
+    }
 
     /**
      * @return The AppID instance tenantId

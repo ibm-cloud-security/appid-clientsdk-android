@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 		try {
 			if ( identityToken.isAnonymous()){
 				picUrl = null;
-				displayName = "Anonymous User";
+				displayName = "Anonymous User ( " + identityToken.getSubject() + " )";
 			}else {
 				picUrl = identityToken.getPicture();
 				displayName = identityToken.getName();
