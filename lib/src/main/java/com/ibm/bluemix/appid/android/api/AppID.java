@@ -21,6 +21,8 @@ import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
 import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
 
+import org.jetbrains.annotations.NotNull;
+
 public class AppID {
 
 	private static AppID instance;
@@ -122,11 +124,11 @@ public class AppID {
 		return this.userAttributeManager;
 	}
 
-	public void loginAnonymously(AuthorizationListener authorizationListener){
-		this.loginAnonymously(null, authorizationListener);
+	public void loginAnonymously(@NotNull AuthorizationListener authorizationListener){
+		this.loginAnonymously(authorizationListener, null);
 	}
 
-	public void loginAnonymously(String accessToken, AuthorizationListener authorizationListener){
+	public void loginAnonymously(@NotNull AuthorizationListener authorizationListener, String accessToken){
 		oAuthManager.getAuthorizationManager().loginAnonymously(accessToken, authorizationListener);
 
 	}

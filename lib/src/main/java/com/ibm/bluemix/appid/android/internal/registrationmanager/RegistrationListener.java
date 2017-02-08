@@ -14,6 +14,6 @@
 package com.ibm.bluemix.appid.android.internal.registrationmanager;
 
 public interface RegistrationListener {
-	void onRegistrationFailure (String message);
+	void onRegistrationFailure (RegistrationStatus error);
 	void onRegistrationSuccess ();
 }

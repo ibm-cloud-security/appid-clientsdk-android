@@ -23,6 +23,7 @@ import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
+import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationListener;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
@@ -91,9 +92,9 @@ public class AuthorizationManager {
 	public void launchAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener, final AccessToken accessToken){
 		registrationManager.ensureRegistered(activity, new RegistrationListener() {
 			@Override
-			public void onRegistrationFailure (String message) {
-				logger.error(message);
-				authorizationListener.onAuthorizationFailure(new AuthorizationException(message));
+			public void onRegistrationFailure (RegistrationStatus error) {
+				logger.error(error.getDescription());
+				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
 			}
 
 			@Override
@@ -110,9 +111,9 @@ public class AuthorizationManager {
 
 		registrationManager.ensureRegistered(AppID.getInstance().getContext(), new RegistrationListener() {
 			@Override
-			public void onRegistrationFailure (String message) {
-				logger.error(message);
-				authorizationListener.onAuthorizationFailure(new AuthorizationException(message));
+			public void onRegistrationFailure (RegistrationStatus error) {
+				logger.error(error.getDescription());
+				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
 			}
 
 			@Override
