@@ -1,5 +1,10 @@
 package com.ibm.bluemix.appid.android.api;
 
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
+import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
+import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.bluemix.appid.android.testing.mocks.HttpURLConnection_Mock;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
@@ -36,6 +41,33 @@ public class AppIDAuthorizationManager_Test {
 		appId.initialize(RuntimeEnvironment.application, "a", "b");
 
 		appIdAuthManager = new AppIDAuthorizationManager(appId);
+	}
+	@Test
+	public void testGetCachedAuthorizationHeader () {
+		class AppIDAuthorizationManagerMock extends AppIDAuthorizationManager {
+			AccessToken a;
+			IdentityToken b;
+			public AppIDAuthorizationManagerMock(AccessToken a, IdentityToken b) {
+				super(AppID.getInstance());
+				this.a = a;
+				this.b = b;
+			}
+			public AccessToken getAccessToken () {
+				return a;
+			}
+
+			public IdentityToken getIdentityToken () {
+				return b;
+			}
+		}
+		AccessToken accessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
+		IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);
+		assertThat((new AppIDAuthorizationManagerMock(null,null)).getCachedAuthorizationHeader()).isEqualTo(null);
+		assertThat((new AppIDAuthorizationManagerMock(accessToken,null)).getCachedAuthorizationHeader()).isEqualTo(null);
+		assertThat((new AppIDAuthorizationManagerMock(null,idToken)).getCachedAuthorizationHeader()).isEqualTo(null);
+		assertThat((new AppIDAuthorizationManagerMock(accessToken,idToken)).
+				getCachedAuthorizationHeader()).isEqualTo("Bearer " + accessToken.getRaw() + " " + idToken.getRaw());
+
 	}
 
 	@Test
