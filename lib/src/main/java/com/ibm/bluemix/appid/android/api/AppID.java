@@ -34,15 +34,12 @@ public class AppID {
 	private OAuthManager oAuthManager;
 	private UserAttributeManager userAttributeManager;
 
-    public static String overrideServerHost = null;
-	public static String userProfilesHost = null;
+    public static String overrideOAuthServerHost = null;
+	public static String overrideUserProfilesHost = null;
 
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
-
-    private Context context;
-
 
     // TODO: document
 	@NonNull
@@ -66,17 +63,9 @@ public class AppID {
 		this.bluemixRegionSuffix = bluemixRegion;
 		this.oAuthManager = new OAuthManager(context.getApplicationContext(), this);
 		this.loginWidget = new LoginWidgetImpl(this.oAuthManager);
-		this.userAttributeManager = new UserAttributeManagerImpl(this.oAuthManager);
-		this.context = context;
+		this.userAttributeManager = new UserAttributeManagerImpl(this.oAuthManager.getTokenManager());
 		return instance;
 	}
-
-    /**
-     * @return The Context this AppID was initialized with
-     */
-    public Context getContext() {
-        return context;
-    }
 
     /**
      * @return The AppID instance tenantId
@@ -109,7 +98,7 @@ public class AppID {
 	}
 
 	@NonNull
-	public OAuthManager getOAuthManager(){
+	protected OAuthManager getOAuthManager(){
 		if (null == this.oAuthManager){
 			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
 		}
@@ -124,13 +113,12 @@ public class AppID {
 		return this.userAttributeManager;
 	}
 
-	public void loginAnonymously(@NotNull AuthorizationListener authorizationListener){
-		this.loginAnonymously(authorizationListener, null);
+	public void loginAnonymously(@NotNull Context context, @NotNull AuthorizationListener authorizationListener){
+		this.loginAnonymously(context, null, authorizationListener);
 	}
 
-	public void loginAnonymously(@NotNull AuthorizationListener authorizationListener, String accessToken){
-		oAuthManager.getAuthorizationManager().loginAnonymously(accessToken, authorizationListener);
-
+	public void loginAnonymously(@NotNull Context context,  String accessToken, @NotNull AuthorizationListener authorizationListener){
+		oAuthManager.getAuthorizationManager().loginAnonymously(context, accessToken, authorizationListener);
 	}
 
 }

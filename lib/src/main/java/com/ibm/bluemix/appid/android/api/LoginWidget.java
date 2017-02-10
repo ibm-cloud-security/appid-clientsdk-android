@@ -17,7 +17,8 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 
 public interface LoginWidget {
-	void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener, String accessTokenString);
+	// TODO: What is the usecase for this method?
+//	void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener, String accessTokenString);
 	void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener);
 }
 

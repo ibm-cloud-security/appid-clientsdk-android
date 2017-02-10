@@ -1,9 +1,5 @@
 package com.ibm.bluemix.appid.android.internal.registrationmanager;
 
-/**
- * Created by nitzann on 2/8/17.
- */
-
 public enum RegistrationStatus
 {
     NOT_REGISTRED {

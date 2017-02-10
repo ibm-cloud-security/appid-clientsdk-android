@@ -63,7 +63,7 @@ public class AppIDRequest extends BaseRequest {
 			addHeader("Authorization", "Bearer " + accessToken.getRaw());
 		}
 
-		if( requestBody != null){
+		if (requestBody != null){
 			super.sendRequest(listener, requestBody);
 		}else{
 			send(listener);

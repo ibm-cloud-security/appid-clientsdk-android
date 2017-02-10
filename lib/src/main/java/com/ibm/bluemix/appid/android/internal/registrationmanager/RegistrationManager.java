@@ -108,7 +108,7 @@ public class RegistrationManager {
      */
     void registerOAuthClient(Context context, final ResponseListener responseListener) {
         try {
-			String registrationUrl = Config.getServerUrl(appId) + OAUTH_REGISTRATION_PATH;
+			String registrationUrl = Config.getOAuthServerUrl(appId) + OAUTH_REGISTRATION_PATH;
 
 			JSONObject reqJson = createRegistrationParams(context);
 			AppIDRequest request = new AppIDRequest(registrationUrl, Request.POST);
@@ -249,7 +249,8 @@ public class RegistrationManager {
 		preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF).clear();
 	}
 
-    public RegistrationStatus getStatus() {
+    // TODO: Remove?
+	public RegistrationStatus getStatus() {
         return status;
     }
 }

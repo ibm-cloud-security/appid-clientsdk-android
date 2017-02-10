@@ -30,20 +30,21 @@ public class LoginWidgetImpl implements LoginWidget {
 		this.oAuthManager = oAuthManager;
 	}
 
-	@Override
-	public void launch(@NonNull Activity activity, @NonNull AuthorizationListener authorizationListener, String accessTokenString) {
-		if(accessTokenString == null){
-			launch(activity, authorizationListener);
-			return;
-		}
-		AccessTokenImpl accessToken = new AccessTokenImpl(accessTokenString);
-		oAuthManager.getAuthorizationManager().launchAuthorizationUI(activity, authorizationListener, accessToken);
-	}
+//	@Override
+//	public void launch(@NonNull Activity activity, @NonNull AuthorizationListener authorizationListener, String accessTokenString) {
+//		if(accessTokenString == null){
+//			launch(activity, authorizationListener);
+//			return;
+//		}
+//		AccessTokenImpl accessToken = new AccessTokenImpl(accessTokenString);
+//		oAuthManager.getAuthorizationManager().launchAuthorizationUI(activity, authorizationListener, accessToken);
+//	}
 
 	// TODO: document
 	public void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener){
-		oAuthManager.getAuthorizationManager().launchAuthorizationUI(activity, authorizationListener,
-				oAuthManager.getTokenManager().getLatestAccessToken());
+		oAuthManager.getAuthorizationManager().launchAuthorizationUI(activity,
+				oAuthManager.getTokenManager().getLatestAccessToken(),
+				authorizationListener);
 	}
 }
 

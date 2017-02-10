@@ -64,7 +64,7 @@ public class TokenManager {
 
 	public void obtainTokens (String code, final AuthorizationListener listener) {
 		logger.debug("obtainTokens");
-		String tokenUrl = Config.getServerUrl(appId) + OAUTH_TOKEN_PATH;
+		String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
 
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);

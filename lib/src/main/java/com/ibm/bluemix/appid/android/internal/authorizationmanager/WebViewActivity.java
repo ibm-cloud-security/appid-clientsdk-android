@@ -126,9 +126,9 @@ public class WebViewActivity extends AppCompatActivity {
             finish();
         } else {
             //when working locally uncomment this 'if' (replacing localhost with 10.0.2.2)
-          //  if(AppID.overrideServerHost != null && uri.getHost().equals("localhost")) {
+          //  if(AppID.overrideOAuthServerHost != null && uri.getHost().equals("localhost")) {
                //when working locally replacing localhost with 10.0.2.2
-         //       url = AppID.overrideServerHost.replace("/oauth/v3/","") + url.substring(21, url.length());
+         //       url = AppID.overrideOAuthServerHost.replace("/oauth/v3/","") + url.substring(21, url.length());
         //    }
             view.loadUrl(url);
         }

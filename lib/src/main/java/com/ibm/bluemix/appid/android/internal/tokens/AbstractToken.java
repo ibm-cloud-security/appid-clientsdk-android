@@ -65,9 +65,6 @@ public abstract class AbstractToken implements Token {
 			logger.error("Failed to parse JWT payload", e);
 			throw new RuntimeException("Failed to parse JWT payload");
 		}
-
-
-
 	}
 
 	public String getRaw () {

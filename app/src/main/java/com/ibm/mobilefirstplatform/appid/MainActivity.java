@@ -31,7 +31,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "66f79ab9-a54e-4fa2-ad3c-406df494d018";
+	private final static String mcaTenantId = "49295395-016c-4188-aa0f-6bbae1f3f597";
 	private final static String region = ".stage1-dev.ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 		appId = AppID.getInstance();
 		appId.initialize(this, mcaTenantId, region);
 		//uncomment to run locally
-//		appId.overrideServerHost = "http://10.0.2.2:6003/oauth/v3/";
+//		appId.overrideOAuthServerHost = "http://10.0.2.2:6003/oauth/v3/";
 //		appId.userProfilesHost = "http://10.0.2.2:9080/user/v1/";
 
 		// Add integration with BMSClient. Optional.
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
 	public void onAnonLoginClick (View v) {
 		logger.debug("onAnonLoginClick");
-		appId.loginAnonymously(new AuthorizationListener() {
+		appId.loginAnonymously(getApplicationContext(), new AuthorizationListener() {
 			@Override
 			public void onAuthorizationFailure(AuthorizationException exception) {
 				logger.error("Anonymous authorization failure");
@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void onGetAllAttributesClick(View v) {
-		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
 		appId.getUserAttributeManager().getAllAttributes( new UserAttributeResponseListener() {
 			@Override
 			public void onSuccess(JSONObject attributes) {
@@ -206,10 +205,10 @@ public class MainActivity extends AppCompatActivity {
 		String picUrl = null;
 		String displayName = null;
 		try {
-			if ( identityToken.isAnonymous()){
+			if (identityToken.isAnonymous()){
 				picUrl = null;
 				displayName = "Anonymous User ( " + identityToken.getSubject() + " )";
-			}else {
+			} else {
 				picUrl = identityToken.getPicture();
 				displayName = identityToken.getName();
 			}

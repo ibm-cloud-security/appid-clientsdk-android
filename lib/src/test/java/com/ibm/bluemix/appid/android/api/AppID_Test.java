@@ -123,8 +123,8 @@ public class AppID_Test {
 			}
 		};
 
-		appId.loginAnonymously(listener);
-		appId.loginAnonymously(listener, null);
+		appId.loginAnonymously(RuntimeEnvironment.application, listener);
+		appId.loginAnonymously(RuntimeEnvironment.application, null, listener);
 	}
 }
 
