@@ -62,6 +62,7 @@ public class RegistrationManager {
 	private PreferenceManager preferenceManager;
     private KeyPair registrationKeyPair;
     private RegistrationKeyStore registrationKeyStore;
+	private RegistrationStatus status = RegistrationStatus.NOT_REGISTRED;
 
 	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + RegistrationManager.class.getName());
 
@@ -86,13 +87,15 @@ public class RegistrationManager {
 			registerOAuthClient(context, new ResponseListener() {
 				@Override
 				public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
-					logger.error("Failed to register OAuth client", t);
-					registrationListener.onRegistrationFailure("Failed to register OAuth client");
+                    status = RegistrationStatus.FAILED_TO_REGISTER;
+					logger.error(status.getDescription(), t);
+					registrationListener.onRegistrationFailure(status);
 				}
 
 				@Override
 				public void onSuccess (Response response) {
-					logger.info("OAuth client successfully registered.");
+                    status = RegistrationStatus.REGISTERED_SUCCESSFULLY;
+					logger.info(status.getDescription());
 					registrationListener.onRegistrationSuccess();
 				}
 			});
@@ -105,7 +108,7 @@ public class RegistrationManager {
      */
     void registerOAuthClient(Context context, final ResponseListener responseListener) {
         try {
-			String registrationUrl = Config.getServerUrl(appId) + OAUTH_REGISTRATION_PATH;
+			String registrationUrl = Config.getOAuthServerUrl(appId) + OAUTH_REGISTRATION_PATH;
 
 			JSONObject reqJson = createRegistrationParams(context);
 			AppIDRequest request = new AppIDRequest(registrationUrl, Request.POST);
@@ -121,7 +124,8 @@ public class RegistrationManager {
 						preferenceManager.getStringPreference(TENANT_ID_PREF).set(appId.getTenantId());
 						responseListener.onSuccess(response);
 					} catch (Exception e) {
-						logger.error("Failed to save OAuth client registration data", e);
+                        status = RegistrationStatus.FAILED_TO_SAVE_REGISTRATION_DATA;
+						logger.error(status.getDescription(), e);
 						responseListener.onFailure(null, e, null);
 					}
 				}
@@ -134,7 +138,8 @@ public class RegistrationManager {
 			});
 		}
         catch (Exception e) {
-			logger.error("Failed to create registration parameters", e);
+            status = RegistrationStatus.FAILED_TO_CREATE_REGISTRATION_PARAMETERS;
+			logger.error(status.getDescription(), e);
             responseListener.onFailure(null, e, null);
         }
     }
@@ -243,4 +248,9 @@ public class RegistrationManager {
 		preferenceManager.getStringPreference(TENANT_ID_PREF).clear();
 		preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF).clear();
 	}
+
+    // TODO: Remove?
+	public RegistrationStatus getStatus() {
+        return status;
+    }
 }

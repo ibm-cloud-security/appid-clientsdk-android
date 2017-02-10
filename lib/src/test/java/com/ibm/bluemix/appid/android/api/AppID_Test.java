@@ -13,8 +13,11 @@
 
 package com.ibm.bluemix.appid.android.api;
 
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
+import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
 import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.ClassHelper;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
@@ -102,8 +105,26 @@ public class AppID_Test {
 		ClassHelper.assertSame(appId.getOAuthManager(), OAuthManager.class);
 		assertThat(appId.getUserAttributeManager()).isNotNull();
 		ClassHelper.assertSame(appId.getUserAttributeManager(), UserAttributeManagerImpl.class);
-		appId.loginAnonymously(null);
-		appId.loginAnonymously(null, null);
+
+		AuthorizationListener listener = new AuthorizationListener() {
+			@Override
+			public void onAuthorizationFailure(AuthorizationException exception) {
+                assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
+            }
+
+			@Override
+			public void onAuthorizationCanceled() {
+                assert(false);
+			}
+
+			@Override
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                assert(false);
+			}
+		};
+
+		appId.loginAnonymously(RuntimeEnvironment.application, listener);
+		appId.loginAnonymously(RuntimeEnvironment.application, null, listener);
 	}
 }
 

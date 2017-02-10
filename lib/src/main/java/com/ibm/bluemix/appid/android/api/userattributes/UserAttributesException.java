@@ -16,14 +16,29 @@ package com.ibm.bluemix.appid.android.api.userattributes;
 public class UserAttributesException extends Exception {
 
 	public enum Error {
-		FAILED_TO_CONNECT,
-		NOT_FOUND
+		FAILED_TO_CONNECT {
+			public String getDescription(){
+				return "Failed to connect to the server";
+			}
+		},
+		NOT_FOUND {
+			public String getDescription(){
+				return "Attribute not found";
+			}
+		},
+		UNAUTHORIZED {
+			public String getDescription(){
+				return "Access to attribute is unauthorized";
+			}
+		};
+
+		public abstract String getDescription();
 	}
 
 	private Error error;
 
-	public UserAttributesException(Error error){
-		super();
+	public UserAttributesException(Error error, String message){
+		super(message);
 		this.error = error;
 	}
 

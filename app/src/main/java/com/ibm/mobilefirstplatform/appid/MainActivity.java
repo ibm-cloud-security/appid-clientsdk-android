@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,6 +17,8 @@ import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
+import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -28,7 +31,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "66f79ab9-a54e-4fa2-ad3c-406df494d018";
+	private final static String mcaTenantId = "49295395-016c-4188-aa0f-6bbae1f3f597";
 	private final static String region = ".stage1-dev.ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
@@ -49,12 +52,41 @@ public class MainActivity extends AppCompatActivity {
 		// Initialize AppID SDK
 		appId = AppID.getInstance();
 		appId.initialize(this, mcaTenantId, region);
+		//uncomment to run locally
+//		appId.overrideOAuthServerHost = "http://10.0.2.2:6003/oauth/v3/";
+//		appId.userProfilesHost = "http://10.0.2.2:9080/user/v1/";
 
 		// Add integration with BMSClient. Optional.
 		this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
 		bmsClient.setAuthorizationManager(appIDAuthorizationManager);
 	}
 
+	public void onAnonLoginClick (View v) {
+		logger.debug("onAnonLoginClick");
+		appId.loginAnonymously(getApplicationContext(), new AuthorizationListener() {
+			@Override
+			public void onAuthorizationFailure(AuthorizationException exception) {
+				logger.error("Anonymous authorization failure");
+				if (exception != null) {
+					logger.debug(exception.getLocalizedMessage(), exception);
+				}
+				hideProgress();
+			}
+
+			@Override
+			public void onAuthorizationCanceled() {
+				logger.warn("Anonymous authorization cancellation");
+				hideProgress();
+			}
+
+			@Override
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+				logger.info("Anonymous authorization success");
+				hideProgress();
+				extractAndDisplayDataFromIdentityToken(identityToken);
+			}
+		});
+	}
 	public void onLoginClick (View v) {
 		logger.debug("onLoginClick");
 		showProgress();
@@ -109,11 +141,77 @@ public class MainActivity extends AppCompatActivity {
 		});
 	}
 
-	private void extractAndDisplayDataFromIdentityToken (IdentityToken identityToken) {
+	public void onPutAttributeClick(View v) {
+		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
+		String value = ((EditText)findViewById(R.id.editAttrValue)).getText().toString();
+		appId.getUserAttributeManager().setAttribute(name, value, new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				showResponse(attributes.toString());
+			}
 
+			@Override
+			public void onFailure(UserAttributesException e) {
+				showResponse(e.getError() + " : " + e.getMessage());
+			}
+		});
+	}
+
+	public void onGetAttributeClick(View v) {
+		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
+		appId.getUserAttributeManager().getAttribute(name, new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				showResponse(attributes.toString());
+			}
+
+			@Override
+			public void onFailure(UserAttributesException e) {
+				showResponse(e.getError() + " : " + e.getMessage());
+			}
+		});
+	}
+
+	public void onGetAllAttributesClick(View v) {
+		appId.getUserAttributeManager().getAllAttributes( new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				showResponse(attributes.toString());
+			}
+
+			@Override
+			public void onFailure(UserAttributesException e) {
+				showResponse(e.getError() + " : " + e.getMessage());
+			}
+		});
+	}
+
+	public void onDeleteAttributeClick (View v) {
+		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
+		appId.getUserAttributeManager().deleteAttribute(name, new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				showResponse(attributes.toString());
+			}
+
+			@Override
+			public void onFailure(UserAttributesException e) {
+				showResponse(e.getError() + " : " + e.getMessage());
+			}
+		});
+	}
+
+	private void extractAndDisplayDataFromIdentityToken (IdentityToken identityToken) {
+		String picUrl = null;
+		String displayName = null;
 		try {
-			String picUrl = identityToken.getPicture();
-			String displayName = identityToken.getName();
+			if (identityToken.isAnonymous()){
+				picUrl = null;
+				displayName = "Anonymous User ( " + identityToken.getSubject() + " )";
+			} else {
+				picUrl = identityToken.getPicture();
+				displayName = identityToken.getName();
+			}
 
 			showPictureAndName(picUrl, displayName);
 			logger.info("extractAndDisplayDataFromIdentityToken done");
@@ -142,20 +240,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-
-                    final Bitmap bmp = BitmapFactory.decodeStream(new URL(picUrl).openConnection().getInputStream());
+                    final Bitmap bmp = picUrl == null ?
+							null :
+							BitmapFactory.decodeStream(new URL(picUrl).openConnection().getInputStream());
                     //run on main thread
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             ImageView profilePicture = (ImageView) findViewById(R.id.profilePic);
-                            profilePicture.setImageBitmap(bmp);
+							if(bmp == null) {
+								profilePicture.setImageResource(R.drawable.ic_anon_user);
+							}else {
+								profilePicture.setImageBitmap(bmp);
+							}
                             profilePicture.requestLayout();
                             profilePicture.getLayoutParams().height = 350;
                             profilePicture.getLayoutParams().width = 350;
                             profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                             profilePicture.setVisibility(View.VISIBLE);
-
+							findViewById(R.id.anonloginButton).setVisibility(View.GONE);
 							TextView nameTextView = (TextView) findViewById(R.id.name);
 							nameTextView.setText(displayName);
                         }

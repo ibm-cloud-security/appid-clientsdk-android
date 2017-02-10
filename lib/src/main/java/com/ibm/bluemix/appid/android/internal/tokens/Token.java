@@ -31,4 +31,5 @@ public interface Token {
 	String getTenant();
 	String getAuthBy();
 	boolean isExpired();
+	boolean isAnonymous();
 }
