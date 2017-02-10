@@ -109,7 +109,7 @@ public class AppID {
 	}
 
 	@NonNull
-	protected OAuthManager getOAuthManager(){
+	public OAuthManager getOAuthManager(){
 		if (null == this.oAuthManager){
 			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
 		}

@@ -24,13 +24,13 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.ibm.bluemix.appid.android.api.AppID;
+import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.R;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
-
+import com.ibm.bluemix.appid.android.api.AppID;
 public class WebViewActivity extends AppCompatActivity {
 
     private WebView webView;
@@ -110,17 +110,26 @@ public class WebViewActivity extends AppCompatActivity {
     private void loadUri(WebView view, Uri uri) {
 		String url = uri.toString();
 		String code = uri.getQueryParameter("code");
+        String error = uri.getQueryParameter("error");
 		if (url.startsWith(redirectUrl) && code != null) {
 			logger.debug("Grant code received from authorization server.");
             finish();
 			oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
 
+        } else if (url.startsWith(redirectUrl) && error != null){
+            String errorCode = uri.getQueryParameter("error_code");
+            String errorDescription = uri.getQueryParameter("error_description");
+            logger.error("error: " + error);
+            logger.error("errorCode: " + errorCode);
+            logger.error("errorDescription: " + errorDescription);
+            authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to obtain access and identity tokens"));
+            finish();
         } else {
             //when working locally uncomment this 'if' (replacing localhost with 10.0.2.2)
-//            if(AppId.overrideServerHost != null && uri.getHost().equals("localhost")) {
-//                //when working locally replacing localhost with 10.0.2.2
-//                url = AppId.overrideServerHost + url.substring(21, url.length());
-//            }
+          //  if(AppID.overrideServerHost != null && uri.getHost().equals("localhost")) {
+               //when working locally replacing localhost with 10.0.2.2
+         //       url = AppID.overrideServerHost.replace("/oauth/v3/","") + url.substring(21, url.length());
+        //    }
             view.loadUrl(url);
         }
     }
