@@ -36,7 +36,7 @@ class RegistrationKeyStore {
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + RegistrationKeyStore.class.getName());
 
-	KeyPair getKeyPair(){
+	protected KeyPair getKeyPair(){
 		KeyStore keyStore = loadKeyStore();
 
 		// If keypair already exist
@@ -54,7 +54,7 @@ class RegistrationKeyStore {
 		return null;
 	}
 
-    KeyPair generateKeyPair (Context context) {
+    protected KeyPair generateKeyPair (Context context) {
 		// Generate and store new keypair
 		KeyStore keyStore = loadKeyStore();
         try {

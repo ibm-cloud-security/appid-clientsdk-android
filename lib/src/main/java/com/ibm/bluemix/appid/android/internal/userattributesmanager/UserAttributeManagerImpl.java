@@ -20,12 +20,12 @@ import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException;
-import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 
@@ -36,6 +36,8 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 	private static final String USER_PROFILE_ATTRIBUTES_PATH = "Attributes";
 
 	private final TokenManager tokenManager;
+
+	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + UserAttributeManagerImpl.class.getName());
 
 	public UserAttributeManagerImpl(TokenManager tokenManager){
 		this.tokenManager = tokenManager;
@@ -105,6 +107,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
 				String message = (t != null) ? t.getLocalizedMessage() : "";
 				message = (extendedInfo != null) ? message + " : " + extendedInfo.toString() : message;
+				logger.error(message);
 
 				int errorCode = (response != null) ? response.getStatus() : 500;
 
@@ -114,8 +117,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 					case 404: error = UserAttributesException.Error.NOT_FOUND; break;
 					default: error = UserAttributesException.Error.FAILED_TO_CONNECT;
 				}
-
-				listener.onFailure(new UserAttributesException(error, message));
+				listener.onFailure(new UserAttributesException(error));
 			}
 		};
 

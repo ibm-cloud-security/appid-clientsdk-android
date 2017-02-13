@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class AccessTokenImpl extends AbstractToken implements AccessToken {
 
-	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AccessTokenImpl.class.getName());
 	private final static String SCOPE = "scope";
 
 	public AccessTokenImpl (@NotNull String raw) throws RuntimeException {

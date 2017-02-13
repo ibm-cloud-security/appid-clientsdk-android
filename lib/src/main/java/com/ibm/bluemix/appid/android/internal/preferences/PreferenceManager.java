@@ -20,7 +20,6 @@ import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 public class PreferenceManager {
 
 	private final SharedPreferences sharedPreferences;
-	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + PreferenceManager.class.getName());
 	private static final String DEFAULT_PREF_MANAGER_NAME = "com.ibm.bluemix.appid.android.preferences";
 
 	public PreferenceManager (Context context, String name, int mode) {

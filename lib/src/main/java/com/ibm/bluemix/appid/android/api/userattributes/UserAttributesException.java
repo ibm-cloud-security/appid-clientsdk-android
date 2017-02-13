@@ -37,8 +37,8 @@ public class UserAttributesException extends Exception {
 
 	private Error error;
 
-	public UserAttributesException(Error error, String message){
-		super(message);
+	public UserAttributesException(Error error){
+		super(error.getDescription());
 		this.error = error;
 	}
 

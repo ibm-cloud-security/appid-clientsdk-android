@@ -16,6 +16,7 @@ package com.ibm.bluemix.appid.android.api;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
@@ -27,13 +28,16 @@ import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.DeviceIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseAppIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseDeviceIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.identity.BaseUserIdentity;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//TODO: document
 public class AppIDAuthorizationManager implements AuthorizationManager {
 
 	private final OAuthManager oAuthManager;
@@ -122,25 +126,43 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 	public UserIdentity getUserIdentity () {
 		logger.debug("getUserIdentity");
 		IdentityToken identityToken = getIdentityToken();
-		// TODO: Implement mapping between Identity Token and BaseUserIdentity
-
-//        Map map = preferences.userIdentity.getAsMap();
-//        return (map == null) ? null : new BaseUserIdentity(map);
-		throw new RuntimeException("Not implemented");
+		if (identityToken == null) {
+			return null;
+		}
+		Map map = new HashMap();
+		map.put(UserIdentity.ID, identityToken.getSubject());
+		map.put(UserIdentity.AUTH_BY, identityToken.getAuthBy());
+		map.put(UserIdentity.DISPLAY_NAME, identityToken.getName());
+		return new BaseUserIdentity(map);
 	}
 
 	@Override
 	public DeviceIdentity getDeviceIdentity () {
 		logger.debug("getDeviceIdentity");
-		// TODO: Implement mapping between Identity Token and BaseDeviceIdentity
-		throw new RuntimeException("Not implemented");
+		IdentityToken identityToken = getIdentityToken();
+		if (identityToken == null) {
+			return null;
+		}
+		Map map = new HashMap();
+		map.put(DeviceIdentity.ID, identityToken.getOAuthClient().getDeviceId());
+		map.put(DeviceIdentity.OS, identityToken.getOAuthClient().getDeviceOS());
+		map.put(DeviceIdentity.MODEL, identityToken.getOAuthClient().getDeviceModel());
+		map.put(DeviceIdentity.BRAND, Build.BRAND);
+		map.put(DeviceIdentity.OS_VERSION, Build.VERSION.RELEASE);
+		return new BaseDeviceIdentity(map);
 	}
 
 	@Override
 	public AppIdentity getAppIdentity () {
 		logger.debug("getAppIdentity");
-		// TODO: Implement mapping between Identity Token and BaseAppIdentity
-		throw new RuntimeException("Not implemented");
+		IdentityToken identityToken = getIdentityToken();
+		if (identityToken == null) {
+			return null;
+		}
+		Map map = new HashMap();
+		map.put(AppIdentity.ID, identityToken.getOAuthClient().getSoftwareId());
+		map.put(AppIdentity.VERSION, identityToken.getOAuthClient().getSoftwareVersion());
+		return new BaseAppIdentity(map);
 	}
 
 	@Override

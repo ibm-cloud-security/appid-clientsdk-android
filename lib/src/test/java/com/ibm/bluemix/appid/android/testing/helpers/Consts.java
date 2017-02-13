@@ -1,8 +1,17 @@
-package com.ibm.bluemix.appid.android.testing.helpers;
+/*
+	Copyright 2017 IBM Corp.
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
 
-/**
- * Created on 2/4/17.
- */
+package com.ibm.bluemix.appid.android.testing.helpers;
 
 public class Consts {
 	public static final String ACCESS_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpPU0UifQ.eyJpc3MiOiJpbWYtYXV0aHNlcnZlci5zdGFnZTEtZGV2Lm5nLmJsdWVtaXgubmV0IiwiZXhwIjoxNDg1NTUwNDMxLCJhdWQiOiI3NDFlZmM4NjhiOWEzZjM3YjFjZWE1YjFhNTBkNTBmNzQxODJkZmI0IiwiaWF0IjoxNDg1NTQ2ODMxLCJhdXRoX2J5IjoiZmFjZWJvb2siLCJ0ZW5hbnQiOiI2NmY3OWFiOS1hNTRlLTRmYTItYWQzYy00MDZkZjQ5NGQwMTgiLCJzY29wZSI6ImRlZmF1bHQifQ.JmRXVyY77zXLbkHGmyfdD6yI_ZmfF7J0WYqsvuQYheZikna-IHdffvLd-0NXlb9BRHThrKdLqVoNRRqlrBGhkdLNvSZbp3vR2Uddp5xbK0g5n3pjfkn5r-DKyStI-sxyi6xlV5YhdKhkiacrQ_14qa8aP1hJItW4XhoTyZBJZjk7I5dfYkeErXbjHA4k51J0cqHrzPtZl200phq91R4Uh2g3WkJrz9jOkvFzJJ1vzVDHy8VeOwce3ttxsmUDnuHcqBdlGEIe5H6Fw5zbPb5WWnTDDpIivFe6MhHswho0Qy59LAVKKSvIKLcyVe9MkWyqnQDpqig3xbcFuUSwzqnc9w";
