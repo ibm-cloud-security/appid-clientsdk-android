@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
-import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 
 public class LoginWidgetImpl implements LoginWidget {
 

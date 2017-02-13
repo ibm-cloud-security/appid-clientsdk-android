@@ -174,7 +174,7 @@ public class AppIDAuthorizationManager_Test {
 		appIdAuthManager.clearAuthorizationData();
 		appIdAuthManager.clearAuthorizationData();
 		verify(tokenManagerMock, times(2)).clearStoredTokens();
-		
+
 	}
 
 	@Test

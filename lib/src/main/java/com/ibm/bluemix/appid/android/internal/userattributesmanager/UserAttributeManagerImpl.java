@@ -20,7 +20,6 @@ import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException;
-import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;

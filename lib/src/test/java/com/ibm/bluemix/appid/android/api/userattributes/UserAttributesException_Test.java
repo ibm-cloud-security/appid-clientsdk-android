@@ -28,8 +28,8 @@ import static org.assertj.core.api.Java6Assertions.*;
 @Config (constants = BuildConfig.class)
 public class UserAttributesException_Test {
 
-	@Test (expected = UserAttributesException.class)
-	public void test () throws UserAttributesException {
+	@Test
+	public void test (){
 
 		UserAttributesException uae1 = new UserAttributesException(UserAttributesException.Error.FAILED_TO_CONNECT);
 		assertThat(uae1.getError()).isEqualTo(UserAttributesException.Error.FAILED_TO_CONNECT);
@@ -37,6 +37,7 @@ public class UserAttributesException_Test {
 		UserAttributesException uae2 = new UserAttributesException(UserAttributesException.Error.NOT_FOUND);
 		assertThat(uae2.getError()).isEqualTo(UserAttributesException.Error.NOT_FOUND);
 
-		throw uae2;
+		UserAttributesException uae3 = new UserAttributesException(UserAttributesException.Error.UNAUTHORIZED);
+		assertThat(uae3.getError()).isEqualTo(UserAttributesException.Error.UNAUTHORIZED);
 	}
 }

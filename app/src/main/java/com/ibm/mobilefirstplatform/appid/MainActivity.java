@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
 	private final static String region = ".stage1.ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
-	private BMSClient bmsClient;
 	private AppID appId;
 	private AppIDAuthorizationManager appIDAuthorizationManager;
 
@@ -45,8 +44,7 @@ public class MainActivity extends AppCompatActivity {
 		Logger.setSDKDebugLoggingEnabled(true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		bmsClient = BMSClient.getInstance();
+		BMSClient bmsClient= BMSClient.getInstance();
 		bmsClient.initialize(this, region);
 
 		// Initialize AppID SDK
