@@ -49,7 +49,7 @@ public class AuthorizationManager {
 	private final static String SCOPE_OPENID = "openid";
 
 	private final static String REDIRECT_URI = "redirect_uri";
-	private final static String USE_LOGIN_WIDGET = "use_login_widget";
+//	private final static String USE_LOGIN_WIDGET = "use_login_widget";
 	private final static String IDP = "idp";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
 
@@ -72,8 +72,9 @@ public class AuthorizationManager {
 				.appendQueryParameter(RESPONSE_TYPE, RESPONSE_TYPE_CODE)
 				.appendQueryParameter(CLIENT_ID, clientId)
 				.appendQueryParameter(REDIRECT_URI, redirectUri)
-				.appendQueryParameter(SCOPE, SCOPE_OPENID)
-				.appendQueryParameter(USE_LOGIN_WIDGET, String.valueOf(useLoginWidget));
+				.appendQueryParameter(SCOPE, SCOPE_OPENID);
+		// TODO: Remove after validating parameter no longer in use
+//				.appendQueryParameter(USE_LOGIN_WIDGET, String.valueOf(useLoginWidget));
 
 		if (idpName != null){
 			builder.appendQueryParameter(IDP, idpName);

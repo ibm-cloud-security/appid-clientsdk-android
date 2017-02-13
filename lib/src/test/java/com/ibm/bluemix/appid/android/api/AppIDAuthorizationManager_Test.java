@@ -1,19 +1,44 @@
+/*
+	Copyright 2017 IBM Corp.
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
 package com.ibm.bluemix.appid.android.api;
+
+import android.os.Build;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationManager;
+import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.bluemix.appid.android.testing.mocks.HttpURLConnection_Mock;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
-import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.api.DeviceIdentity;
+import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -26,52 +51,49 @@ import java.util.Map;
 
 
 import static org.assertj.core.api.Java6Assertions.*;
+import static org.mockito.Mockito.*;
 
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder (MethodSorters.NAME_ASCENDING)
 @Config (constants = BuildConfig.class)
 public class AppIDAuthorizationManager_Test {
 
-	private AppID appId;
 	private AppIDAuthorizationManager appIdAuthManager;
+	private static final AccessToken accessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
+	private static final IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);
+
+	@Mock OAuthManager oAuthManagerMock;
+	@Mock TokenManager tokenManagerMock;
+	@Mock AppID appIdMock;
+	@Mock AuthorizationManager authorizationManagerMock;
 
 	@Before
 	public void before(){
-		appId = AppID.getInstance();
-		appId.initialize(RuntimeEnvironment.application, "a", "b");
-
-		appIdAuthManager = new AppIDAuthorizationManager(appId);
+		MockitoAnnotations.initMocks(this);
+		when(appIdMock.getOAuthManager()).thenReturn(oAuthManagerMock);
+		when(oAuthManagerMock.getAuthorizationManager()).thenReturn(authorizationManagerMock);
+		when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+		appIdMock.initialize(RuntimeEnvironment.application, "a", "b");
+		appIdAuthManager = new AppIDAuthorizationManager(appIdMock);
 	}
+
 	@Test
 	public void testGetCachedAuthorizationHeader () {
-		class AppIDAuthorizationManagerMock extends AppIDAuthorizationManager {
-			AccessToken a;
-			IdentityToken b;
-			public AppIDAuthorizationManagerMock(AccessToken a, IdentityToken b) {
-				super(AppID.getInstance());
-				this.a = a;
-				this.b = b;
-			}
-			public AccessToken getAccessToken () {
-				return a;
-			}
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(idToken);
+		when(tokenManagerMock.getLatestAccessToken()).thenReturn(accessToken);
+		String cachedAuthHeader = appIdAuthManager.getCachedAuthorizationHeader();
+		assertThat(cachedAuthHeader).isEqualTo("Bearer " + accessToken.getRaw() + " " + idToken.getRaw());
 
-			public IdentityToken getIdentityToken () {
-				return b;
-			}
-		}
-		AccessToken accessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
-		IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);
-		assertThat((new AppIDAuthorizationManagerMock(null,null)).getCachedAuthorizationHeader()).isEqualTo(null);
-		assertThat((new AppIDAuthorizationManagerMock(accessToken,null)).getCachedAuthorizationHeader()).isEqualTo(null);
-		assertThat((new AppIDAuthorizationManagerMock(null,idToken)).getCachedAuthorizationHeader()).isEqualTo(null);
-		assertThat((new AppIDAuthorizationManagerMock(accessToken,idToken)).
-				getCachedAuthorizationHeader()).isEqualTo("Bearer " + accessToken.getRaw() + " " + idToken.getRaw());
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(null);
+		assertThat(appIdAuthManager.getCachedAuthorizationHeader()).isNull();
 
+		when(tokenManagerMock.getLatestAccessToken()).thenReturn(null);
+		assertThat(appIdAuthManager.getCachedAuthorizationHeader()).isNull();
 	}
 
 	@Test
 	public void testIsAuthorizationRequired () {
+		String authHeaderName = com.ibm.mobilefirstplatform.clientsdk.android.security.api.AuthorizationManager.WWW_AUTHENTICATE_HEADER_NAME;
 		Map<String, List<String>> headers;
 
 		headers = new HashMap<>();
@@ -87,17 +109,17 @@ public class AppIDAuthorizationManager_Test {
 		assertThat(appIdAuthManager.isAuthorizationRequired(401, headers)).isEqualTo(false);
 
 		// 401 status, Authorization header exist, but invalid value
-		headers.put(AuthorizationManager.WWW_AUTHENTICATE_HEADER_NAME, Arrays.asList("Dummy"));
+		headers.put(authHeaderName, Arrays.asList("Dummy"));
 		assertThat(appIdAuthManager.isAuthorizationRequired(401, headers)).isEqualTo(false);
 
 		// 401 status, Authorization header exists, Bearer exists, but not appid_default scope
-		headers.remove(AuthorizationManager.WWW_AUTHENTICATE_HEADER_NAME);
-		headers.put(AuthorizationManager.WWW_AUTHENTICATE_HEADER_NAME, Arrays.asList("Bearer Dummy"));
+		headers.remove(authHeaderName);
+		headers.put(authHeaderName, Arrays.asList("Bearer Dummy"));
 		assertThat(appIdAuthManager.isAuthorizationRequired(401, headers)).isEqualTo(false);
 
 		// Authorization required
-		headers.remove(AuthorizationManager.WWW_AUTHENTICATE_HEADER_NAME);
-		headers.put(AuthorizationManager.WWW_AUTHENTICATE_HEADER_NAME, Arrays.asList("Bearer scope=\"appid_default\""));
+		headers.remove(authHeaderName);
+		headers.put(authHeaderName, Arrays.asList("Bearer scope=\"appid_default\""));
 		assertThat(appIdAuthManager.isAuthorizationRequired(401, headers)).isEqualTo(true);
 
 		// Check with httpUrlConnection
@@ -109,4 +131,58 @@ public class AppIDAuthorizationManager_Test {
 		}
 	}
 
+	@Test
+	public void testGetUserIdentity(){
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(null);
+		assertThat(appIdAuthManager.getUserIdentity()).isNull();
+
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(idToken);
+		UserIdentity userIdentity = appIdAuthManager.getUserIdentity();
+		assertThat(userIdentity).isNotNull();
+		// TODO: Uncomment once sub is added
+//		assertThat(userIdentity.getId()).isEqualTo(idToken.getSubject());
+		assertThat(userIdentity.getAuthBy()).isEqualTo(idToken.getAuthBy());
+		assertThat(userIdentity.getDisplayName()).isEqualTo(idToken.getName());
+	}
+
+	@Test
+	public void testGetDeviceIdentity(){
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(null);
+		assertThat(appIdAuthManager.getDeviceIdentity()).isNull();
+
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(idToken);
+		DeviceIdentity deviceIdentity = appIdAuthManager.getDeviceIdentity();
+		assertThat(deviceIdentity).isNotNull();
+		assertThat(deviceIdentity.getId()).isEqualTo(idToken.getOAuthClient().getDeviceId());
+		assertThat(deviceIdentity.getModel()).isEqualTo(idToken.getOAuthClient().getDeviceModel());
+		assertThat(deviceIdentity.getBrand()).isEqualTo(Build.BRAND);
+		assertThat(deviceIdentity.getOS()).isEqualTo(idToken.getOAuthClient().getDeviceOS());
+		assertThat(deviceIdentity.getOSVersion()).isEqualTo(Build.VERSION.RELEASE);
+	}
+
+	@Test
+	public void testGetAppIdentity(){
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(null);
+		assertThat(appIdAuthManager.getAppIdentity()).isNull();
+
+		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(idToken);
+		AppIdentity appIdentity = appIdAuthManager.getAppIdentity();
+		assertThat(appIdentity).isNotNull();
+		assertThat(appIdentity.getId()).isEqualTo(idToken.getOAuthClient().getSoftwareId());
+		assertThat(appIdentity.getVersion()).isEqualTo(idToken.getOAuthClient().getSoftwareVersion());
+	}
+
+	@Test
+	public void testClearAuthorizationData(){
+		appIdAuthManager.clearAuthorizationData();
+		appIdAuthManager.clearAuthorizationData();
+		verify(tokenManagerMock, times(2)).clearStoredTokens();
+	}
+
+	@Test
+	public void testLogout(){
+		appIdAuthManager.logout(RuntimeEnvironment.application, null);
+		appIdAuthManager.logout(RuntimeEnvironment.application, null);
+		verify(tokenManagerMock, times(2)).clearStoredTokens();
+	}
 }

@@ -30,6 +30,7 @@ public class LoginWidgetImpl implements LoginWidget {
 		this.oAuthManager = oAuthManager;
 	}
 
+// TODO: Currently there's no usecase for this API. Commented out for now.
 //	@Override
 //	public void launch(@NonNull Activity activity, @NonNull AuthorizationListener authorizationListener, String accessTokenString) {
 //		if(accessTokenString == null){

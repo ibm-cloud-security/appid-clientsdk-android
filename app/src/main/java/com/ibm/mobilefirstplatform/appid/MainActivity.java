@@ -31,8 +31,8 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "49295395-016c-4188-aa0f-6bbae1f3f597";
-	private final static String region = ".stage1-dev.ng.bluemix.net";
+	private final static String mcaTenantId = "38b61870-147c-46ed-ab3f-54a60302d80d";
+	private final static String region = ".stage1.ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
 	private BMSClient bmsClient;
