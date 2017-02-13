@@ -25,13 +25,10 @@ import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.bluemix.appid.android.testing.mocks.HttpURLConnection_Mock;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.DeviceIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -62,10 +59,10 @@ public class AppIDAuthorizationManager_Test {
 	private static final AccessToken accessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
 	private static final IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);
 
-	@Mock OAuthManager oAuthManagerMock;
-	@Mock TokenManager tokenManagerMock;
-	@Mock AppID appIdMock;
-	@Mock AuthorizationManager authorizationManagerMock;
+	@Mock private OAuthManager oAuthManagerMock;
+	@Mock private TokenManager tokenManagerMock;
+	@Mock private AppID appIdMock;
+	@Mock private AuthorizationManager authorizationManagerMock;
 
 	@Before
 	public void before(){
@@ -177,6 +174,7 @@ public class AppIDAuthorizationManager_Test {
 		appIdAuthManager.clearAuthorizationData();
 		appIdAuthManager.clearAuthorizationData();
 		verify(tokenManagerMock, times(2)).clearStoredTokens();
+		
 	}
 
 	@Test
