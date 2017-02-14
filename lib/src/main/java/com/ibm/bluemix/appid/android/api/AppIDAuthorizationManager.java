@@ -131,7 +131,7 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 		}
 		Map map = new HashMap();
 		map.put(UserIdentity.ID, identityToken.getSubject());
-		map.put(UserIdentity.AUTH_BY, identityToken.getAuthBy());
+		map.put(UserIdentity.AUTH_BY, identityToken.getAuthenticationMethods().get(0));
 		map.put(UserIdentity.DISPLAY_NAME, identityToken.getName());
 		return new BaseUserIdentity(map);
 	}

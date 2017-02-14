@@ -15,7 +15,6 @@ package com.ibm.bluemix.appid.android.internal.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 public class PreferenceManager {
 

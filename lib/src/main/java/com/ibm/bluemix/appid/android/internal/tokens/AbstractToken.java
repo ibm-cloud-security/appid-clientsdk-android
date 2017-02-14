@@ -15,7 +15,6 @@ package com.ibm.bluemix.appid.android.internal.tokens;
 
 import android.util.Base64;
 
-import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 import org.json.JSONArray;

@@ -19,6 +19,8 @@ public class Config {
 	private static final String serverUrlPrefix = "https://imf-authserver";
 	private static final String userProfilesPrefix = "https://appid-user-profile-service";
 
+	private Config(){}
+
 	public static String getOAuthServerUrl (AppID appId) {
 		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + "/oauth/v3/";
 		if (null != appId.overrideOAuthServerHost) {

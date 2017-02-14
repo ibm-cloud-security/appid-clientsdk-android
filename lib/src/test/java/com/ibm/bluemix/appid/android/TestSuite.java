@@ -16,9 +16,12 @@ package com.ibm.bluemix.appid.android;
 import com.ibm.bluemix.appid.android.api.AppIDAuthorizationManager_Test;
 import com.ibm.bluemix.appid.android.api.AppID_Test;
 import com.ibm.bluemix.appid.android.api.AuthorizationException_Test;
+import com.ibm.bluemix.appid.android.api.Config_Test;
 import com.ibm.bluemix.appid.android.api.tokens.OAuthClient_Test;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException_Test;
 import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper_Test;
+import com.ibm.bluemix.appid.android.internal.preferences.JSONPreference_Test;
+import com.ibm.bluemix.appid.android.internal.preferences.StringPreference_Test;
 import com.ibm.bluemix.appid.android.internal.tokens.AbstractToken_Test;
 
 import org.junit.runner.RunWith;
@@ -38,6 +41,9 @@ import org.junit.runners.Suite;
 
 		// Internal
 		AbstractToken_Test.class,
-		AuthorizationHeaderHelper_Test.class
+		AuthorizationHeaderHelper_Test.class,
+		StringPreference_Test.class,
+		JSONPreference_Test.class,
+		Config_Test.class
 })
 public class TestSuite {}

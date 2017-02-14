@@ -14,7 +14,6 @@
 package com.ibm.bluemix.appid.android.internal.tokens;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
-import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 import org.jetbrains.annotations.NotNull;
 
