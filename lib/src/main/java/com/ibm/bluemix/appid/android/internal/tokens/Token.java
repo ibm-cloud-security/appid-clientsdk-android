@@ -13,9 +13,11 @@
 
 package com.ibm.bluemix.appid.android.internal.tokens;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.List;
 
 public interface Token {
 	String getRaw ();
@@ -29,7 +31,7 @@ public interface Token {
 	Date getExpiration();
 	Date getIssuedAt();
 	String getTenant();
-	String getAuthBy();
+	List<String> getAuthenticationMethods();
 	boolean isExpired();
 	boolean isAnonymous();
 }

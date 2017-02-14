@@ -152,7 +152,7 @@ class AuthorizationUIManager {
 	 * @param context {@link Context} to use for accessing {@link PackageManager}.
 	 * @return The package name recommended to use for connecting to custom tabs related components.
 	 */
-	static String getPackageNameToUse (Context context) {
+	protected static String getPackageNameToUse (Context context) {
 		if (sPackageNameToUse != null) {
 			return sPackageNameToUse;
 		}
@@ -216,10 +216,12 @@ class AuthorizationUIManager {
 			}
 			for (ResolveInfo resolveInfo : handlers) {
 				IntentFilter filter = resolveInfo.filter;
-				if (filter == null) continue;
-				if (filter.countDataAuthorities() == 0 || filter.countDataPaths() == 0) continue;
-				if (resolveInfo.activityInfo == null) continue;
-				return true;
+				if (filter != null &&
+						filter.countDataAuthorities() != 0 &&
+						filter.countDataPaths() != 00 &&
+						resolveInfo.activityInfo != null){
+					return true;
+				}
 			}
 		} catch (RuntimeException e) {
 			logger.error("Runtime exception while getting specialized handlers");
