@@ -43,7 +43,7 @@ public abstract class AbstractToken implements Token {
 	private final static String AUTHENTICATION_METHODS = "amr";
 
 
-	Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AbstractToken.class.getName());
+	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AbstractToken.class.getName());
 
 	public AbstractToken (String raw) throws RuntimeException {
 		this.raw = raw;

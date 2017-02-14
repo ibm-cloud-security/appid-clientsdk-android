@@ -30,10 +30,8 @@ import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.R;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
-import com.ibm.bluemix.appid.android.api.AppID;
 public class WebViewActivity extends AppCompatActivity {
 
-    private WebView webView;
 	private AuthorizationListener authorizationListener;
 	private OAuthManager oAuthManager;
 	private String redirectUrl;
@@ -45,7 +43,7 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 		logger.debug("onCreate");
         setContentView(R.layout.activity_web_view);
-        webView = (WebView) findViewById(R.id.webView1);
+		WebView webView = (WebView) findViewById(R.id.webView1);
         webView.getSettings().setJavaScriptEnabled(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             webView.setWebViewClient(new WebViewClientNewAPI());

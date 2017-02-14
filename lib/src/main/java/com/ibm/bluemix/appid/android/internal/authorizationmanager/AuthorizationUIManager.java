@@ -229,7 +229,7 @@ class AuthorizationUIManager {
 		return false;
 	}
 
-	CustomTabsSession getSession () {
+	private CustomTabsSession getSession () {
 		if (mClient == null) {
 			mCustomTabsSession = null;
 		} else if (mCustomTabsSession == null) {
