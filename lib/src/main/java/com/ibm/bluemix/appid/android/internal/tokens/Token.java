@@ -13,7 +13,6 @@
 
 package com.ibm.bluemix.appid.android.internal.tokens;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Date;
