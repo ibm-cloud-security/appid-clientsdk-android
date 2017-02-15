@@ -12,82 +12,71 @@ Android SDK for the Bluemix AppID service
 [![GithubStars][img-github-stars]][url-github-stars]
 [![GithubForks][img-github-forks]][url-github-forks]
 
-## Pre Requirement: 
+## Pre Requirement:
 
 In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
+
 ```
 defaultConfig {
 ...
 manifestPlaceholders = ['appIdRedirectScheme': android.defaultConfig.applicationId]
 }
 ```
+
 ## Using the SDK:
 
 ### Initializing the AppId client SDK
 
 Initialize the client SDK by passing the context, appId tenantId and region parameters to the createInstance method. A common, though not mandatory, place to put the createInstance code is in the onCreate method of the main activity in your Android application.
-```java
-AppId.createInstance(this.getApplicationContext(), appIdTenantId, region);
-```
-* Replace 'region' with the region where your Bluemix service is hosted.
-you can use: AppId.REGION_US_SOUTH , AppId.REGION_UK, AppId.REGION_SYDNEY.
-* Replace 'appIdTenantId' with the tenantId.
-
-
-### Login
-A call to Login will pop-up the login widgit and triggers the autentication process.  
 
 ```java
-AppId.getInstance().login(this, new ResponseListener() {
-@Override
-public void onRegistrationSuccess (Response response) {
-    Log.d("Myapp", "onRegistrationSuccess :: " + response.getResponseText());
-}
-@Override
-public void onRegistrationFailure (Response response, Throwable t, JSONObject extendedInfo) {
-    if (null != t) {
-        Log.d("Myapp", "onRegistrationFailure :: " + t.getMessage());
-    } else if (null != extendedInfo) {
-        Log.d("Myapp", "onRegistrationFailure :: " + extendedInfo.toString());
-    } else {
-        Log.d("Myapp", "onRegistrationFailure :: " + response.getResponseText());
-        }
-    }
-});
-```
+String tenantId = "your-tenant-id";
+String region = AppID.REGION_US_SOUTH;
 
-### getUserIdentity
-After the user is autenticate, this call return the user id
+AppID appId = AppID.getInstance();
+appId.initialize(getApplicationContext(), tenantId, region);
+```
+* `tenantId` value should be retrieved from the Service Credentials tab of the AppID Dashboard
+* Replace `region` with the region where your Bluemix service is hosted. you can use: `.REGION_US_SOUTH` , `REGION_UK`, `REGION_SYDNEY`.
+
+### Using Login Widget
+Use LoginWidget class to start the authorization flow.   
+
 ```java
-UserIdentity userIdentity = AppId.getInstance().getUserIdentity();
-String userDisplayName = userIdentity.getDisplayName();
-String userID = userIdentity.getId();
-String userAuthBy = userIdentity.getAuthBy();
+// need code sample
 ```
 
-### getUserProfilePicture
-Return a string represent the authenticated user profile picture URL.
-```Java
-String picUrl = AppId.getInstance().getUserProfilePicture();
-```
-
-### getCachedAuthorizationHeader
-Return the cached authoriation header if there is one.
-```Java
-String picUrl = AppId.getInstance().getCachedAuthorizationHeader();
-```
-
-#### Protected resources also supported: 
-upon request to protected resource the authentication process will trigger, and if there is no authenticate user the login widgit will pop-up.
+### Access and Identity Tokens
 ```java
+// need code sample
+```
+
+### Anonymous Login
+```java
+// need code sample
+```
+
+### User profile attributes
+```java
+// need code sample
+```
+
+### Invoking protected resources
+```java
+BMSClient bmsClient = BMSClient.getInstance();
+bmsClient.initialize(.....);
+
+AppIDAuthorizationManager appIdAuthMgr = new .....
+bmsClient.setAuthorizationManager(appIdAuthMgr);
+
 Request request = new Request("http://my-mobile-backend.mybluemix.net/protected", Request.GET);
 request.send(this, new ResponseListener() {
 @Override
-public void onRegistrationSuccess (Response response) {
+public void onSuccess (Response response) {
     Log.d("Myapp", "onRegistrationSuccess :: " + response.getResponseText());
 }
 @Override
-public void onRegistrationFailure (Response response, Throwable t, JSONObject extendedInfo) {
+public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
     if (null != t) {
         Log.d("Myapp", "onRegistrationFailure :: " + t.getMessage());
     } else if (null != extendedInfo) {
@@ -123,4 +112,3 @@ This package contains code licensed under the Apache License, Version 2.0 (the "
 
 [img-codacy]: https://api.codacy.com/project/badge/Grade/d41f8f069dd343769fcbdb55089561fc?branch=master
 [url-codacy]: https://www.codacy.com/app/ibm-cloud-security/appid-clientsdk-android
-
