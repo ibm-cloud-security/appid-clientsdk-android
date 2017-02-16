@@ -12,10 +12,22 @@ Android SDK for the Bluemix AppID service
 [![GithubStars][img-github-stars]][url-github-stars]
 [![GithubForks][img-github-forks]][url-github-forks]
 
-## Pre Requirement:
+## Installing the SDK:
 
-In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
+1. Add a compile dependency for the AppID client SDK: 
 
+    ```gradle
+     dependencies {
+         compile group: 'com.ibm.mobilefirstplatform.appid',    
+         name:'appid',
+         version: '1.+',
+         ext: 'aar',
+         transitive: true
+         // other dependencies  
+     }
+    ```
+    
+2. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
 ```
 defaultConfig {
 ...
@@ -27,24 +39,37 @@ manifestPlaceholders = ['appIdRedirectScheme': android.defaultConfig.application
 
 ### Initializing the AppId client SDK
 
-Initialize the client SDK by passing the context, appId tenantId and region parameters to the createInstance method. A common, though not mandatory, place to put the createInstance code is in the onCreate method of the main activity in your Android application.
-
+Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the onCreate method of the main activity in your Android application.
 ```java
-String tenantId = "your-tenant-id";
-String region = AppID.REGION_US_SOUTH;
-
-AppID appId = AppID.getInstance();
-appId.initialize(getApplicationContext(), tenantId, region);
+AppID.getInstance().initialize(getApplicationContext(), <tenantId>, AppID.REGION_UK);
 ```
-* `tenantId` value should be retrieved from the Service Credentials tab of the AppID Dashboard
-* Replace `region` with the region where your Bluemix service is hosted. you can use: `.REGION_US_SOUTH` , `REGION_UK`, `REGION_SYDNEY`.
+* Replace "tenantId" with the App ID service tenantId.
+* Replace the AppID.REGION_UK with the your App ID region (AppID.REGION_US_SOUTH, AppID.REGION_SYDNEY).
 
 ### Using Login Widget
 Use LoginWidget class to start the authorization flow.   
 
 ```java
-// need code sample
+LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
+loginWidget.launch(this, new AuthorizationListener() {
+			@Override
+			public void onAuthorizationFailure (AuthorizationException exception) {
+				//Exception occurred
+			}
+
+			@Override
+			public void onAuthorizationCanceled () {
+				//Authentication canceled by the user
+			}
+
+			@Override
+			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
+				//User authenticated
+			}
+		});
 ```
+Note: The Login widget default configuration using Facebook and Google as authentication options.
+    If you configure only one of them the login widget will NOT launch and the user will be redirect to the configured idp authentication screen.
 
 ### Access and Identity Tokens
 ```java
