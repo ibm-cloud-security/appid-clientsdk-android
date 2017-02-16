@@ -12,6 +12,7 @@
 */
 
 package com.ibm.bluemix.appid.android.api.tokens;
+
 public interface OAuthClient {
 	String getType();
 	String getName();
