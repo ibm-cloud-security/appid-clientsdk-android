@@ -124,7 +124,8 @@ public class AppID_Test {
 		};
 
 		appId.loginAnonymously(RuntimeEnvironment.application, listener);
-		appId.loginAnonymously(RuntimeEnvironment.application, null, listener);
+		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", listener);
+		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", false, listener);
 	}
 }
 

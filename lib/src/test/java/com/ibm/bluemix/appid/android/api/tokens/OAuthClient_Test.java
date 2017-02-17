@@ -37,7 +37,7 @@ public class OAuthClient_Test {
 		OAuthClient oAuthClient = new OAuthClientImpl(idToken);
 		assertThat(oAuthClient).isNotNull();
 		assertThat(oAuthClient.getType()).isEqualTo("mobileapp");
-		//assertThat(oAuthClient.getName()).isEqualTo("name");
+		assertThat(oAuthClient.getName()).isEqualTo("appid");
 		assertThat(oAuthClient.getSoftwareId()).isEqualTo("com.ibm.mobilefirstplatform.appid");
 		assertThat(oAuthClient.getSoftwareVersion()).isEqualTo("1.0");
 		assertThat(oAuthClient.getDeviceId()).isEqualTo("eee2c78d-0f12-3808-91eb-c63475dbbf95");

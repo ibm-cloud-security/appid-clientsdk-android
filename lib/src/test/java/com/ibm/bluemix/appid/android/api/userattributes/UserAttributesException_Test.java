@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
 import static org.assertj.core.api.Java6Assertions.*;
 
 @RunWith (RobolectricTestRunner.class)
@@ -29,8 +30,7 @@ import static org.assertj.core.api.Java6Assertions.*;
 public class UserAttributesException_Test {
 
 	@Test
-	public void test (){
-
+	public void testUserAttributesException (){
 		UserAttributesException uae1 = new UserAttributesException(UserAttributesException.Error.FAILED_TO_CONNECT);
 		assertThat(uae1.getError()).isEqualTo(UserAttributesException.Error.FAILED_TO_CONNECT);
 

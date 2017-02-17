@@ -49,7 +49,6 @@ public class AuthorizationManager {
 	private final static String SCOPE_OPENID = "openid";
 
 	private final static String REDIRECT_URI = "redirect_uri";
-//	private final static String USE_LOGIN_WIDGET = "use_login_widget";
 	private final static String IDP = "idp";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
 
@@ -63,7 +62,7 @@ public class AuthorizationManager {
 	}
 
 	// TODO: document
-	public String getAuthorizationUrl(boolean useLoginWidget, String idpName, AccessToken accessToken) {
+	public String getAuthorizationUrl(String idpName, AccessToken accessToken) {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
@@ -73,8 +72,6 @@ public class AuthorizationManager {
 				.appendQueryParameter(CLIENT_ID, clientId)
 				.appendQueryParameter(REDIRECT_URI, redirectUri)
 				.appendQueryParameter(SCOPE, SCOPE_OPENID);
-		// TODO: Remove after validating parameter no longer in use
-//				.appendQueryParameter(USE_LOGIN_WIDGET, String.valueOf(useLoginWidget));
 
 		if (idpName != null){
 			builder.appendQueryParameter(IDP, idpName);
@@ -99,7 +96,7 @@ public class AuthorizationManager {
 
 			@Override
 			public void onRegistrationSuccess () {
-				String authorizationUrl = getAuthorizationUrl(true, null, accessToken);
+				String authorizationUrl = getAuthorizationUrl(null, accessToken);
 				String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 				AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
 				auim.launch(activity);
@@ -107,14 +104,20 @@ public class AuthorizationManager {
 		});
 	}
 
-	public void continueAnonymousLogin (String accessTokenString, final AuthorizationListener listener){
+	public void continueAnonymousLogin (String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener){
 		AccessToken accessToken;
 		if (accessTokenString == null){
 			accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
 		} else {
 			accessToken = new AccessTokenImpl(accessTokenString);
 		}
-		String authorizationUrl = getAuthorizationUrl(false, AccessTokenImpl.IDP_ANONYMOUS, accessToken);
+
+		if (accessToken == null && !allowCreateNewAnonymousUser){
+			listener.onAuthorizationFailure(new AuthorizationException("Not allowed to create new anonymous users"));
+			return;
+		}
+
+		String authorizationUrl = getAuthorizationUrl(AccessTokenImpl.IDP_ANONYMOUS, accessToken);
 
 		AppIDRequest request = new AppIDRequest(authorizationUrl, AppIDRequest.GET);
 		request.send(new ResponseListener(){
@@ -139,7 +142,7 @@ public class AuthorizationManager {
 		);
 	}
 
-	public void loginAnonymously(final Context context, final String accessTokenString, final AuthorizationListener authorizationListener){
+	public void loginAnonymously(final Context context, final String accessTokenString, final boolean allowCreateNewAnonymousUser, final AuthorizationListener authorizationListener){
 		registrationManager.ensureRegistered(context, new RegistrationListener() {
 			@Override
 			public void onRegistrationFailure (RegistrationStatus error) {
@@ -149,7 +152,7 @@ public class AuthorizationManager {
 
 			@Override
 			public void onRegistrationSuccess () {
-				continueAnonymousLogin(accessTokenString, authorizationListener);
+				continueAnonymousLogin(accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
 			}
 		});
 	}
