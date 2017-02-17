@@ -12,7 +12,6 @@
 */
 
 package com.ibm.bluemix.appid.android.api.tokens;
-import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
