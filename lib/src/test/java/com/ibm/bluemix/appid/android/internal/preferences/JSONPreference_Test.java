@@ -10,34 +10,43 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+package com.ibm.bluemix.appid.android.internal.preferences;
 
-package com.ibm.bluemix.appid.android.api.userattributes;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static org.assertj.core.api.Java6Assertions.*;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder (MethodSorters.NAME_ASCENDING)
 @Config (constants = BuildConfig.class)
-public class UserAttributesException_Test {
+public class JSONPreference_Test {
 
 	@Test
-	public void testUserAttributesException (){
-		UserAttributesException uae1 = new UserAttributesException(UserAttributesException.Error.FAILED_TO_CONNECT);
-		assertThat(uae1.getError()).isEqualTo(UserAttributesException.Error.FAILED_TO_CONNECT);
+	public void testJSONPreference() throws JSONException{
+		SharedPreferences sharedPreferences = RuntimeEnvironment.application.getSharedPreferences("test", Context.MODE_PRIVATE);
+		JSONPreference jsonPreference = new JSONPreference("test-name", sharedPreferences);
+		assertThat(jsonPreference.get()).isNull();
 
-		UserAttributesException uae2 = new UserAttributesException(UserAttributesException.Error.NOT_FOUND);
-		assertThat(uae2.getError()).isEqualTo(UserAttributesException.Error.NOT_FOUND);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("json-name", "json-value");
 
-		UserAttributesException uae3 = new UserAttributesException(UserAttributesException.Error.UNAUTHORIZED);
-		assertThat(uae3.getError()).isEqualTo(UserAttributesException.Error.UNAUTHORIZED);
+		jsonPreference.set(jsonObject);
+		assertThat(jsonPreference.getAsJSON().getString("json-name")).isEqualTo("json-value");
+
+		jsonPreference.clear();
+		assertThat(jsonPreference.getAsJSON()).isNull();
 	}
 }

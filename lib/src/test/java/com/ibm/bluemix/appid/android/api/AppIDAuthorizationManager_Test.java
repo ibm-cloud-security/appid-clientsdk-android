@@ -136,9 +136,8 @@ public class AppIDAuthorizationManager_Test {
 		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(idToken);
 		UserIdentity userIdentity = appIdAuthManager.getUserIdentity();
 		assertThat(userIdentity).isNotNull();
-		// TODO: Uncomment once sub is added
-//		assertThat(userIdentity.getId()).isEqualTo(idToken.getSubject());
-		assertThat(userIdentity.getAuthBy()).isEqualTo(idToken.getAuthBy());
+		assertThat(userIdentity.getId()).isEqualTo(idToken.getSubject());
+		assertThat(userIdentity.getAuthBy()).isEqualTo(idToken.getAuthenticationMethods().get(0));
 		assertThat(userIdentity.getDisplayName()).isEqualTo(idToken.getName());
 	}
 

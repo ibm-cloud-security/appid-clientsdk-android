@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
 import static org.assertj.core.api.Java6Assertions.*;
 
 @RunWith (RobolectricTestRunner.class)

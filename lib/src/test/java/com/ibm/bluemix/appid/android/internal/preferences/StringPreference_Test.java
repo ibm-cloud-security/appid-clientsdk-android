@@ -10,8 +10,10 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+package com.ibm.bluemix.appid.android.internal.preferences;
 
-package com.ibm.bluemix.appid.android.api.userattributes;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
@@ -20,24 +22,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.assertj.core.api.Java6Assertions.*;
 
+
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder (MethodSorters.NAME_ASCENDING)
 @Config (constants = BuildConfig.class)
-public class UserAttributesException_Test {
+public class StringPreference_Test {
 
 	@Test
-	public void testUserAttributesException (){
-		UserAttributesException uae1 = new UserAttributesException(UserAttributesException.Error.FAILED_TO_CONNECT);
-		assertThat(uae1.getError()).isEqualTo(UserAttributesException.Error.FAILED_TO_CONNECT);
+	public void testStringPreference(){
+		SharedPreferences sharedPreferences = RuntimeEnvironment.application.getSharedPreferences("test", Context.MODE_PRIVATE);
+		StringPreference stringPreference = new StringPreference("test-name", sharedPreferences);
+		assertThat(stringPreference.get()).isNull();
 
-		UserAttributesException uae2 = new UserAttributesException(UserAttributesException.Error.NOT_FOUND);
-		assertThat(uae2.getError()).isEqualTo(UserAttributesException.Error.NOT_FOUND);
+		stringPreference.set("test-value");
+		assertThat(stringPreference.get()).isEqualTo("test-value");
 
-		UserAttributesException uae3 = new UserAttributesException(UserAttributesException.Error.UNAUTHORIZED);
-		assertThat(uae3.getError()).isEqualTo(UserAttributesException.Error.UNAUTHORIZED);
+		stringPreference.clear();
+		assertThat(stringPreference.get()).isNull();
 	}
 }

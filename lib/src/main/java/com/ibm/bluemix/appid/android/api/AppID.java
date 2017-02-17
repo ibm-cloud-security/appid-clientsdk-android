@@ -114,11 +114,16 @@ public class AppID {
 	}
 
 	public void loginAnonymously(@NotNull Context context, @NotNull AuthorizationListener authorizationListener){
-		this.loginAnonymously(context, null, authorizationListener);
+		this.loginAnonymously(context, null, true, authorizationListener);
 	}
 
-	public void loginAnonymously(@NotNull Context context,  String accessToken, @NotNull AuthorizationListener authorizationListener){
-		oAuthManager.getAuthorizationManager().loginAnonymously(context, accessToken, authorizationListener);
+	public void loginAnonymously(@NotNull Context context, String accessToken, @NotNull AuthorizationListener authorizationListener){
+		this.loginAnonymously(context, accessToken, true, authorizationListener);
 	}
+
+	public void loginAnonymously(@NotNull Context context,  String accessToken, boolean allowCreateNewAnonymousUser, @NotNull AuthorizationListener authorizationListener){
+		oAuthManager.getAuthorizationManager().loginAnonymously(context, accessToken, allowCreateNewAnonymousUser, authorizationListener);
+	}
+
 
 }
