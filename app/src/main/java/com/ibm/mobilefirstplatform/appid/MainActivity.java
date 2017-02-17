@@ -31,8 +31,8 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "38b61870-147c-46ed-ab3f-54a60302d80d";
-	private final static String region = ".stage1.ng.bluemix.net";
+	private final static String mcaTenantId = "50d0beed-add7-48dd-8b0a-c818cb456bb4";
+	private final static String region = ".stage1.mybluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
 	private AppID appId;
@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 	}
+
 	public void onLoginClick (View v) {
 		logger.debug("onLoginClick");
 		showProgress();

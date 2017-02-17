@@ -56,20 +56,16 @@ public class AbstractToken_Test {
 		assertThat(token.getHeader()).isNotNull();
 		assertThat(token.getPayload()).isNotNull();
 		assertThat(token.getSignature()).isNotNull();
-		assertThat(token.getIssuer()).isEqualTo("imf-authserver.stage1-dev.ng.bluemix.net");
-// TODO: restore
-//		assertThat(token.getSubject()).isEqualTo("sub");
-		assertThat(token.getAudience()).isEqualTo("741efc868b9a3f37b1cea5b1a50d50f74182dfb4");
-		assertThat(token.getExpiration()).isEqualTo(new Date(1485550431000L));
-		assertThat(token.getIssuedAt()).isEqualTo(new Date(1485546831000L));
-		assertThat(token.getTenant()).isEqualTo("66f79ab9-a54e-4fa2-ad3c-406df494d018");
-		assertThat(token.getAuthBy()).isEqualTo("facebook");
-		assertThat(token.isExpired()).isEqualTo(true);
+		assertThat(token.getIssuer()).isEqualTo("imf-authserver.stage1.mybluemix.net");
+		assertThat(token.getSubject()).isEqualTo("09b7fea5-2e4e-40b8-9d81-df50071a3053");
+		assertThat(token.getAudience()).isEqualTo("408eb36a2a069ad89cd19c789a96b7cf36b550ec");
+		assertThat(token.getExpiration()).isEqualTo(new Date(1489957459000L));
+		assertThat(token.getIssuedAt()).isEqualTo(new Date(1487365459000L));
+		assertThat(token.getTenant()).isEqualTo("50d0beed-add7-48dd-8b0a-c818cb456bb4");
+		assertThat(token.getAuthenticationMethods().get(0)).isEqualTo("facebook");
+		assertThat(token.isExpired()).isEqualTo(false);
 
 		Object nonExistingValue = ((AbstractToken)token).getValue("do-not-exist");
 		assertThat(nonExistingValue).isNull();
-
 	}
-
-
 }

@@ -15,13 +15,15 @@ package com.ibm.bluemix.appid.android.internal.tokens;
 
 import android.util.Base64;
 
-import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public abstract class AbstractToken implements Token {
 	public final static String IDP_ANONYMOUS = "appid_anon";
@@ -37,7 +39,7 @@ public abstract class AbstractToken implements Token {
 	private final static String EXPIRATION = "exp";
 	private final static String ISSUED_AT = "iat";
 	private final static String TENANT = "tenant";
-	private final static String AUTH_BY = "auth_by";
+	private final static String AUTHENTICATION_METHODS = "amr";
 
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AbstractToken.class.getName());
@@ -116,8 +118,16 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public String getAuthBy () {
-		return (String) getValue(AUTH_BY);
+	public List<String> getAuthenticationMethods(){
+		List<String> list = new ArrayList<>();
+		JSONArray array = (JSONArray) getValue(AUTHENTICATION_METHODS);
+		for (int i=0; i<array.length(); i++){
+			try {
+				list.add(array.getString(i));
+			} catch (JSONException e){}
+		}
+
+		return list;
 	}
 
 	protected Object getValue (String name){
@@ -133,8 +143,7 @@ public abstract class AbstractToken implements Token {
 		return getExpiration().before(new Date());
 	}
 
-	public boolean isAnonymous(){
-		return getAuthBy().equals(IDP_ANONYMOUS);
+	public boolean isAnonymous() {
+		return getAuthenticationMethods().contains(IDP_ANONYMOUS);
 	}
-
 }

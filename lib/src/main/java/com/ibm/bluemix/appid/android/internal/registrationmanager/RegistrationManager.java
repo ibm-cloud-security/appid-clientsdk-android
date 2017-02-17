@@ -60,7 +60,6 @@ public class RegistrationManager {
 
 	private AppID appId;
 	private PreferenceManager preferenceManager;
-    private KeyPair registrationKeyPair;
     private RegistrationKeyStore registrationKeyStore;
 	private RegistrationStatus status = RegistrationStatus.NOT_REGISTRED;
 
@@ -106,7 +105,7 @@ public class RegistrationManager {
      * Invoke request for registration, the result of the request should contain ClientId.
      *
      */
-    void registerOAuthClient(Context context, final ResponseListener responseListener) {
+    private void registerOAuthClient(Context context, final ResponseListener responseListener) {
         try {
 			String registrationUrl = Config.getOAuthServerUrl(appId) + OAUTH_REGISTRATION_PATH;
 
@@ -151,7 +150,7 @@ public class RegistrationManager {
      */
     private JSONObject createRegistrationParams(Context context) throws Exception {
 		logger.info("Creating OAuth client registration parameters");
-        registrationKeyPair = this.registrationKeyStore.generateKeyPair(context);
+		KeyPair registrationKeyPair = this.registrationKeyStore.generateKeyPair(context);
         JSONObject params = new JSONObject();
         DeviceIdentity deviceData = new BaseDeviceIdentity(context);
         AppIdentity applicationData = new BaseAppIdentity(context);

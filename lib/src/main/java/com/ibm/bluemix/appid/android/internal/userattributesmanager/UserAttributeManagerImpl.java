@@ -115,7 +115,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 				switch(errorCode){
 					case 401: error = UserAttributesException.Error.UNAUTHORIZED; break;
 					case 404: error = UserAttributesException.Error.NOT_FOUND; break;
-					default: error = UserAttributesException.Error.FAILED_TO_CONNECT;
+					default: error = UserAttributesException.Error.FAILED_TO_CONNECT; break;
 				}
 				listener.onFailure(new UserAttributesException(error));
 			}

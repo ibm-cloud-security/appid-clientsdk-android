@@ -12,6 +12,27 @@
 */
 
 package com.ibm.bluemix.appid.android.api.tokens;
+import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
+import com.ibm.bluemix.appid.android.testing.helpers.Consts;
+import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import static org.assertj.core.api.Java6Assertions.*;
+
+@RunWith (RobolectricTestRunner.class)
+@FixMethodOrder (MethodSorters.NAME_ASCENDING)
+@Config (constants = BuildConfig.class)
 public class AccessToken_Test {
+
+	@Test ()
+	public void testWithValidAccessToken ()  {
+		AccessToken accessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
+		assertThat(accessToken).isNotNull();
+		assertThat(accessToken.getScope()).isEqualTo("appid_default appid_readprofile appid_readuserattr appid_writeuserattr");
+	}
 }
