@@ -12,6 +12,9 @@ Android SDK for the Bluemix AppID service
 [![GithubStars][img-github-stars]][url-github-stars]
 [![GithubForks][img-github-forks]][url-github-forks]
 
+## Requirements
+API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platform Tools 25.0.3 or above, Android Build Tools version 25.0.2
+
 ## Installing the SDK:
 
 1. Add a compile dependency for the AppID client SDK: 
@@ -28,12 +31,12 @@ Android SDK for the Bluemix AppID service
     ```
     
 2. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
-```
-defaultConfig {
-...
-manifestPlaceholders = ['appIdRedirectScheme': android.defaultConfig.applicationId]
-}
-```
+    ```
+    defaultConfig {
+    ...
+    manifestPlaceholders = ['appIdRedirectScheme': android.defaultConfig.applicationId]
+    }
+    ```
 
 ## Using the SDK:
 
@@ -68,30 +71,89 @@ loginWidget.launch(this, new AuthorizationListener() {
 			}
 		});
 ```
-Note: The Login widget default configuration using Facebook and Google as authentication options.
+**Note**: The Login widget default configuration use Facebook and Google as authentication options.
     If you configure only one of them the login widget will NOT launch and the user will be redirect to the configured idp authentication screen.
-
-### Access and Identity Tokens
-```java
-// need code sample
-```
 
 ### Anonymous Login
 ```java
-// need code sample
+AppID.getInstance().loginAnonymously(getApplicationContext(), new AuthorizationListener() {
+			@Override
+			public void onAuthorizationFailure(AuthorizationException exception) {
+				//Exception occurred
+			}
+
+			@Override
+			public void onAuthorizationCanceled() {
+				//Authentication canceled by the user
+			}
+
+			@Override
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+				//User authenticated
+			}
+		});
 ```
 
 ### User profile attributes
 ```java
-// need code sample
+AppID appId = AppID.getInstance();
+String name = "name";
+String value = "value";
+appId.getUserAttributeManager().setAttribute(name, value, new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				//Set attribute "name" to "value" successfully 
+			}
+
+			@Override
+			public void onFailure(UserAttributesException e) {
+				//Exception occurred
+			}
+		});
+		
+appId.getUserAttributeManager().getAttribute(name, new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				//Got attribute "name" successfully 
+			}
+
+			@Override
+			public void onFailure(UserAttributesException e) {
+				//Exception occurred
+			}
+		});
+		
+appId.getUserAttributeManager().getAllAttributes( new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				//Got all attributes successfully
+			}
+
+			@Override
+			public void onFailure(UserAttributesException e) {
+				//Exception occurred
+			}
+		});
+		
+appId.getUserAttributeManager().deleteAttribute(name, new UserAttributeResponseListener() {
+			@Override
+			public void onSuccess(JSONObject attributes) {
+				//Attribute "name" deleted successfully
+			}
+
+			@Override
+			public void onFailure(UserAttributesException e) {
+				//Exception occurred
+			}
+		});
 ```
 
 ### Invoking protected resources
 ```java
 BMSClient bmsClient = BMSClient.getInstance();
-bmsClient.initialize(.....);
+bmsClient.initialize(getApplicationContext(), AppID.REGION_UK);
 
-AppIDAuthorizationManager appIdAuthMgr = new .....
+AppIDAuthorizationManager appIdAuthMgr = new AppIDAuthorizationManager(AppID.getInstance())
 bmsClient.setAuthorizationManager(appIdAuthMgr);
 
 Request request = new Request("http://my-mobile-backend.mybluemix.net/protected", Request.GET);
