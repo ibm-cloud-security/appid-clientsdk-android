@@ -1,0 +1,59 @@
+apply plugin: "com.android.library"
+apply plugin: "com.github.kt3k.coveralls"
+apply from: "jacoco.gradle"
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "org.robolectric.RobolectricTestRunner"
+        android.buildTypes.debug.manifestPlaceholders = [
+            'appIdRedirectScheme': 'com.ibm.mobilefirstplatform.appid_clientsdk_android_test'
+        ];
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled true
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+            }
+            include '**/*TestSuite*'
+        }
+    }
+
+    lintOptions{
+        warning 'InvalidPackage'
+    }
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:2.2.7'
+
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:customtabs:25.1.0'
+    compile 'org.jetbrains:annotations-java5:15.0'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.2.2'
+    testCompile 'org.robolectric:shadows-httpclient:3.2.2'
+    testCompile 'org.assertj:assertj-core:3.6.2'
+    testCompile 'org.powermock:powermock-api-mockito:1.6.6'
+}

@@ -1,0 +1,24 @@
+language: android
+
+notifications:
+  email:
+    on_success: always
+    on_failure: always
+
+branches:
+  only:
+  - master
+  - development
+
+android:
+  components:
+    - tools
+    - build-tools-25.0.2
+    - android-25
+    - extra
+
+jdk:
+  - oraclejdk8
+
+script:
+   - ./gradlew clean jacocoTestReport coveralls

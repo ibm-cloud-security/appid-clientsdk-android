@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.ibm.mobilefirstplatform.appid.MainActivity"
+    android:background="@android:color/background_light">
+
+    <!-- Dummy item to prevent attributes entry from receiving focus -->
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/profilePic"
+            android:visibility="invisible"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentTop="false"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:text="Login Anonymously"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/anonloginButton"
+            android:onClick="onAnonLoginClick"
+            android:layout_below="@+id/profilePic"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="39dp" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:text="You are not logged in"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/name"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:fontFamily="sans-serif"
+        android:textSize="21sp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="127dp" />
+
+    <Button
+        android:text="Login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginButton"
+        android:onClick="onLoginClick"
+        android:layout_marginTop="23dp"
+        android:layout_below="@+id/name"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onProtectedRequestClick"
+        android:id="@+id/protectedRequestButton"
+        android:text="Protected Resource Request"
+        android:layout_below="@+id/textView4"
+        android:layout_alignParentStart="true" />
+
+
+
+    <TextView
+        android:text="enter attribute"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textAttributes"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/protectedRequestButton"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="normal|bold"
+        android:textSize="16sp" />
+
+    <TextView
+        android:text="Response:"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/putAttribute"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="normal|bold"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewProtectedResourceResponse"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="16sp"
+        android:layout_below="@+id/textView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@android:color/holo_blue_bright"
+        android:backgroundTint="@android:color/holo_blue_bright"
+        android:layout_alignParentBottom="true"
+        android:isScrollContainer="true"
+        android:scrollbars="vertical"
+        android:scrollHorizontally="true"
+        android:keepScreenOn="true"
+        android:cursorVisible="true"
+        android:scrollIndicators="right" />
+
+    <TextView
+        android:text="or"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loginButton"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textView4"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textSize="16sp"
+        android:textAlignment="center" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loadingPanel"
+        tools:visibility="invisible"
+        android:visibility="invisible"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/editAttrName"
+        android:hint="name"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:layout_margin="3dp"
+        android:layout_below="@+id/textAttributes"/>
+
+    <EditText
+        android:id="@+id/editAttrValue"
+        android:hint="value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:layout_margin="3dp"
+        android:layout_toEndOf="@+id/editAttrName"
+        android:layout_alignBottom="@+id/editAttrName"
+        android:layout_below="@+id/textAttributes"/>
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="60dp"
+        android:onClick="onPutAttributeClick"
+        android:id="@+id/putAttribute"
+        android:text="PUT"
+        android:layout_below="@+id/editAttrName"
+        android:layout_alignParentStart="true"
+        android:textSize="10sp"/>
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="60dp"
+        android:onClick="onGetAttributeClick"
+        android:id="@+id/getAttribute"
+        android:text="GET"
+        android:layout_below="@+id/editAttrName"
+        android:layout_alignParentStart="true"
+        android:textSize="10sp"
+        android:layout_toEndOf="@+id/putAttribute"
+        android:layout_alignBottom="@+id/putAttribute"
+        android:layout_marginLeft="70dp"/>
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="60dp"
+        android:onClick="onDeleteAttributeClick"
+        android:id="@+id/deleteAttribute"
+        android:text="DELETE"
+        android:textSize="10sp"
+        android:layout_toEndOf="@+id/getAttribute"
+        android:layout_alignBottom="@+id/getAttribute"
+        android:layout_marginLeft="70dp"
+        android:layout_below="@+id/editAttrName" />
+
+    <Button
+        android:layout_height="30dp"
+        android:layout_width="100dp"
+        android:onClick="onGetAllAttributesClick"
+        android:id="@+id/getAllAttributes"
+        android:text="GET ALL"
+        android:textSize="10sp"
+        android:layout_toEndOf="@+id/deleteAttribute"
+        android:layout_alignBottom="@+id/deleteAttribute"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/editAttrName" />
+</RelativeLayout>
