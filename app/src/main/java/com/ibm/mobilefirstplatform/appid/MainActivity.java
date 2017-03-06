@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             ImageView profilePicture = (ImageView) findViewById(R.id.profilePic);
 							if(bmp == null) {
-								profilePicture.setImageResource(R.mipmap.ic_launcher);
+								profilePicture.setImageResource(R.drawable.ic_anon_user);
 							}else {
 								profilePicture.setImageBitmap(bmp);
 							}
