@@ -18,7 +18,7 @@ import com.ibm.bluemix.appid.android.api.AppID;
 public class Config {
 	private final static String OAUTH_ENDPOINT = "/oauth/v3/";
 	private final static String ATTRIBUTES_ENDPOINT = "/api/v1/";
-	private static final String serverUrlPrefix = "https://imf-authserver";
+	private static final String serverUrlPrefix = "https://appid-oauth";
 	private static final String userProfilesPrefix = "https://appid-profiles";
 
 	private Config(){}

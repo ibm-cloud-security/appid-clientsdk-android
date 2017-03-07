@@ -16,21 +16,26 @@ Android SDK for the Bluemix AppID service
 API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platform Tools 25.0.3 or above, Android Build Tools version 25.0.2
 
 ## Installing the SDK:
-
-1. Add a compile dependency for the AppID client SDK: 
+1.  Add the JitPack repository to your build file, 
+     Add it in your root build.gradle at the end of repositories:
 
     ```gradle
-     dependencies {
-         compile group: 'com.ibm.mobilefirstplatform.appid',    
-         name:'appid',
-         version: '1.+',
-         ext: 'aar',
-         transitive: true
-         // other dependencies  
-     }
+	    allprojects {
+		    repositories {
+			    ...
+			    maven { url 'https://jitpack.io' }
+		    }
+	    }
+    ```
+
+2. Add the dependency for the AppID client SDK:
+    ```gradle
+    dependencies {
+		    compile 'com.github.ibm-cloud-security:appid-clientsdk-android:1.+'
+	    }
     ```
     
-2. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
+3. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
     ```
     defaultConfig {
     ...
