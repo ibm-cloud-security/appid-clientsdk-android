@@ -16,7 +16,7 @@ package com.ibm.bluemix.appid.android.internal.config;
 import com.ibm.bluemix.appid.android.api.AppID;
 
 public class Config {
-	private static final String serverUrlPrefix = "https://imf-authserver";
+	private static final String serverUrlPrefix = "https://appid-oauth";
 	private static final String userProfilesPrefix = "https://appid-user-profile-service";
 
 	private Config(){}
