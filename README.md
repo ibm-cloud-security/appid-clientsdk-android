@@ -31,7 +31,7 @@ API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platfo
 2. Add the dependency for the AppID client SDK:
     ```gradle
     dependencies {
-		    compile 'com.github.ibm-cloud-security:appid-clientsdk-android:1.x'
+		    compile 'com.github.ibm-cloud-security:appid-clientsdk-android:1.+'
 	    }
     ```
     
