@@ -16,13 +16,15 @@ package com.ibm.bluemix.appid.android.internal.config;
 import com.ibm.bluemix.appid.android.api.AppID;
 
 public class Config {
+	private final static String OAUTH_ENDPOINT = "/oauth/v3/";
+	private final static String ATTRIBUTES_ENDPOINT = "/api/v1/";
 	private static final String serverUrlPrefix = "https://imf-authserver";
-	private static final String userProfilesPrefix = "https://appid-user-profile-service";
+	private static final String userProfilesPrefix = "https://appid-profiles";
 
 	private Config(){}
 
 	public static String getOAuthServerUrl (AppID appId) {
-		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + "/oauth/v3/";
+		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + OAUTH_ENDPOINT;
 		if (null != appId.overrideOAuthServerHost) {
 			serverUrl = appId.overrideOAuthServerHost;
 		}
@@ -31,10 +33,11 @@ public class Config {
 	}
 
 	public static String getUserProfilesServerUrl (AppID appId) {
-		String serverUrl = userProfilesPrefix + appId.getBluemixRegionSuffix() + "/api/v1/";
+		String serverUrl = userProfilesPrefix + appId.getBluemixRegionSuffix();
 		if (null != appId.overrideUserProfilesHost) {
 			serverUrl = appId.overrideUserProfilesHost;
 		}
+		serverUrl += ATTRIBUTES_ENDPOINT;
 		return serverUrl;
 	}
 }
