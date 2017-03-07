@@ -17,33 +17,8 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:layout_width="0px"
-        android:layout_height="0px"/>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:id="@+id/profilePic"
-            android:visibility="invisible"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentTop="false"
-            android:layout_centerHorizontal="true" />
-
-        <Button
-            android:text="Login Anonymously"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/anonloginButton"
-            android:onClick="onAnonLoginClick"
-            android:layout_below="@+id/profilePic"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="39dp" />
-
-    </RelativeLayout>
+        android:layout_height="0px"
+        android:id="@+id/linearLayout" />
 
     <TextView
         android:text="You are not logged in"
@@ -71,18 +46,17 @@
         android:layout_alignParentStart="true" />
 
     <Button
+        android:id="@+id/protectedRequestButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onProtectedRequestClick"
-        android:id="@+id/protectedRequestButton"
         android:text="Protected Resource Request"
-        android:layout_below="@+id/textView4"
+        android:layout_below="@+id/orText"
         android:layout_alignParentStart="true" />
 
 
-
     <TextView
-        android:text="enter attribute"
+        android:text="Enter attribute"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textAttributes"
@@ -91,15 +65,15 @@
         android:layout_centerHorizontal="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textStyle="normal|bold"
-        android:textSize="16sp" />
+        android:textSize="19sp" />
 
     <TextView
         android:text="Response:"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView2"
-        android:layout_marginTop="16dp"
-        android:layout_below="@+id/putAttribute"
+        android:id="@+id/responseTitle"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/radioGroup"
         android:layout_centerHorizontal="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textStyle="normal|bold"
@@ -107,22 +81,34 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:id="@+id/textViewProtectedResourceResponse"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="16sp"
-        android:layout_below="@+id/textView2"
+        android:textSize="20sp"
+        android:layout_below="@+id/responseTitle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:background="@android:color/holo_blue_bright"
         android:backgroundTint="@android:color/holo_blue_bright"
-        android:layout_alignParentBottom="true"
         android:isScrollContainer="true"
         android:scrollbars="vertical"
         android:scrollHorizontally="true"
         android:keepScreenOn="true"
         android:cursorVisible="true"
-        android:scrollIndicators="right" />
+        android:scrollIndicators="right"/>
+
+    <TextView
+        android:text="No access token"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignTop="@+id/textViewProtectedResourceResponse"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/accessToken"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textIsSelectable="true"
+        android:textSize="10sp"
+        android:textAlignment="center" />
 
     <TextView
         android:text="or"
@@ -130,7 +116,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/loginButton"
         android:layout_centerHorizontal="true"
-        android:id="@+id/textView4"
+        android:id="@+id/orText"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="16sp"
         android:textAlignment="center" />
@@ -150,7 +136,7 @@
         android:hint="name"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:textSize="10sp"
+        android:textSize="16sp"
         android:layout_margin="3dp"
         android:layout_below="@+id/textAttributes"/>
 
@@ -159,7 +145,7 @@
         android:hint="value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="10sp"
+        android:textSize="16sp"
         android:layout_margin="3dp"
         android:layout_toEndOf="@+id/editAttrName"
         android:layout_alignBottom="@+id/editAttrName"
@@ -211,4 +197,69 @@
         android:layout_alignBottom="@+id/deleteAttribute"
         android:layout_marginLeft="10dp"
         android:layout_below="@+id/editAttrName" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignParentStart="true">
+
+        <ImageView
+            android:id="@+id/profilePic"
+            android:visibility="invisible"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentTop="false"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:text="Tokens"
+            android:id="@+id/showTokensButton"
+            android:onClick="onTokensClick"
+            android:layout_alignParentStart="true"
+            android:textSize="10sp"
+            android:layout_height="30dp"
+            android:layout_width="100dp"/>
+
+        <Button
+            android:text="Use Anonymously"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/anonloginButton"
+            android:onClick="onAnonLoginClick"
+            android:layout_marginTop="37dp"
+            android:layout_below="@+id/profilePic"
+            android:layout_alignParentStart="true" />
+
+    </RelativeLayout>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_alignTop="@id/deleteAttribute"
+        android:layout_marginTop="35dp"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_horizontal_margin"
+        android:orientation="horizontal"
+        android:checkedButton="@+id/radio_last"
+        >
+        <RadioButton android:id="@+id/radio_last"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/use_last"
+            android:onClick="onRadioButtonClicked"
+            />
+        <RadioButton android:id="@+id/radio_anon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/use_anon"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/radio_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/use_identified"
+            android:onClick="onRadioButtonClicked"/>
+    </RadioGroup>
+
 </RelativeLayout>
