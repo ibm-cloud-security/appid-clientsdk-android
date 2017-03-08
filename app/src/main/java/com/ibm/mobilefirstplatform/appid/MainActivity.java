@@ -1,21 +1,15 @@
 package com.ibm.mobilefirstplatform.appid;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.ibm.bluemix.appid.android.api.AppID;
@@ -39,7 +33,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "e4d4f18e-cb02-46a1-88c7-f8a8299047b8";
+	private final static String tenantId = "e4d4f18e-cb02-46a1-88c7-f8a8299047b8";
 	private final static String region = ".ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
@@ -61,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// Initialize AppID SDK
 		appId = AppID.getInstance();
-		appId.initialize(this, mcaTenantId, region);
+		appId.initialize(this, tenantId, region);
 		//uncomment to run locally
 //		appId.overrideOAuthServerHost = "http://10.0.2.2:6002/oauth/v3/";
 //		appId.overrideUserProfilesHost = "http://10.0.2.2:9080/user";
