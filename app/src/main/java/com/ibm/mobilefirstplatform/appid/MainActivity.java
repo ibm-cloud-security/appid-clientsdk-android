@@ -39,8 +39,8 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "e4d4f98e-cb02-46a1-88c7-f8a8299027b8";
-	private final static String region = ".stage1.mybluemix.net";
+	private final static String mcaTenantId = "e4d4f18e-cb02-46a1-88c7-f8a8299047b8";
+	private final static String region = ".ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
 	private AppID appId;
