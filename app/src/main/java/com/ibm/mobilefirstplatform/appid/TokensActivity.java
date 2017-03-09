@@ -135,7 +135,7 @@ public class TokensActivity extends AppCompatActivity {
         TextView tokensContent = (TextView)findViewById(R.id.tokensContent);
 
         String identityTokenPayload = getIntent().getExtras().get("IDENTITY_TOKEN").toString();
-        String accessTokenPayload = getIntent().getExtras().get("IDENTITY_TOKEN").toString();
+        String accessTokenPayload = getIntent().getExtras().get("ACCESS_TOKEN").toString();
 
         tokensContent.setText("");
         if(accessTokenPayload.length() > 0 || identityTokenPayload.length() > 0) {
