@@ -32,18 +32,18 @@ public class Config_Test {
 	@Test
 	public void testConfig(){
 		String url = com.ibm.bluemix.appid.android.internal.config.Config.getOAuthServerUrl(appId);
-		assertThat(url).isEqualTo("https://imf-authserver.region.com/oauth/v3/tenant-id");
+		assertThat(url).isEqualTo("https://appid-oauth.region.com/oauth/v3/tenant-id");
 
 		url = com.ibm.bluemix.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
-		assertThat(url).isEqualTo("https://appid-user-profile-service.region.com/api/v1/");
+		assertThat(url).isEqualTo("https://appid-profiles.region.com/api/v1/");
 
 		appId.overrideOAuthServerHost = "oauth-server-host-";
-		appId.overrideUserProfilesHost = "user-profiles-host-";
+		appId.overrideUserProfilesHost = "user-profiles-host";
 
 		url = com.ibm.bluemix.appid.android.internal.config.Config.getOAuthServerUrl(appId);
 		assertThat(url).isEqualTo("oauth-server-host-tenant-id");
 
 		url = com.ibm.bluemix.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
-		assertThat(url).isEqualTo("user-profiles-host-");
+		assertThat(url).isEqualTo("user-profiles-host/api/v1/");
 	}
 }
