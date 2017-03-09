@@ -5,7 +5,7 @@ Android SDK for the Bluemix AppID service
 [![Travis][img-travis-master]][url-travis-master]
 [![Coveralls][img-coveralls-master]][url-coveralls-master]
 [![Codacy][img-codacy]][url-codacy]
-[![Version][img-version]][url-bintray]
+[![Release](https://jitpack.io/v/ibm-cloud-security/appid-clientsdk-android.svg)](https://jitpack.io/#ibm-cloud-security/appid-clientsdk-android)
 [![License][img-license]][url-bintray]
 
 [![GithubWatch][img-github-watchers]][url-github-watchers]
