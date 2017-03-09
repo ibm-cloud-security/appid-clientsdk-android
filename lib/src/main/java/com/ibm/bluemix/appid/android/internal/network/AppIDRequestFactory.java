@@ -1,3 +1,5 @@
+package com.ibm.bluemix.appid.android.internal.network;
+
 /*
 	Copyright 2017 IBM Corp.
 	Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,19 +13,8 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.api;
-
-import android.app.Activity;
-import android.support.annotation.NonNull;
-
-public interface LoginWidget {
-	/**
-	 * Lunch the login widget user interface
-	 * @param activity Parent activity
-	 * @param authorizationListener
-	 * @param accessTokenString
-	 */
-	void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener, String accessTokenString);
-	void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener);
+public class AppIDRequestFactory {
+    public AppIDRequest createRequest(String url, String method){
+        return new AppIDRequest(url, method);
+    }
 }
-

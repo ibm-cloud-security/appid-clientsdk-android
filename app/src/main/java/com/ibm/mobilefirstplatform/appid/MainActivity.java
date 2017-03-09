@@ -1,5 +1,6 @@
 package com.ibm.mobilefirstplatform.appid;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.ibm.bluemix.appid.android.api.AppID;
@@ -31,12 +33,16 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-	private final static String mcaTenantId = "50d0beed-add7-48dd-8b0a-c818cb456bb4";
-	private final static String region = ".stage1.mybluemix.net";
+	private final static String tenantId = "e4d4f18e-cb02-46a1-88c7-f8a8299047b8";
+	private final static String region = ".ng.bluemix.net";
 
 	private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
 	private AppID appId;
 	private AppIDAuthorizationManager appIDAuthorizationManager;
+
+	private AccessToken anonymousAccessToken;
+	private AccessToken identifiedAccessToken;
+	private AccessToken useThisToken;
 
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
@@ -49,14 +55,15 @@ public class MainActivity extends AppCompatActivity {
 
 		// Initialize AppID SDK
 		appId = AppID.getInstance();
-		appId.initialize(this, mcaTenantId, region);
+		appId.initialize(this, tenantId, region);
 		//uncomment to run locally
-//		appId.overrideOAuthServerHost = "http://10.0.2.2:6003/oauth/v3/";
-//		appId.userProfilesHost = "http://10.0.2.2:9080/user/v1/";
+//		appId.overrideOAuthServerHost = "http://10.0.2.2:6002/oauth/v3/";
+//		appId.overrideUserProfilesHost = "http://10.0.2.2:9080/user";
 
 		// Add integration with BMSClient. Optional.
 		this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
 		bmsClient.setAuthorizationManager(appIDAuthorizationManager);
+		switchToDemoMode();
 	}
 
 	public void onAnonLoginClick (View v) {
@@ -81,9 +88,14 @@ public class MainActivity extends AppCompatActivity {
 			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
 				logger.info("Anonymous authorization success");
 				hideProgress();
+				anonymousAccessToken = accessToken;
 				extractAndDisplayDataFromIdentityToken(identityToken);
 			}
 		});
+	}
+
+	public void onTokensClick (View v) {
+		startTokensActivity(appIDAuthorizationManager.getIdentityToken(), appIDAuthorizationManager.getAccessToken());
 	}
 
 	public void onLoginClick (View v) {
@@ -113,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 				logger.info("access_token isExpired: " + accessToken.isExpired());
 				logger.info("id_token isExpired: " + identityToken.isExpired());
 				hideProgress();
+				identifiedAccessToken = accessToken;
 				extractAndDisplayDataFromIdentityToken(identityToken);
 			}
 		});
@@ -143,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 	public void onPutAttributeClick(View v) {
 		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
 		String value = ((EditText)findViewById(R.id.editAttrValue)).getText().toString();
-		appId.getUserAttributeManager().setAttribute(name, value, new UserAttributeResponseListener() {
+		appId.getUserAttributeManager().setAttribute(name, value, useThisToken,new UserAttributeResponseListener() {
 			@Override
 			public void onSuccess(JSONObject attributes) {
 				showResponse(attributes.toString());
@@ -158,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
 	public void onGetAttributeClick(View v) {
 		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
-		appId.getUserAttributeManager().getAttribute(name, new UserAttributeResponseListener() {
+		appId.getUserAttributeManager().getAttribute(name, useThisToken, new UserAttributeResponseListener() {
 			@Override
 			public void onSuccess(JSONObject attributes) {
 				showResponse(attributes.toString());
@@ -172,7 +185,8 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void onGetAllAttributesClick(View v) {
-		appId.getUserAttributeManager().getAllAttributes( new UserAttributeResponseListener() {
+		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
+		appId.getUserAttributeManager().getAllAttributes( useThisToken, new UserAttributeResponseListener() {
 			@Override
 			public void onSuccess(JSONObject attributes) {
 				showResponse(attributes.toString());
@@ -187,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
 	public void onDeleteAttributeClick (View v) {
 		String name = ((EditText)findViewById(R.id.editAttrName)).getText().toString();
-		appId.getUserAttributeManager().deleteAttribute(name, new UserAttributeResponseListener() {
+		appId.getUserAttributeManager().deleteAttribute(name, useThisToken, new UserAttributeResponseListener() {
 			@Override
 			public void onSuccess(JSONObject attributes) {
 				showResponse(attributes.toString());
@@ -204,14 +218,15 @@ public class MainActivity extends AppCompatActivity {
 		String picUrl = null;
 		String displayName = null;
 		try {
+			String userId = identityToken.getSubject();
 			if (identityToken.isAnonymous()){
 				picUrl = null;
-				displayName = "Anonymous User ( " + identityToken.getSubject() + " )";
+				displayName = "Anonymous User ( " + userId + " )";
 			} else {
 				picUrl = identityToken.getPicture();
-				displayName = identityToken.getName();
+				displayName = identityToken.getName() + " ( " + userId + " )";
 			}
-
+			logger.info("User is: " + userId);
 			showPictureAndName(picUrl, displayName);
 			logger.info("extractAndDisplayDataFromIdentityToken done");
 		} catch (Exception e){
@@ -219,6 +234,14 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
+	private void startTokensActivity(IdentityToken identityToken, AccessToken accessToken){
+		Intent intent = new Intent(this, TokensActivity.class);
+		String idToken = identityToken != null && identityToken.getPayload() !=null ? identityToken.getPayload().toString() : "";
+		String accToken = accessToken != null && accessToken.getPayload() !=null ? accessToken.getPayload().toString() : "";
+		intent.putExtra("IDENTITY_TOKEN", idToken);
+		intent.putExtra("ACCESS_TOKEN", accToken);
+		startActivity(intent);
+	}
 
 
 	private void showResponse (final String result) {
@@ -234,41 +257,41 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 
-    private void showPictureAndName (final String picUrl, final String displayName) {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final Bitmap bmp = picUrl == null ?
+	private void showPictureAndName (final String picUrl, final String displayName) {
+		AsyncTask.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					final Bitmap bmp = picUrl == null ?
 							null :
 							BitmapFactory.decodeStream(new URL(picUrl).openConnection().getInputStream());
-                    //run on main thread
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ImageView profilePicture = (ImageView) findViewById(R.id.profilePic);
+					//run on main thread
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							ImageView profilePicture = (ImageView) findViewById(R.id.profilePic);
 							if(bmp == null) {
-								profilePicture.setImageResource(R.mipmap.ic_launcher);
+								profilePicture.setImageResource(R.drawable.ic_anon_user);
 							}else {
 								profilePicture.setImageBitmap(bmp);
 							}
-                            profilePicture.requestLayout();
-                            profilePicture.getLayoutParams().height = 350;
-                            profilePicture.getLayoutParams().width = 350;
-                            profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
-                            profilePicture.setVisibility(View.VISIBLE);
+							profilePicture.requestLayout();
+							profilePicture.getLayoutParams().height = 350;
+							profilePicture.getLayoutParams().width = 350;
+							profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
+							profilePicture.setVisibility(View.VISIBLE);
 							findViewById(R.id.anonloginButton).setVisibility(View.GONE);
 							TextView nameTextView = (TextView) findViewById(R.id.name);
 							nameTextView.setText(displayName);
-                        }
-                    });
-                } catch (Exception e) {
-                    showResponse("Login error" + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+						}
+					});
+				} catch (Exception e) {
+					showResponse("Login error" + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 
 	private void showProgress () {
 		runOnUiThread(new Runnable() {
@@ -291,5 +314,47 @@ public class MainActivity extends AppCompatActivity {
 				findViewById(R.id.protectedRequestButton).setEnabled(true);
 			}
 		});
+	}
+
+	private void switchToDemoMode(){
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run () {
+				findViewById(R.id.protectedRequestButton).setVisibility(View.GONE);
+				findViewById(R.id.orText).setVisibility(View.GONE);
+				findViewById(R.id.protectedRequestButton).setEnabled(false);
+			}
+		});
+	}
+
+	public void onRadioButtonClicked(View view) {
+		// Is the button now checked?
+		boolean checked = ((RadioButton) view).isChecked();
+
+		// Check which radio button was clicked
+		String token = "No token";
+		switch(view.getId()) {
+			case R.id.radio_last:
+				if (checked)
+					useThisToken = null;
+				token = appIDAuthorizationManager.getAccessToken() != null ?
+						appIDAuthorizationManager.getAccessToken().getRaw() : "No token";
+				((TextView)findViewById(R.id.accessToken)).setText(token);
+				break;
+			case R.id.radio_anon:
+				if (checked)
+					useThisToken = anonymousAccessToken;
+				token = useThisToken != null ?
+						useThisToken.getRaw() : "No token";
+				((TextView)findViewById(R.id.accessToken)).setText(token);
+				break;
+			case R.id.radio_id:
+				if (checked)
+					useThisToken = identifiedAccessToken;
+				token = useThisToken != null ?
+						useThisToken.getRaw() : "No token";
+				((TextView)findViewById(R.id.accessToken)).setText(token);
+				break;
+		}
 	}
 }
