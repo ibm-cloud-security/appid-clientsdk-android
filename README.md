@@ -1,5 +1,5 @@
-# Bluemix AppID
-Android SDK for the Bluemix AppID service
+# Bluemix App ID
+Android SDK for the Bluemix App ID service
 
 [![Bluemix powered][img-bluemix-powered]][url-bluemix]
 [![Travis][img-travis-master]][url-travis-master]
@@ -28,7 +28,7 @@ API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platfo
 	    }
     ```
 
-2. Add the dependency for the AppID client SDK:
+2. Add the dependency for the App ID client SDK:
     ```gradle
     dependencies {
 		    compile 'com.github.ibm-cloud-security:appid-clientsdk-android:1.+'
@@ -45,7 +45,7 @@ API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platfo
 
 ## Using the SDK:
 
-### Initializing the AppId client SDK
+### Initializing the App ID client SDK
 
 Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the onCreate method of the main activity in your Android application.
 ```java
