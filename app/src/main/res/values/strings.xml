@@ -4,7 +4,7 @@
 
     <string name="use_last">last token</string>
     <string name="use_anon">anonymous token</string>
-    <string name="use_identified">identified token</string>
+    <string name="use_identified">id token</string>
 
     <string name="title_activity_tokens">Tokens</string>
     <string name="closebutton">Close</string>
