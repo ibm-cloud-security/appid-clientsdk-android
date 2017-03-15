@@ -22,6 +22,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.LocalBroadcastManager;
 
 
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
@@ -35,7 +36,7 @@ public class ChromeTabActivity extends Activity {
 	public static final String EXTRA_REDIRECT_URI = "com.ibm.bluemix.appid.android.EXTRA_REDIRECT_URI";
 	public static final String INTENT_GOT_HTTP_REDIRECT = "com.ibm.bluemix.appid.android.GOT_HTTP_REDIRECT";
 	private static final String INTENT_ALREADY_USED = "com.ibm.bluemix.appid.android.INTENT_ALREADY_USED";
-	private static final String POST_AUTHORIZATION_INTENT = "com.ibm.bluemix.appid.android.POST_AUTHORIZATION_INTENT";
+	private String postAuthorizationIntent = ".POST_AUTHORIZATION_INTENT";
 
 	private BroadcastReceiver broadcastReceiver;
 	private AuthorizationListener authorizationListener;
@@ -48,8 +49,9 @@ public class ChromeTabActivity extends Activity {
 	public void onCreate (Bundle savedInstanceBundle) {
 		logger.debug("onCreate");
 		super.onCreate(savedInstanceBundle);
+		postAuthorizationIntent = getApplicationContext().getPackageName() + postAuthorizationIntent;
 		Intent intent = getIntent();
-		if (!POST_AUTHORIZATION_INTENT.equals(intent.getAction())) {
+		if (!postAuthorizationIntent.equals(intent.getAction())) {
 
 			String serverUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_URL);
 			this.redirectUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_REDIRECT_URL);
@@ -83,7 +85,7 @@ public class ChromeTabActivity extends Activity {
 			};
 
 			IntentFilter intentFilter = new IntentFilter(INTENT_GOT_HTTP_REDIRECT);
-			this.registerReceiver(broadcastReceiver, intentFilter);
+			LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
 
 		} else {
 			//if we launch after authorization completed
@@ -99,13 +101,12 @@ public class ChromeTabActivity extends Activity {
 
 		logger.info("onBroadcastReceived: " + url);
 
-		Intent clearTopActivityIntent = new Intent(POST_AUTHORIZATION_INTENT);
+		Intent clearTopActivityIntent = new Intent(postAuthorizationIntent);
 		clearTopActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
+		
 		if (url.startsWith(redirectUrl) && code != null) {
 			logger.debug("Grant code received from authorization server.");
 			oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
-
 			startActivity(clearTopActivityIntent);
 		} else if (url.startsWith(redirectUrl) && error != null){
 			String errorCode = uri.getQueryParameter("error_code");
@@ -137,7 +138,7 @@ public class ChromeTabActivity extends Activity {
 	@Override
 	protected void onDestroy () {
 		if (broadcastReceiver != null) {
-			unregisterReceiver(broadcastReceiver);
+			LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
 		}
 		super.onDestroy();
 	}
