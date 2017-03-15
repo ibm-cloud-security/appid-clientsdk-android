@@ -103,12 +103,7 @@ public class ChromeTabActivity extends Activity {
 
 		Intent clearTopActivityIntent = new Intent(postAuthorizationIntent);
 		clearTopActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-		// Verify the original intent will resolve to at least one activity
-		if (clearTopActivityIntent.resolveActivity(getPackageManager()) != null) {
-
-		}
-
+		
 		if (url.startsWith(redirectUrl) && code != null) {
 			logger.debug("Grant code received from authorization server.");
 			oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
