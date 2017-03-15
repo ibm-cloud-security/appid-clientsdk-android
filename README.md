@@ -1,11 +1,11 @@
-# Bluemix AppID
-Android SDK for the Bluemix AppID service
+# Bluemix App ID
+Android SDK for the Bluemix App ID service
 
 [![Bluemix powered][img-bluemix-powered]][url-bluemix]
 [![Travis][img-travis-master]][url-travis-master]
 [![Coveralls][img-coveralls-master]][url-coveralls-master]
 [![Codacy][img-codacy]][url-codacy]
-[![Version][img-version]][url-bintray]
+[![Release](https://jitpack.io/v/ibm-cloud-security/appid-clientsdk-android.svg)](https://jitpack.io/#ibm-cloud-security/appid-clientsdk-android)
 [![License][img-license]][url-bintray]
 
 [![GithubWatch][img-github-watchers]][url-github-watchers]
@@ -28,7 +28,7 @@ API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platfo
 	    }
     ```
 
-2. Add the dependency for the AppID client SDK:
+2. Add the dependency for the App ID client SDK:
     ```gradle
     dependencies {
 		    compile 'com.github.ibm-cloud-security:appid-clientsdk-android:1.+'
@@ -45,7 +45,7 @@ API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platfo
 
 ## Using the SDK:
 
-### Initializing the AppId client SDK
+### Initializing the App ID client SDK
 
 Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the onCreate method of the main activity in your Android application.
 ```java
@@ -76,8 +76,12 @@ loginWidget.launch(this, new AuthorizationListener() {
 			}
 		});
 ```
-**Note**: The Login widget default configuration use Facebook and Google as authentication options.
+**Note**: 
+
+1. The Login widget default configuration use Facebook and Google as authentication options.
     If you configure only one of them the login widget will NOT launch and the user will be redirect to the configured idp authentication screen.
+    
+2. If you have Chrome browser install on the device and never opened it, you must open it and accept the 'terms of services and privacy notice', before launching the login widget. 
 
 ### Anonymous Login
 ```java

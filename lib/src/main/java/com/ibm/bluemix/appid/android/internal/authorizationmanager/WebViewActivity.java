@@ -32,18 +32,18 @@ import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 public class WebViewActivity extends AppCompatActivity {
 
-	private AuthorizationListener authorizationListener;
-	private OAuthManager oAuthManager;
-	private String redirectUrl;
+    private AuthorizationListener authorizationListener;
+    private OAuthManager oAuthManager;
+    private String redirectUrl;
 
-	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + WebViewActivity.class.getName());
+    private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + WebViewActivity.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		logger.debug("onCreate");
+        logger.debug("onCreate");
         setContentView(R.layout.activity_web_view);
-		WebView webView = (WebView) findViewById(R.id.webView1);
+        WebView webView = (WebView) findViewById(R.id.webView1);
         webView.getSettings().setJavaScriptEnabled(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             webView.setWebViewClient(new WebViewClientNewAPI());
@@ -52,24 +52,24 @@ public class WebViewActivity extends AppCompatActivity {
         }
         webView.clearCache(true);
 
-		String serverUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_URL);
-		this.redirectUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_REDIRECT_URL);
+        String serverUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_URL);
+        this.redirectUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_REDIRECT_URL);
 
-		String authFlowContextGuid = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_AUTH_FLOW_CONTEXT_GUID);
-		AuthorizationFlowContext ctx = AuthorizationFlowContextStore.remove(authFlowContextGuid);
+        String authFlowContextGuid = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_AUTH_FLOW_CONTEXT_GUID);
+        AuthorizationFlowContext ctx = AuthorizationFlowContextStore.remove(authFlowContextGuid);
 
-		this.oAuthManager = ctx.getOAuthManager();
-		this.authorizationListener = ctx.getAuthorizationListener();
+        this.oAuthManager = ctx.getOAuthManager();
+        this.authorizationListener = ctx.getAuthorizationListener();
 
-		logger.debug("serverUrl: " + serverUrl);
-		logger.debug("redirectUrl: " + redirectUrl);
+        logger.debug("serverUrl: " + serverUrl);
+        logger.debug("redirectUrl: " + redirectUrl);
 
-		if (authorizationListener == null || serverUrl == null || this.redirectUrl == null){
-			logger.error("Failed to retrieve one of the following: authorizationListener, serverUrl, redirectUrl");
-			finish();
-		} else {
-			webView.loadUrl(serverUrl);
-		}
+        if (authorizationListener == null || serverUrl == null || this.redirectUrl == null){
+            logger.error("Failed to retrieve one of the following: authorizationListener, serverUrl, redirectUrl");
+            finish();
+        } else {
+            webView.loadUrl(serverUrl);
+        }
     }
 
     //override here in order to avoid window leaks
@@ -82,8 +82,8 @@ public class WebViewActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-		finish();
-		authorizationListener.onAuthorizationCanceled();
+        finish();
+        authorizationListener.onAuthorizationCanceled();
     }
 
     private class WebViewClientOldAPI extends WebViewClient {
@@ -106,13 +106,13 @@ public class WebViewActivity extends AppCompatActivity {
     }
 
     private void loadUri(WebView view, Uri uri) {
-		String url = uri.toString();
-		String code = uri.getQueryParameter("code");
+        String url = uri.toString();
+        String code = uri.getQueryParameter("code");
         String error = uri.getQueryParameter("error");
-		if (url.startsWith(redirectUrl) && code != null) {
-			logger.debug("Grant code received from authorization server.");
+        if (url.startsWith(redirectUrl) && code != null) {
+            logger.debug("Grant code received from authorization server.");
             finish();
-			oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
+            oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
 
         } else if (url.startsWith(redirectUrl) && error != null){
             String errorCode = uri.getQueryParameter("error_code");
@@ -124,10 +124,10 @@ public class WebViewActivity extends AppCompatActivity {
             finish();
         } else {
             //when working locally uncomment this 'if' (replacing localhost with 10.0.2.2)
-          //  if(AppID.overrideOAuthServerHost != null && uri.getHost().equals("localhost")) {
-               //when working locally replacing localhost with 10.0.2.2
-         //       url = AppID.overrideOAuthServerHost.replace("/oauth/v3/","") + url.substring(21, url.length());
-        //    }
+            //  if(AppID.overrideOAuthServerHost != null && uri.getHost().equals("localhost")) {
+            //when working locally replacing localhost with 10.0.2.2
+            //       url = AppID.overrideOAuthServerHost.replace("/oauth/v3/","") + url.substring(21, url.length());
+            //    }
             view.loadUrl(url);
         }
     }

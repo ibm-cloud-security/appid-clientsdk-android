@@ -24,6 +24,7 @@ import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
+import com.ibm.bluemix.appid.android.internal.network.AppIDRequestFactory;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationListener;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
@@ -40,6 +41,8 @@ public class AuthorizationManager {
 	private final AppID appId;
 	private final OAuthManager oAuthManager;
 	private final RegistrationManager registrationManager;
+
+	private AppIDRequestFactory appIDRequestFactory = new AppIDRequestFactory();
 
 	private final static String CLIENT_ID = "client_id";
 	private final static String RESPONSE_TYPE = "response_type";
@@ -81,6 +84,7 @@ public class AuthorizationManager {
 		}
 		return builder.build().toString();
 	}
+
 	public void launchAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener){
 		launchAuthorizationUI(activity, null, authorizationListener);
 	}
@@ -119,7 +123,7 @@ public class AuthorizationManager {
 
 		String authorizationUrl = getAuthorizationUrl(AccessTokenImpl.IDP_ANONYMOUS, accessToken);
 
-		AppIDRequest request = new AppIDRequest(authorizationUrl, AppIDRequest.GET);
+		AppIDRequest request = appIDRequestFactory.createRequest(authorizationUrl, AppIDRequest.GET);
 		request.send(new ResponseListener(){
 						 @Override
 						 public void onSuccess(Response response) {
@@ -155,5 +159,9 @@ public class AuthorizationManager {
 				continueAnonymousLogin(accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
 			}
 		});
+	}
+
+	public void setAppIDRequestFactory(AppIDRequestFactory appIDRequestFactory) {
+		this.appIDRequestFactory = appIDRequestFactory;
 	}
 }

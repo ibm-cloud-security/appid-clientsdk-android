@@ -33,7 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UserAttributeManagerImpl implements UserAttributeManager {
-	private static final String USER_PROFILE_ATTRIBUTES_PATH = "Attributes";
+	private static final String USER_PROFILE_ATTRIBUTES_PATH = "attributes";
 
 	private final TokenManager tokenManager;
 
@@ -45,45 +45,55 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 
 	@Override
 	public void setAttribute (@NonNull String name, @NonNull String value, UserAttributeResponseListener listener) {
-		AccessToken accessToken = tokenManager.getLatestAccessToken();
-		this.setAttribute(name, value, accessToken, listener);
+
+		this.setAttribute(name, value, null, listener);
 	}
 
 	@Override
 	public void setAttribute (@NonNull String name, @NonNull String value, @NonNull AccessToken accessToken, final UserAttributeResponseListener listener) {
+		if(accessToken == null){
+			accessToken = tokenManager.getLatestAccessToken();
+		}
+
 		sendProtectedRequest(AppIDRequest.PUT, name, value, accessToken, listener);
 	}
 
 	@Override
 	public void getAttribute (@NonNull String name, UserAttributeResponseListener listener) {
-		AccessToken accessToken = tokenManager.getLatestAccessToken();
-		this.getAttribute(name, accessToken, listener);
+		this.getAttribute(name, null, listener);
 	}
 
 	@Override
 	public void getAttribute (@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener) {
+		if(accessToken == null){
+			accessToken = tokenManager.getLatestAccessToken();
+		}
 		sendProtectedRequest(AppIDRequest.GET, name, null, accessToken, listener);
 	}
 
 	@Override
 	public void deleteAttribute (@NonNull String name, UserAttributeResponseListener listener) {
-		AccessToken accessToken = tokenManager.getLatestAccessToken();
-		this.deleteAttribute(name, accessToken, listener);
+		this.deleteAttribute(name, null, listener);
 	}
 
 	@Override
 	public void deleteAttribute (@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener) {
+		if(accessToken == null){
+			accessToken = tokenManager.getLatestAccessToken();
+		}
 		sendProtectedRequest(AppIDRequest.DELETE, name, null, accessToken, listener);
 	}
 
 	@Override
 	public void getAllAttributes(@NonNull UserAttributeResponseListener listener) {
-		AccessToken accessToken = tokenManager.getLatestAccessToken();
-		this.getAllAttributes(accessToken, listener);
+		this.getAllAttributes(null, listener);
 	}
 
 	@Override
 	public void getAllAttributes(@NonNull AccessToken accessToken, @NonNull UserAttributeResponseListener listener) {
+		if(accessToken == null){
+			accessToken = tokenManager.getLatestAccessToken();
+		}
 		sendProtectedRequest(AppIDRequest.GET, null, null, accessToken, listener);
 	}
 
@@ -96,8 +106,10 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 		ResponseListener resListener = new ResponseListener() {
 			@Override
 			public void onSuccess(Response response) {
+				String responseText = response.getResponseText() == null || response.getResponseText().equals("") ?
+						"{}" : response.getResponseText();
 				try {
-					listener.onSuccess(new JSONObject(response.getResponseText()));
+					listener.onSuccess(new JSONObject(responseText));
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
