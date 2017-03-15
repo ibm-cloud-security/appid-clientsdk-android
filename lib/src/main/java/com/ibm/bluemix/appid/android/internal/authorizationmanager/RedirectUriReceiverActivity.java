@@ -16,15 +16,15 @@ package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class RedirectUriReceiverActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceBundle) {
         super.onCreate(savedInstanceBundle);
-
 		Intent i = new Intent(ChromeTabActivity.INTENT_GOT_HTTP_REDIRECT);
 		i.putExtra(ChromeTabActivity.EXTRA_REDIRECT_URI, this.getIntent().getData());
-		sendBroadcast(i);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
 
         this.finish();
     }
