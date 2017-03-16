@@ -74,6 +74,10 @@ class AuthorizationUIManager {
     public void launch(final Activity activity) {
         final Context context = activity.getApplicationContext();
 
+        String authFlowContextGuid = UUID.randomUUID().toString();
+        AuthorizationFlowContext ctx = new AuthorizationFlowContext(oAuthManager, authorizationListener);
+        AuthorizationFlowContextStore.push(authFlowContextGuid, ctx);
+
         // If we cant find a package name, it means there's no browser that supports
         // Chrome Custom Tabs installed. So, we fallback to the WebView
         // (There might be a browser other than Chrome that support Chrome tabs)
@@ -84,12 +88,7 @@ class AuthorizationUIManager {
             logger.debug("Launching WebViewActivity");
             try {
                 Intent intent = new Intent(context, WebViewActivity.class);
-
-                String authFlowContextGuid = UUID.randomUUID().toString();
-                AuthorizationFlowContext ctx = new AuthorizationFlowContext(oAuthManager, authorizationListener);
-                AuthorizationFlowContextStore.push(authFlowContextGuid, ctx);
                 intent.putExtra(EXTRA_AUTH_FLOW_CONTEXT_GUID, authFlowContextGuid);
-
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra(EXTRA_URL, serverUrl);
                 intent.putExtra(EXTRA_REDIRECT_URL, redirectUrl);
@@ -101,15 +100,10 @@ class AuthorizationUIManager {
         } else {
             // Use Chrome tabs
             logger.debug("Launching ChromeTabActivity");
-            String authFlowContextGuid = UUID.randomUUID().toString();
-            AuthorizationFlowContext ctx = new AuthorizationFlowContext(oAuthManager, authorizationListener);
-            AuthorizationFlowContextStore.push(authFlowContextGuid, ctx);
-
             Intent intent = new Intent(activity, ChromeTabActivity.class);
             intent.putExtra(EXTRA_AUTH_FLOW_CONTEXT_GUID, authFlowContextGuid);
             intent.putExtra(EXTRA_REDIRECT_URL, redirectUrl);
             intent.putExtra(EXTRA_URL, serverUrl);
-
             // Open ChromeTabActivity that will open the ChromeTab on top of it
             intent.putExtra(EXTRA_URL, serverUrl);
             activity.startActivity(intent);
