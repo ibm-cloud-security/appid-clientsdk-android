@@ -276,8 +276,8 @@ public class MainActivity extends AppCompatActivity {
                                 profilePicture.setImageBitmap(bmp);
                             }
                             profilePicture.requestLayout();
-                            profilePicture.getLayoutParams().height = 350;
-                            profilePicture.getLayoutParams().width = 350;
+                            profilePicture.getLayoutParams().height = 300;
+                            profilePicture.getLayoutParams().width = 300;
                             profilePicture.setScaleType(ImageView.ScaleType.FIT_XY);
                             profilePicture.setVisibility(View.VISIBLE);
                             TextView nameTextView = (TextView) findViewById(R.id.name);
@@ -308,6 +308,8 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.getAttribute).setEnabled(false);
                 findViewById(R.id.showTokensButton).setEnabled(false);
                 findViewById(R.id.putAttribute).setEnabled(false);
+                findViewById(R.id.editAttrName).setEnabled(false);
+                findViewById(R.id.editAttrValue).setEnabled(false);
             }
         });
     }
@@ -325,6 +327,8 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.getAttribute).setEnabled(true);
                 findViewById(R.id.showTokensButton).setEnabled(true);
                 findViewById(R.id.putAttribute).setEnabled(true);
+                findViewById(R.id.editAttrName).setEnabled(true);
+                findViewById(R.id.editAttrValue).setEnabled(true);
             }
         });
     }
