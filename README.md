@@ -77,7 +77,6 @@ loginWidget.launch(this, new AuthorizationListener() {
 		});
 ```
 **Note**: 
-
 The Login widget default configuration use Facebook and Google as authentication options.
 If you configure only one of them the login widget will NOT launch and the user will be redirect to the configured idp authentication screen.
     
