@@ -13,253 +13,274 @@
     android:background="@android:color/background_light">
 
     <!-- Dummy item to prevent attributes entry from receiving focus -->
+
+
     <LinearLayout
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:layout_width="0px"
-        android:layout_height="0px"
-        android:id="@+id/linearLayout" />
-
-    <TextView
-        android:text="You are not logged in"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/name"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:fontFamily="sans-serif"
-        android:textSize="21sp"
-        android:textAlignment="center"
-        android:textStyle="bold"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="127dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
-    <Button
-        android:text="Login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/loginButton"
-        android:onClick="onLoginClick"
-        android:layout_marginTop="23dp"
-        android:layout_below="@+id/name"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true">
 
-    <Button
-        android:id="@+id/protectedRequestButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onProtectedRequestClick"
-        android:text="Protected Resource Request"
-        android:layout_below="@+id/orText"
-        android:layout_alignParentStart="true" />
+            <Button
+                android:id="@+id/showTokensButton"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/profilePic"
+                android:layout_marginTop="15dp"
+                android:onClick="onTokensClick"
+                android:text="Tokens"
+                android:textSize="10sp" />
 
+        </RelativeLayout>
 
-    <TextView
-        android:text="Enter attribute"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textAttributes"
-        android:layout_marginTop="16dp"
-        android:layout_below="@+id/protectedRequestButton"
-        android:layout_centerHorizontal="true"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textStyle="normal|bold"
-        android:textSize="19sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="82dp"
+            android:orientation="horizontal"
+            android:layout_weight="0.05">
 
-    <TextView
-        android:text="Response:"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/responseTitle"
-        android:layout_marginTop="5dp"
-        android:layout_below="@+id/radioGroup"
-        android:layout_centerHorizontal="true"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textStyle="normal|bold"
-        android:textSize="16sp" />
+            <Button
+                android:id="@+id/anonloginButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/profilePic"
+                android:layout_weight="1"
+                android:onClick="onAnonLoginClick"
+                android:text="Use Anonymously" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:id="@+id/textViewProtectedResourceResponse"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="20sp"
-        android:layout_below="@+id/responseTitle"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:background="@android:color/holo_blue_bright"
-        android:backgroundTint="@android:color/holo_blue_bright"
-        android:isScrollContainer="true"
-        android:scrollbars="vertical"
-        android:scrollHorizontally="true"
-        android:keepScreenOn="true"
-        android:cursorVisible="true"
-        android:scrollIndicators="right"/>
+            <Button
+                android:id="@+id/loginButton"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/name"
+                android:layout_weight="1"
+                android:onClick="onLoginClick"
+                android:text="Launch Login widget" />
 
-    <TextView
-        android:text="No access token"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignTop="@+id/textViewProtectedResourceResponse"
-        android:layout_marginTop="50dp"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/accessToken"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textIsSelectable="true"
-        android:textSize="10sp"
-        android:textAlignment="center" />
+            <Button
+                android:id="@+id/protectedRequestButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/orText"
+                android:layout_weight="1"
+                android:onClick="onProtectedRequestClick"
+                android:text="Protected Resource Request" />
+        </LinearLayout>
 
-    <TextView
-        android:text="or"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/loginButton"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/orText"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textSize="16sp"
-        android:textAlignment="center" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:layout_weight="0.95">
+
+            <ImageView
+                android:id="@+id/profilePic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="false"
+                android:layout_alignParentStart="false"
+                android:layout_alignParentTop="false"
+                android:layout_centerHorizontal="true"
+                android:layout_weight="1"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignWithParentIfMissing="false"
+                android:layout_toStartOf="@+id/profilePic"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:paddingBottom="20dp"
+                android:text="You are not logged in"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/textAttributes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/protectedRequestButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="Enter attribute:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="13sp"
+            android:textStyle="normal|bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editAttrName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textAttributes"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:hint="name"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/editAttrValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/editAttrName"
+                android:layout_below="@+id/textAttributes"
+                android:layout_margin="3dp"
+                android:layout_toEndOf="@+id/editAttrName"
+                android:layout_weight="1"
+                android:hint="value"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="33dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="164dp"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/getAttribute"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:layout_alignBottom="@+id/putAttribute"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/editAttrName"
+                    android:layout_toEndOf="@+id/putAttribute"
+                    android:onClick="onGetAttributeClick"
+                    android:text="GET"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/putAttribute"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/editAttrName"
+                    android:onClick="onPutAttributeClick"
+                    android:text="PUT"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="166dp"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/getAllAttributes"
+                    android:layout_width="63dp"
+                    android:layout_height="30dp"
+                    android:layout_alignBottom="@+id/deleteAttribute"
+                    android:layout_toEndOf="@+id/deleteAttribute"
+                    android:layout_weight="0.59"
+                    android:onClick="onGetAllAttributesClick"
+                    android:text="GET ALL"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/deleteAttribute"
+                    android:layout_width="63dp"
+                    android:layout_height="30dp"
+                    android:layout_alignBottom="@+id/getAttribute"
+                    android:layout_below="@+id/editAttrName"
+                    android:onClick="onDeleteAttributeClick"
+                    android:text="DELETE"
+                    android:textSize="10sp"
+                    android:layout_weight="0.28" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="22dp"
+            android:layout_alignTop="@id/deleteAttribute"
+            android:layout_marginTop="0dp"
+            android:checkedButton="@+id/radio_last"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio_last"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonClicked"
+                android:text="@string/use_last" />
+
+            <RadioButton
+                android:id="@+id/radio_anon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonClicked"
+                android:text="@string/use_anon" />
+
+            <RadioButton
+                android:id="@+id/radio_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonClicked"
+                android:text="@string/use_identified" />
+
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/textViewProtectedResourceResponse"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/responseTitle"
+            android:layout_weight="4.76"
+            android:background="@android:color/holo_blue_bright"
+            android:backgroundTint="@android:color/holo_blue_bright"
+            android:cursorVisible="true"
+            android:isScrollContainer="true"
+            android:keepScreenOn="true"
+            android:scrollHorizontally="true"
+            android:scrollIndicators="right"
+            android:scrollbars="vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="20sp" />
+
+    </LinearLayout>
 
     <ProgressBar
+        android:id="@+id/loadingPanel"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/loadingPanel"
-        tools:visibility="invisible"
-        android:visibility="invisible"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-
-    <EditText
-        android:id="@+id/editAttrName"
-        android:hint="name"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_margin="3dp"
-        android:layout_below="@+id/textAttributes"/>
-
-    <EditText
-        android:id="@+id/editAttrValue"
-        android:hint="value"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_margin="3dp"
-        android:layout_toEndOf="@+id/editAttrName"
-        android:layout_alignBottom="@+id/editAttrName"
-        android:layout_below="@+id/textAttributes"/>
-
-    <Button
-        android:layout_height="30dp"
-        android:layout_width="60dp"
-        android:onClick="onPutAttributeClick"
-        android:id="@+id/putAttribute"
-        android:text="PUT"
-        android:layout_below="@+id/editAttrName"
-        android:layout_alignParentStart="true"
-        android:textSize="10sp"/>
-
-    <Button
-        android:layout_height="30dp"
-        android:layout_width="60dp"
-        android:onClick="onGetAttributeClick"
-        android:id="@+id/getAttribute"
-        android:text="GET"
-        android:layout_below="@+id/editAttrName"
-        android:layout_alignParentStart="true"
-        android:textSize="10sp"
-        android:layout_toEndOf="@+id/putAttribute"
-        android:layout_alignBottom="@+id/putAttribute"
-        android:layout_marginLeft="70dp"/>
-
-    <Button
-        android:layout_height="30dp"
-        android:layout_width="60dp"
-        android:onClick="onDeleteAttributeClick"
-        android:id="@+id/deleteAttribute"
-        android:text="DELETE"
-        android:textSize="10sp"
-        android:layout_toEndOf="@+id/getAttribute"
-        android:layout_alignBottom="@+id/getAttribute"
-        android:layout_marginLeft="70dp"
-        android:layout_below="@+id/editAttrName" />
-
-    <Button
-        android:layout_height="30dp"
-        android:layout_width="100dp"
-        android:onClick="onGetAllAttributesClick"
-        android:id="@+id/getAllAttributes"
-        android:text="GET ALL"
-        android:textSize="10sp"
-        android:layout_toEndOf="@+id/deleteAttribute"
-        android:layout_alignBottom="@+id/deleteAttribute"
-        android:layout_marginLeft="10dp"
-        android:layout_below="@+id/editAttrName" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/linearLayout"
-        android:layout_alignParentStart="true">
-
-        <ImageView
-            android:id="@+id/profilePic"
-            android:visibility="invisible"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentTop="false"
-            android:layout_centerHorizontal="true" />
-
-        <Button
-            android:text="Tokens"
-            android:id="@+id/showTokensButton"
-            android:onClick="onTokensClick"
-            android:layout_alignParentStart="true"
-            android:textSize="10sp"
-            android:layout_height="30dp"
-            android:layout_width="100dp"/>
-
-        <Button
-            android:text="Use Anonymously"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/anonloginButton"
-            android:onClick="onAnonLoginClick"
-            android:layout_marginTop="37dp"
-            android:layout_below="@+id/profilePic"
-            android:layout_alignParentStart="true" />
-
-    </RelativeLayout>
-
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_alignTop="@id/deleteAttribute"
-        android:layout_marginTop="35dp"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/activity_horizontal_margin"
-        android:orientation="horizontal"
-        android:checkedButton="@+id/radio_last"
-        >
-        <RadioButton android:id="@+id/radio_last"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/use_last"
-            android:onClick="onRadioButtonClicked"
-            />
-        <RadioButton android:id="@+id/radio_anon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/use_anon"
-            android:onClick="onRadioButtonClicked"/>
-        <RadioButton android:id="@+id/radio_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/use_identified"
-            android:onClick="onRadioButtonClicked"/>
-    </RadioGroup>
+        android:visibility="invisible"
+        tools:visibility="invisible" />
 
 </RelativeLayout>

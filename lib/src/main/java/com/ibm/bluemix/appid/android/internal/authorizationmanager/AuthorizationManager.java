@@ -55,13 +55,17 @@ public class AuthorizationManager {
 	private final static String IDP = "idp";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
 
+	private String serverUrl;
+
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationManager.class.getName());
 
 	// TODO: document
-	public AuthorizationManager (final OAuthManager oAuthManager) {
+	public AuthorizationManager (final OAuthManager oAuthManager, final Context ctx) {
 		this.oAuthManager = oAuthManager;
 		this.appId = oAuthManager.getAppId();
 		this.registrationManager = oAuthManager.getRegistrationManager();
+		this.serverUrl = Config.getOAuthServerUrl(this.appId) + OAUTH_AUTHORIZATION_PATH;
+		AuthorizationUIManager.bindCustomTabsService(ctx, serverUrl);
 	}
 
 	// TODO: document
@@ -69,7 +73,6 @@ public class AuthorizationManager {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
-		String serverUrl = Config.getOAuthServerUrl(this.appId) + OAUTH_AUTHORIZATION_PATH;
 		Uri.Builder builder = Uri.parse(serverUrl).buildUpon()
 				.appendQueryParameter(RESPONSE_TYPE, RESPONSE_TYPE_CODE)
 				.appendQueryParameter(CLIENT_ID, clientId)

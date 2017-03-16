@@ -33,7 +33,7 @@ public class OAuthManager {
 		this.appId = appId;
 		this.preferenceManager = PreferenceManager.getDefaultPreferenceManager(ctx);
 		this.registrationManager = new RegistrationManager(this);
-		this.authorizationManager = new AuthorizationManager(this);
+		this.authorizationManager = new AuthorizationManager(this, ctx);
 		this.tokenManager = new TokenManager(this);
 	}
 
