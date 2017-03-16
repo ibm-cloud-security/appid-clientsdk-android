@@ -117,32 +117,35 @@ class AuthorizationUIManager {
     }
 
     static void bindCustomTabsService(Context context, final String serverUrl) {
-        CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
-            @Override
-            public void onCustomTabsServiceConnected(ComponentName componentName, CustomTabsClient client) {
-                logger.debug("onCustomTabsServiceConnected");
-                if (client != null) {
-                    client.warmup(0); //for better performances
+        if (getPackageNameToUse(context) != null) {
+            CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
+                @Override
+                public void onCustomTabsServiceConnected(ComponentName componentName, CustomTabsClient client) {
+                    logger.debug("onCustomTabsServiceConnected");
+                    if (client != null) {
+                        client.warmup(0); //for better performances
+                    }
+                    mClient = client;
+                    CustomTabsSession session = getSession();
+                    if (session != null) {
+                        session.mayLaunchUrl(Uri.parse(serverUrl), null, null); //for better performances
+                    }
                 }
-                mClient = client;
-                CustomTabsSession session = getSession();
-                if (session != null) {
-                    session.mayLaunchUrl(Uri.parse(serverUrl), null, null); //for better performances
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                    logger.debug("onServiceDisconnected");
+                    mClient = null;
                 }
-            }
+            };
 
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                logger.debug("onServiceDisconnected");
-                mClient = null;
+            // This will trigger 'onCustomTabsServiceConnected' when success.
+            isChromeTabSupported = CustomTabsClient.bindCustomTabsService(context, getPackageNameToUse(context), connection);
+            if (!isChromeTabSupported) {
+                logger.error("Failed to bind to CustomTabsService, fallback to webview");
             }
-        };
-
-        // This will trigger 'onCustomTabsServiceConnected' when success.
-        isChromeTabSupported = CustomTabsClient.bindCustomTabsService(context, getPackageNameToUse(context), connection);
-        if (!isChromeTabSupported) {
-            logger.error("Failed to bind to CustomTabsService, fallback to webview");
         }
+
     }
 
 
