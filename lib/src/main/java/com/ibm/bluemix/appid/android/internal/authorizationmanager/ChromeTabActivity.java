@@ -27,8 +27,6 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
-import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
-import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
