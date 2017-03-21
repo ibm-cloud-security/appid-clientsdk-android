@@ -73,7 +73,6 @@ class AuthorizationUIManager {
 
     public void launch(final Activity activity) {
         final Context context = activity.getApplicationContext();
-
         String authFlowContextGuid = UUID.randomUUID().toString();
         AuthorizationFlowContext ctx = new AuthorizationFlowContext(oAuthManager, authorizationListener);
         AuthorizationFlowContextStore.push(authFlowContextGuid, ctx);
