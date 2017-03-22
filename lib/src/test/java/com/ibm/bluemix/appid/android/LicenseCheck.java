@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.Assert.fail;
-
 /**
  * Created by rotembr on 22/03/2017.
  */
@@ -32,7 +30,7 @@ public class LicenseCheck {
     private static final String LICENSE = "/*\n\tCopyright 2017 IBM Corp.\n\tLicensed under the Apache License, Version 2.0 (the \"License\");\n\tyou may not use this file except in compliance with the License.\n\tYou may obtain a copy of the License at\n\thttp://www.apache.org/licenses/LICENSE-2.0\n\tUnless required by applicable law or agreed to in writing, software\n\tdistributed under the License is distributed on an \"AS IS\" BASIS,\n\tWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\tSee the License for the specific language governing permissions and\n\tlimitations under the License.\n*/";
 
     @Test
-    public void test_licenses_headers(){
+    public void testLicensesHeaders(){
         try {
             List<String> missingLicenseFiles = new ArrayList<>();
             File sourceDir = new File(new File("").getAbsolutePath() + "/lib/src/main/java/com/ibm/");
