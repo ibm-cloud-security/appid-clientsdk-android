@@ -52,7 +52,7 @@ Initialize the client SDK by passing the context, tenantId and region parameters
 AppID.getInstance().initialize(getApplicationContext(), <tenantId>, AppID.REGION_UK);
 ```
 * Replace "tenantId" with the App ID service tenantId.
-* Replace the AppID.REGION_UK with the your App ID region (AppID.REGION_US_SOUTH, AppID.REGION_SYDNEY).
+* Replace the AppID.REGION_UK with your App ID region (AppID.REGION_US_SOUTH, AppID.REGION_SYDNEY).
 
 ### Using Login Widget
 Use LoginWidget class to start the authorization flow.   

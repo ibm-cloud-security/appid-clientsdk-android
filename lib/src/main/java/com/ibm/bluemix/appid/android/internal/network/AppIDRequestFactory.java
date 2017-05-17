@@ -1,5 +1,3 @@
-package com.ibm.bluemix.appid.android.internal.network;
-
 /*
 	Copyright 2017 IBM Corp.
 	Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +10,8 @@ package com.ibm.bluemix.appid.android.internal.network;
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+package com.ibm.bluemix.appid.android.internal.network;
+
 
 public class AppIDRequestFactory {
     public AppIDRequest createRequest(String url, String method){
