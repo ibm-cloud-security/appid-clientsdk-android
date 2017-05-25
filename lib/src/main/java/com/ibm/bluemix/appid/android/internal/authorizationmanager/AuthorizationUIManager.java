@@ -82,20 +82,7 @@ class AuthorizationUIManager {
         // (There might be a browser other than Chrome that support Chrome tabs)
 
         if (getPackageNameToUse(context) == null || !isChromeTabSupported) {
-            // Use WebView ,Authorization request with a Webview will be blocked on April 20, 2017
-//            logger.debug("Launching WebViewActivity");
-//            try {
-//                Intent intent = new Intent(context, WebViewActivity.class);
-//                intent.putExtra(EXTRA_AUTH_FLOW_CONTEXT_GUID, authFlowContextGuid);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                intent.putExtra(EXTRA_URL, serverUrl);
-//                intent.putExtra(EXTRA_REDIRECT_URL, redirectUrl);
-//                context.startActivity(intent);
-//            } catch (ActivityNotFoundException e) {
-//                logger.error("Activity not found", e);
-//                authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
-//            }
-            authorizationListener.onAuthorizationFailure(new AuthorizationException("Can NOT find installed browser that support Chrome tabs on the device."));
+            authorizationListener.onAuthorizationFailure(new AuthorizationException("Could NOT find installed browser that support Chrome tabs on the device."));
         } else {
             // Use Chrome tabs
             logger.debug("Launching ChromeTabActivity");

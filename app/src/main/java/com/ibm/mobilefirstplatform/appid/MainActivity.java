@@ -44,6 +44,35 @@ public class MainActivity extends AppCompatActivity {
     private AccessToken identifiedAccessToken;
     private AccessToken useThisToken;
 
+    public final static int LOGIN_SUBMITTED = 2;
+    public final static int LOGIN_CANCEL = 3;
+
+    private AuthorizationListener authorizationListener = new AuthorizationListener() {
+        @Override
+        public void onAuthorizationFailure(AuthorizationException exception) {
+            logger.info("onAuthorizationFailure: " + exception.getMessage());
+            showResponse(exception.getMessage());
+            hideProgress();
+        }
+
+        @Override
+        public void onAuthorizationCanceled() {
+            logger.info("onAuthorizationCanceled");
+            hideProgress();
+        }
+
+        @Override
+        public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            logger.info("onAuthorizationSuccess");
+            logger.info("access_token: " + accessToken.getRaw());
+            logger.info("id_token: " + identityToken.getRaw());
+            logger.info("access_token isExpired: " + accessToken.isExpired());
+            logger.info("id_token isExpired: " + identityToken.isExpired());
+            identifiedAccessToken = accessToken;
+            extractAndDisplayDataFromIdentityToken(identityToken);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         logger.setLogLevel(Logger.LEVEL.DEBUG);
@@ -96,30 +125,30 @@ public class MainActivity extends AppCompatActivity {
         logger.debug("onLoginClick");
         showProgress();
         LoginWidget loginWidget = appId.getLoginWidget();
-        loginWidget.launch(this, new AuthorizationListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                logger.info("onAuthorizationFailure");
-                hideProgress();
-            }
+        loginWidget.launch(this, authorizationListener, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
+    }
 
-            @Override
-            public void onAuthorizationCanceled() {
-                logger.info("onAuthorizationCanceled");
-                hideProgress();
-            }
+    public void onGetTokenUsingRoP(View v) {
+        logger.debug("onGetTokenUsingRoP");
+        showResponse("");
+        showProgress();
+        Intent inent;
+        inent = new Intent(getApplicationContext(), SignInActivity.class);
+        startActivityForResult(inent, LOGIN_SUBMITTED);
+    }
 
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                logger.info("onAuthorizationSuccess");
-                logger.info("access_token: " + accessToken.getRaw());
-                logger.info("id_token: " + identityToken.getRaw());
-                logger.info("access_token isExpired: " + accessToken.isExpired());
-                logger.info("id_token isExpired: " + identityToken.isExpired());
-                identifiedAccessToken = accessToken;
-                extractAndDisplayDataFromIdentityToken(identityToken);
-            }
-        });
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == LOGIN_CANCEL) {
+            hideProgress();
+            logger.info("onGetTokenUsingRoP canceled");
+            return;
+        }
+        if (resultCode == LOGIN_SUBMITTED && data != null) {
+            String username = data.getStringExtra("username");
+            String password = data.getStringExtra("password");
+            appId.loginWithCredentials(getApplicationContext(), username, password, authorizationListener);
+        }
     }
 
     public void onProtectedRequestClick(View v) {
@@ -301,6 +330,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
                 findViewById(R.id.loadingPanel).bringToFront();
                 findViewById(R.id.loginButton).setEnabled(false);
+                findViewById(R.id.ropButton).setEnabled(false);
                 findViewById(R.id.protectedRequestButton).setEnabled(false);
                 findViewById(R.id.deleteAttribute).setEnabled(false);
                 findViewById(R.id.anonloginButton).setEnabled(false);
@@ -320,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                 findViewById(R.id.loginButton).setEnabled(true);
+                findViewById(R.id.ropButton).setEnabled(true);
                 findViewById(R.id.protectedRequestButton).setEnabled(true);
                 findViewById(R.id.deleteAttribute).setEnabled(true);
                 findViewById(R.id.anonloginButton).setEnabled(true);

@@ -72,11 +72,6 @@ public class ChromeTabActivity extends Activity {
             customTabsIntent.intent.setPackage(AuthorizationUIManager.getPackageNameToUse(this.getApplicationContext()));
             customTabsIntent.intent.addFlags(PendingIntent.FLAG_ONE_SHOT);
 
-            //This will launch the chrome tab
-            Uri uri = Uri.parse(serverUrl);
-            logger.debug("launching custom tab with url: " + uri.toString());
-            customTabsIntent.launchUrl(this, uri);
-
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -86,6 +81,11 @@ public class ChromeTabActivity extends Activity {
 
             IntentFilter intentFilter = new IntentFilter(INTENT_GOT_HTTP_REDIRECT);
             LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
+
+            //This will launch the chrome tab
+            Uri uri = Uri.parse(serverUrl);
+            logger.debug("launching custom tab with url: " + uri.toString());
+            customTabsIntent.launchUrl(this, uri);
 
         } else {
             //if we launch after authorization completed

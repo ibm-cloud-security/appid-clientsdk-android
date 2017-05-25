@@ -154,7 +154,7 @@ public class AuthorizationManager {
 			@Override
 			public void onRegistrationFailure (RegistrationStatus error) {
 				logger.error(error.getDescription());
-				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
 			}
 
 			@Override
@@ -167,4 +167,22 @@ public class AuthorizationManager {
 	public void setAppIDRequestFactory(AppIDRequestFactory appIDRequestFactory) {
 		this.appIDRequestFactory = appIDRequestFactory;
 	}
+
+	public void loginWithCredentials(final Context context, final String username, final String password, final AuthorizationListener authorizationListener) {
+		registrationManager.ensureRegistered(context, new RegistrationListener() {
+			@Override
+			public void onRegistrationFailure (RegistrationStatus error) {
+				logger.error(error.getDescription());
+				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+			}
+
+			@Override
+			public void onRegistrationSuccess () {
+				oAuthManager.getTokenManager().obtainTokens(username, password, authorizationListener);
+			}
+		});
+	}
+
+
+
 }

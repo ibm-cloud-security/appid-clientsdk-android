@@ -17,6 +17,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SignInActivity"
+            android:label="@string/title_activity_login"
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
             android:name=".TokensActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_tokens"

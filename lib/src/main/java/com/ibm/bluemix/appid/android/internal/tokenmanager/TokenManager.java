@@ -28,6 +28,7 @@ import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.ResponseImpl;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 import org.json.JSONException;
@@ -54,13 +55,15 @@ public class TokenManager {
 	private final static String CODE = "code";
 	private final static String REDIRECT_URI = "redirect_uri";
 	private final static String AUTHORIZATION_HEADER = "Authorization";
-
+    private final static String USERNAME = "username";
+    private final static String PASSWORD = "password";
+    private final static String GRANT_TYPE_PASSWORD = "password";
+    private final static String ERROR_DESCRIPTION= "error_description";
 
 	public TokenManager (OAuthManager oAuthManager) {
 		this.appId = oAuthManager.getAppId();
 		this.registrationManager = oAuthManager.getRegistrationManager();
 	}
-
 
 	public void obtainTokens (String code, final AuthorizationListener listener) {
 		logger.debug("obtainTokens");
@@ -98,6 +101,46 @@ public class TokenManager {
 		});
 	}
 
+	public void obtainTokens (String username, String password, final AuthorizationListener listener) {
+		logger.debug("obtainTokens - with resource owner password");
+        String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
+        String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
+
+        AppIDRequest request = new AppIDRequest(tokenUrl, "POST");
+
+        try {
+            request.addHeader(AUTHORIZATION_HEADER, createAuthenticationHeader(clientId));
+        } catch (Exception e) {
+            logger.error("Failed to create authentication header", e);
+            return;
+        }
+
+        HashMap<String, String> formParams = new HashMap<>();
+        formParams.put(USERNAME, username);
+        formParams.put(PASSWORD, password);
+        formParams.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
+
+        request.send(formParams, new ResponseListener() {
+            @Override
+            public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
+                logger.error("Failed to retrieve tokens from authorization server", t);
+                String error_description = "";
+                try {
+                    error_description = ((ResponseImpl) response).getResponseJSON().getString(ERROR_DESCRIPTION);
+                    listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + error_description));
+                } catch (Exception e) {
+                    logger.error("Failed to retrieve tokens: " + e.getMessage());
+                    listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens"));
+                }
+
+            }
+
+            @Override
+            public void onSuccess (Response response) {
+                extractTokens(response, listener);
+            }
+        });
+	}
 
 	private String createAuthenticationHeader (String clientId) throws Exception {
 		PrivateKey privateKey = registrationManager.getPrivateKey();
