@@ -17,6 +17,7 @@ import com.ibm.bluemix.appid.android.api.AppIDAuthorizationManager;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
+import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
@@ -33,8 +34,8 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String tenantId = "AppID_tenantId";
-    private final static String region = AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
+    private final static String tenantId = "2a4f6d7d-de46-4d0d-b5ca-8002c1034ab4";//"AppID_tenantId";
+    private final static String region = ".stage1.mybluemix.net";//AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
     private final static String protectedUrl = "protected_URL";
 
     private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
@@ -47,32 +48,6 @@ public class MainActivity extends AppCompatActivity {
     public final static int LOGIN_SUBMITTED = 2;
     public final static int LOGIN_CANCEL = 3;
 
-    private AuthorizationListener authorizationListener = new AuthorizationListener() {
-        @Override
-        public void onAuthorizationFailure(AuthorizationException exception) {
-            logger.info("onAuthorizationFailure: " + exception.getMessage());
-            showResponse(exception.getMessage());
-            hideProgress();
-        }
-
-        @Override
-        public void onAuthorizationCanceled() {
-            logger.info("onAuthorizationCanceled");
-            hideProgress();
-        }
-
-        @Override
-        public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-            logger.info("onAuthorizationSuccess");
-            logger.info("access_token: " + accessToken.getRaw());
-            logger.info("id_token: " + identityToken.getRaw());
-            logger.info("access_token isExpired: " + accessToken.isExpired());
-            logger.info("id_token isExpired: " + identityToken.isExpired());
-            identifiedAccessToken = accessToken;
-            extractAndDisplayDataFromIdentityToken(identityToken);
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         logger.setLogLevel(Logger.LEVEL.DEBUG);
@@ -83,10 +58,16 @@ public class MainActivity extends AppCompatActivity {
         bmsClient.initialize(this, region);
         // Initialize AppID SDK
         appId = AppID.getInstance();
+
+        //uncomment to run locally
+//        appId.overrideOAuthServerHost = "http://10.0.2.2:6001/oauth/v3/";
+//        appId.overrideUserProfilesHost = "http://10.0.2.2:9080/user";
+
         appId.initialize(this, tenantId, region);
         // Add integration with BMSClient. Optional.
         this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
         bmsClient.setAuthorizationManager(appIDAuthorizationManager);
+
     }
 
     public void onAnonLoginClick(View v) {
@@ -125,7 +106,31 @@ public class MainActivity extends AppCompatActivity {
         logger.debug("onLoginClick");
         showProgress();
         LoginWidget loginWidget = appId.getLoginWidget();
-        loginWidget.launch(this, authorizationListener, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
+        loginWidget.launch(this, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("onAuthorizationCanceled");
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("onAuthorizationSuccess");
+                logger.info("access_token: " + accessToken.getRaw());
+                logger.info("id_token: " + identityToken.getRaw());
+                logger.info("access_token isExpired: " + accessToken.isExpired());
+                logger.info("id_token isExpired: " + identityToken.isExpired());
+                identifiedAccessToken = accessToken;
+                extractAndDisplayDataFromIdentityToken(identityToken);
+            }
+        }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
     }
 
     public void onGetTokenUsingRoP(View v) {
@@ -147,7 +152,25 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == LOGIN_SUBMITTED && data != null) {
             String username = data.getStringExtra("username");
             String password = data.getStringExtra("password");
-            appId.loginWithCredentials(getApplicationContext(), username, password, authorizationListener);
+            appId.obtainTokensWithROP(getApplicationContext(), username, password, new TokenResponseListener() {
+                @Override
+                public void onAuthorizationFailure(AuthorizationException exception) {
+                    logger.info("onAuthorizationFailure: " + exception.getMessage());
+                    showResponse(exception.getMessage());
+                    hideProgress();
+                }
+
+                @Override
+                public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                    logger.info("onAuthorizationSuccess");
+                    logger.info("access_token: " + accessToken.getRaw());
+                    logger.info("id_token: " + identityToken.getRaw());
+                    logger.info("access_token isExpired: " + accessToken.isExpired());
+                    logger.info("id_token isExpired: " + identityToken.isExpired());
+                    identifiedAccessToken = accessToken;
+                    extractAndDisplayDataFromIdentityToken(identityToken);
+                }
+            });
         }
     }
 

@@ -18,6 +18,7 @@ import android.util.Base64;
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
@@ -101,7 +102,7 @@ public class TokenManager {
 		});
 	}
 
-	public void obtainTokens (String username, String password, final AuthorizationListener listener) {
+	public void obtainTokens (String username, String password, final TokenResponseListener listener) {
 		logger.debug("obtainTokens - with resource owner password");
         String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
@@ -156,7 +157,7 @@ public class TokenManager {
 	 *
 	 * @param response response that contain the token
 	 */
-	private void extractTokens (Response response, AuthorizationListener authorizationListener) {
+	private void extractTokens (Response response, TokenResponseListener tokenResponseListener) {
 		String accessTokenString;
 		String idTokenString;
 		AccessToken accessToken;
@@ -170,7 +171,7 @@ public class TokenManager {
 			idTokenString = responseJSON.getString("id_token");
 		} catch (JSONException e){
 			logger.error("Failed to parse server response", e);
-			authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to parse server response"));
+			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Failed to parse server response"));
 			return;
 		}
 
@@ -178,7 +179,7 @@ public class TokenManager {
 			accessToken = new AccessTokenImpl(accessTokenString);
 		} catch (RuntimeException e){
 			logger.error("Failed to parse access_token", e);
-			authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to parse access_token"));
+			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Failed to parse access_token"));
 			return;
 		}
 
@@ -187,14 +188,14 @@ public class TokenManager {
 		} catch (RuntimeException e){
 			clearStoredTokens();
 			logger.error("Failed to parse id_token", e);
-			authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to parse id_token"));
+			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Failed to parse id_token"));
 			return;
 		}
 
 		latestAccessToken = accessToken;
 		latestIdentityToken = identityToken;
 
-		authorizationListener.onAuthorizationSuccess(accessToken, identityToken);
+		tokenResponseListener.onAuthorizationSuccess(accessToken, identityToken);
 	}
 
 	public AccessToken getLatestAccessToken () {

@@ -40,6 +40,7 @@ public class AppID {
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
+	public final static String REGION_GERMANY = ".eu-de.bluemix.net";
 
 	/**
 	 * @return The AppID instance.
@@ -145,10 +146,10 @@ public class AppID {
 	 *
 	 * @param username the resource owner username
 	 * @param password the resource owner password
-	 * @param listener the response listener
+	 * @param tokenResponseListener the token response listener
 	 */
-	public void loginWithCredentials(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull AuthorizationListener listener) {
-		oAuthManager.getAuthorizationManager().loginWithCredentials(context, username, password, listener);
+	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
+		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, tokenResponseListener);
 	}
 
 

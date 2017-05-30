@@ -127,5 +127,25 @@ public class AppID_Test {
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", listener);
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", false, listener);
 	}
+
+	@Test
+	public void test03_loginUsingRoP(){
+        this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
+
+        TokenResponseListener listener = new TokenResponseListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                assert(false);
+            }
+        };
+
+        appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener);
+
+	}
 }
 

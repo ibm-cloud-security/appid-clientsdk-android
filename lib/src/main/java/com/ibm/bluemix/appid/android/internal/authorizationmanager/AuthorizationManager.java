@@ -20,6 +20,7 @@ import android.net.Uri;
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
@@ -168,17 +169,17 @@ public class AuthorizationManager {
 		this.appIDRequestFactory = appIDRequestFactory;
 	}
 
-	public void loginWithCredentials(final Context context, final String username, final String password, final AuthorizationListener authorizationListener) {
+	public void obtainTokensWithROP(final Context context, final String username, final String password, final TokenResponseListener tokenResponseListener) {
 		registrationManager.ensureRegistered(context, new RegistrationListener() {
 			@Override
 			public void onRegistrationFailure (RegistrationStatus error) {
 				logger.error(error.getDescription());
-				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+				tokenResponseListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
 			}
 
 			@Override
 			public void onRegistrationSuccess () {
-				oAuthManager.getTokenManager().obtainTokens(username, password, authorizationListener);
+				oAuthManager.getTokenManager().obtainTokens(username, password, tokenResponseListener);
 			}
 		});
 	}
