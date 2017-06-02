@@ -34,7 +34,7 @@ public class AppID {
 	private OAuthManager oAuthManager;
 	private UserAttributeManager userAttributeManager;
 
-    public static String overrideOAuthServerHost = null; //when use place the assiment before calling the AppID initialize function
+    public static String overrideOAuthServerHost = null; //when use place the assignment before calling the AppID initialize function
 	public static String overrideUserProfilesHost = null;
 
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";

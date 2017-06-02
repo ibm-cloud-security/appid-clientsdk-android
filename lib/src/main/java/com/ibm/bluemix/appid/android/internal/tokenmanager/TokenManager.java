@@ -73,7 +73,7 @@ public class TokenManager {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
-		AppIDRequest request = new AppIDRequest(tokenUrl, "POST");
+		AppIDRequest request = setRequest(tokenUrl, "POST");
 
 		try {
 			request.addHeader(AUTHORIZATION_HEADER, createAuthenticationHeader(clientId));
@@ -102,12 +102,17 @@ public class TokenManager {
 		});
 	}
 
+	//for testing purpose
+    AppIDRequest setRequest(String url, String method) {
+		return new AppIDRequest(url, method);
+	}
+
 	public void obtainTokens (String username, String password, final TokenResponseListener listener) {
 		logger.debug("obtainTokens - with resource owner password");
         String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 
-        AppIDRequest request = new AppIDRequest(tokenUrl, "POST");
+        AppIDRequest request = setRequest(tokenUrl, "POST");
 
         try {
             request.addHeader(AUTHORIZATION_HEADER, createAuthenticationHeader(clientId));
@@ -127,13 +132,13 @@ public class TokenManager {
                 logger.error("Failed to retrieve tokens from authorization server", t);
                 String error_description = "";
                 try {
-                    error_description = ((ResponseImpl) response).getResponseJSON().getString(ERROR_DESCRIPTION);
+					JSONObject responseJSON = new JSONObject(response.getResponseText());
+					error_description = responseJSON.getString(ERROR_DESCRIPTION);
                     listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + error_description));
                 } catch (Exception e) {
-                    logger.error("Failed to retrieve tokens: " + e.getMessage());
-                    listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens"));
+                    logger.error("Failed to parse server response", e);
+                    listener.onAuthorizationFailure(new AuthorizationException("Failed to parse server response."));
                 }
-
             }
 
             @Override
@@ -169,7 +174,7 @@ public class TokenManager {
 			JSONObject responseJSON = new JSONObject(response.getResponseText());
 			accessTokenString = responseJSON.getString("access_token");
 			idTokenString = responseJSON.getString("id_token");
-		} catch (JSONException e){
+		} catch (Exception e){
 			logger.error("Failed to parse server response", e);
 			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Failed to parse server response"));
 			return;

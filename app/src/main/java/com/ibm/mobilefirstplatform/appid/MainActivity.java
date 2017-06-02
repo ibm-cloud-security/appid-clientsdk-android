@@ -34,7 +34,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String tenantId = "2a4f6d7d-de46-4d0d-b5ca-8002c1034ab4";//"AppID_tenantId";
+    private final static String tenantId = "0b0132c0-9931-478d-b809-27908f014503";//"AppID_tenantId";
     private final static String region = ".stage1.mybluemix.net";//AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
     private final static String protectedUrl = "protected_URL";
 
