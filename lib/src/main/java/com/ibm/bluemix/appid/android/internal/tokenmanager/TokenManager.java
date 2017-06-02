@@ -29,10 +29,8 @@ import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.ResponseImpl;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.PrivateKey;
@@ -73,7 +71,7 @@ public class TokenManager {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
-		AppIDRequest request = setRequest(tokenUrl, "POST");
+		AppIDRequest request = createAppIDRequest(tokenUrl, "POST");
 
 		try {
 			request.addHeader(AUTHORIZATION_HEADER, createAuthenticationHeader(clientId));
@@ -103,7 +101,7 @@ public class TokenManager {
 	}
 
 	//for testing purpose
-    AppIDRequest setRequest(String url, String method) {
+    AppIDRequest createAppIDRequest(String url, String method) {
 		return new AppIDRequest(url, method);
 	}
 
@@ -112,7 +110,7 @@ public class TokenManager {
         String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 
-        AppIDRequest request = setRequest(tokenUrl, "POST");
+        AppIDRequest request = createAppIDRequest(tokenUrl, "POST");
 
         try {
             request.addHeader(AUTHORIZATION_HEADER, createAuthenticationHeader(clientId));

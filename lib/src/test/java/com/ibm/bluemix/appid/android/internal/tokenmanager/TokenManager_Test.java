@@ -112,7 +112,7 @@ public class TokenManager_Test {
         when(oAuthManagerMock.getRegistrationManager()).thenReturn(spyRm);
         TokenManager tokenManager = new TokenManager(oAuthManagerMock);
         spyTokenManager = Mockito.spy(tokenManager);
-        when(spyTokenManager.setRequest(anyString(), anyString())).thenReturn(stubRequest);
+        when(spyTokenManager.createAppIDRequest(anyString(), anyString())).thenReturn(stubRequest);
         doNothing().when(stubRequest).addHeader(anyString(), anyString());
     }
 
