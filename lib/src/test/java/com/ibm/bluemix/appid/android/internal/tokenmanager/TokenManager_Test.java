@@ -214,12 +214,12 @@ public class TokenManager_Test {
 
             }
         });
-        //test the exceprion parsing
+        //test the exception parsing
         testReponse = null;
         spyTokenManager.obtainTokens(username, password, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(), "Failed to parse server response." );
+                assertEquals(exception.getMessage(), "Failed to retrieve tokens" );
             }
 
             @Override

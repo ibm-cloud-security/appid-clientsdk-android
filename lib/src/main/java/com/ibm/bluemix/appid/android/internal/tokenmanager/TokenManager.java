@@ -66,10 +66,26 @@ public class TokenManager {
 
 	public void obtainTokens (String code, final AuthorizationListener listener) {
 		logger.debug("obtainTokens");
-		String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
-
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+
+		HashMap<String, String> formParams = new HashMap<>();
+		formParams.put(CODE, code);
+		formParams.put(CLIENT_ID, clientId);
+		formParams.put(GRANT_TYPE, GRANT_TYPE_AUTH_CODE);
+		formParams.put(REDIRECT_URI, redirectUri);
+
+		retrieveTokens(formParams, listener);
+	}
+
+	//for testing purpose
+    AppIDRequest createAppIDRequest(String url, String method) {
+		return new AppIDRequest(url, method);
+	}
+
+	private void retrieveTokens(HashMap<String, String> formParams, final TokenResponseListener listener) {
+		String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
+		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 
 		AppIDRequest request = createAppIDRequest(tokenUrl, "POST");
 
@@ -80,17 +96,19 @@ public class TokenManager {
 			return;
 		}
 
-		HashMap<String, String> formParams = new HashMap<>();
-		formParams.put(CODE, code);
-		formParams.put(CLIENT_ID, clientId);
-		formParams.put(GRANT_TYPE, GRANT_TYPE_AUTH_CODE);
-		formParams.put(REDIRECT_URI, redirectUri);
-
 		request.send(formParams, new ResponseListener() {
 			@Override
 			public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
 				logger.error("Failed to retrieve tokens from authorization server", t);
-				listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens"));
+				String error_description = "";
+				try {
+					JSONObject responseJSON = new JSONObject(response.getResponseText());
+					error_description = responseJSON.getString(ERROR_DESCRIPTION);
+					listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + error_description));
+				} catch (Exception e) {
+					logger.error("Failed to retrieve tokens from authorization server", t);
+					listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens"));
+				}
 			}
 
 			@Override
@@ -100,50 +118,15 @@ public class TokenManager {
 		});
 	}
 
-	//for testing purpose
-    AppIDRequest createAppIDRequest(String url, String method) {
-		return new AppIDRequest(url, method);
-	}
-
 	public void obtainTokens (String username, String password, final TokenResponseListener listener) {
 		logger.debug("obtainTokens - with resource owner password");
-        String tokenUrl = Config.getOAuthServerUrl(appId) + OAUTH_TOKEN_PATH;
-        String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 
-        AppIDRequest request = createAppIDRequest(tokenUrl, "POST");
-
-        try {
-            request.addHeader(AUTHORIZATION_HEADER, createAuthenticationHeader(clientId));
-        } catch (Exception e) {
-            logger.error("Failed to create authentication header", e);
-            return;
-        }
-
-        HashMap<String, String> formParams = new HashMap<>();
+		HashMap<String, String> formParams = new HashMap<>();
         formParams.put(USERNAME, username);
         formParams.put(PASSWORD, password);
         formParams.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
 
-        request.send(formParams, new ResponseListener() {
-            @Override
-            public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
-                logger.error("Failed to retrieve tokens from authorization server", t);
-                String error_description = "";
-                try {
-					JSONObject responseJSON = new JSONObject(response.getResponseText());
-					error_description = responseJSON.getString(ERROR_DESCRIPTION);
-                    listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + error_description));
-                } catch (Exception e) {
-                    logger.error("Failed to parse server response", e);
-                    listener.onAuthorizationFailure(new AuthorizationException("Failed to parse server response."));
-                }
-            }
-
-            @Override
-            public void onSuccess (Response response) {
-                extractTokens(response, listener);
-            }
-        });
+		retrieveTokens(formParams, listener);
 	}
 
 	private String createAuthenticationHeader (String clientId) throws Exception {
