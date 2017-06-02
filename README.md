@@ -80,7 +80,7 @@ loginWidget.launch(this, new AuthorizationListener() {
 
 The Login widget default configuration use Facebook and Google as authentication options.
 If you configure only one of them the login widget will NOT launch and the user will be redirect to the configured idp authentication screen.
-    
+<!--
 ### Login using Resource Owner Password
 You can obtain access token and id token by supplying the end user's username and the end user's password.
 ```java
@@ -97,7 +97,7 @@ AppID.getInstance().obtainTokensWithROP(getApplicationContext(), username, passw
          }
         });
 ```
- 
+ -->
 ### Anonymous Login
 ```java
 AppID.getInstance().loginAnonymously(getApplicationContext(), new AuthorizationListener() {

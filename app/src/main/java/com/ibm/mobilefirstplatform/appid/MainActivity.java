@@ -34,8 +34,8 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String tenantId = "0b0132c0-9931-478d-b809-27908f014503";//"AppID_tenantId";
-    private final static String region = ".stage1.mybluemix.net";//AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
+    private final static String tenantId = "AppID_tenantId";
+    private final static String region = AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
     private final static String protectedUrl = "protected_URL";
 
     private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
@@ -58,16 +58,10 @@ public class MainActivity extends AppCompatActivity {
         bmsClient.initialize(this, region);
         // Initialize AppID SDK
         appId = AppID.getInstance();
-
-        //uncomment to run locally
-//        appId.overrideOAuthServerHost = "http://10.0.2.2:6001/oauth/v3/";
-//        appId.overrideUserProfilesHost = "http://10.0.2.2:9080/user";
-
         appId.initialize(this, tenantId, region);
         // Add integration with BMSClient. Optional.
         this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
         bmsClient.setAuthorizationManager(appIDAuthorizationManager);
-
     }
 
     public void onAnonLoginClick(View v) {
