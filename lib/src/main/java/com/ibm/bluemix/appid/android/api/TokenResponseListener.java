@@ -13,6 +13,10 @@
 
 package com.ibm.bluemix.appid.android.api;
 
-public interface AuthorizationListener extends TokenResponseListener{
-	void onAuthorizationCanceled();
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+
+public interface TokenResponseListener {
+    void onAuthorizationFailure(AuthorizationException exception);
+    void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken);
 }

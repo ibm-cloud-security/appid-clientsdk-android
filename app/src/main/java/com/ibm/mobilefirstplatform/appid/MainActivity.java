@@ -17,6 +17,7 @@ import com.ibm.bluemix.appid.android.api.AppIDAuthorizationManager;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
+import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
@@ -43,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private AccessToken anonymousAccessToken;
     private AccessToken identifiedAccessToken;
     private AccessToken useThisToken;
+
+    public final static int LOGIN_SUBMITTED = 2;
+    public final static int LOGIN_CANCEL = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
         loginWidget.launch(this, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                logger.info("onAuthorizationFailure");
+                logger.info("onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
                 hideProgress();
             }
 
@@ -119,7 +124,48 @@ public class MainActivity extends AppCompatActivity {
                 identifiedAccessToken = accessToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
-        });
+        }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
+    }
+
+    public void onGetTokenUsingRoP(View v) {
+        logger.debug("onGetTokenUsingRoP");
+        showResponse("");
+        showProgress();
+        Intent inent;
+        inent = new Intent(getApplicationContext(), SignInActivity.class);
+        startActivityForResult(inent, LOGIN_SUBMITTED);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == LOGIN_CANCEL) {
+            hideProgress();
+            logger.info("onGetTokenUsingRoP canceled");
+            return;
+        }
+        if (resultCode == LOGIN_SUBMITTED && data != null) {
+            String username = data.getStringExtra("username");
+            String password = data.getStringExtra("password");
+            appId.obtainTokensWithROP(getApplicationContext(), username, password, new TokenResponseListener() {
+                @Override
+                public void onAuthorizationFailure(AuthorizationException exception) {
+                    logger.info("onAuthorizationFailure: " + exception.getMessage());
+                    showResponse(exception.getMessage());
+                    hideProgress();
+                }
+
+                @Override
+                public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                    logger.info("onAuthorizationSuccess");
+                    logger.info("access_token: " + accessToken.getRaw());
+                    logger.info("id_token: " + identityToken.getRaw());
+                    logger.info("access_token isExpired: " + accessToken.isExpired());
+                    logger.info("id_token isExpired: " + identityToken.isExpired());
+                    identifiedAccessToken = accessToken;
+                    extractAndDisplayDataFromIdentityToken(identityToken);
+                }
+            });
+        }
     }
 
     public void onProtectedRequestClick(View v) {
@@ -301,6 +347,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
                 findViewById(R.id.loadingPanel).bringToFront();
                 findViewById(R.id.loginButton).setEnabled(false);
+                findViewById(R.id.ropButton).setEnabled(false);
                 findViewById(R.id.protectedRequestButton).setEnabled(false);
                 findViewById(R.id.deleteAttribute).setEnabled(false);
                 findViewById(R.id.anonloginButton).setEnabled(false);
@@ -320,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                 findViewById(R.id.loginButton).setEnabled(true);
+                findViewById(R.id.ropButton).setEnabled(true);
                 findViewById(R.id.protectedRequestButton).setEnabled(true);
                 findViewById(R.id.deleteAttribute).setEnabled(true);
                 findViewById(R.id.anonloginButton).setEnabled(true);

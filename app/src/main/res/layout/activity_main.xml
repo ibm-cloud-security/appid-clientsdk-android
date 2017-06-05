@@ -32,7 +32,6 @@
                 android:layout_width="100dp"
                 android:layout_height="30dp"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/profilePic"
                 android:layout_marginTop="15dp"
                 android:onClick="onTokensClick"
                 android:text="Tokens"
@@ -54,7 +53,21 @@
                 android:layout_below="@+id/profilePic"
                 android:layout_weight="1"
                 android:onClick="onAnonLoginClick"
-                android:text="Use Anonymously" />
+                android:text="Use Anonymously"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/ropButton"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/name"
+                android:layout_weight="1"
+                android:onClick="onGetTokenUsingRoP"
+                android:text="Get tokens with RoP"
+                android:textAllCaps="false" />
 
             <Button
                 android:id="@+id/loginButton"
@@ -76,7 +89,9 @@
                 android:layout_below="@+id/orText"
                 android:layout_weight="1"
                 android:onClick="onProtectedRequestClick"
-                android:text="Protected Resource Request" />
+                android:text="Protected Resource Request"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <RelativeLayout

@@ -20,6 +20,7 @@ import android.net.Uri;
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
@@ -59,7 +60,11 @@ public class AuthorizationManager {
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationManager.class.getName());
 
-	// TODO: document
+    /**
+     * @param oAuthManager
+     * @param ctx the Context that will be bind to the custom chrome tab.
+     * The AuthorizationManager constructor.
+     */
 	public AuthorizationManager (final OAuthManager oAuthManager, final Context ctx) {
 		this.oAuthManager = oAuthManager;
 		this.appId = oAuthManager.getAppId();
@@ -68,8 +73,10 @@ public class AuthorizationManager {
 		AuthorizationUIManager.bindCustomTabsService(ctx, serverUrl);
 	}
 
-	// TODO: document
-	public String getAuthorizationUrl(String idpName, AccessToken accessToken) {
+    /**
+     * @return The Authorization endpoint url.
+     */
+	private String getAuthorizationUrl(String idpName, AccessToken accessToken) {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
@@ -92,7 +99,12 @@ public class AuthorizationManager {
 		launchAuthorizationUI(activity, null, authorizationListener);
 	}
 
-	// TODO: document
+    /**
+     * @param activity the activity to launch the chrome tab on to.
+     * @param accessToken if not null, this access token will be added to the request.
+     * @param authorizationListener the authorization listener of the client.
+     * launch the authorization url in the chrome tab after successful registration.
+     */
 	public void launchAuthorizationUI (final Activity activity, final AccessToken accessToken, final AuthorizationListener authorizationListener){
 		registrationManager.ensureRegistered(activity, new RegistrationListener() {
 			@Override
@@ -111,7 +123,7 @@ public class AuthorizationManager {
 		});
 	}
 
-	public void continueAnonymousLogin (String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener){
+	private void continueAnonymousLogin (String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener){
 		AccessToken accessToken;
 		if (accessTokenString == null){
 			accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
@@ -142,7 +154,7 @@ public class AuthorizationManager {
 							 String message = (response == null) ? "" : response.getResponseText();
 							 logger.debug("loginAnonymously.Response in onFailure:" + message, t);
 							 message = (t != null) ? t.getLocalizedMessage() : "Authorization request failed.";
-							 message = (extendedInfo !=null) ? message + extendedInfo.toString() : message;
+							 message = (extendedInfo != null) ? message + extendedInfo.toString() : message;
 							 listener.onAuthorizationFailure(new AuthorizationException(message));
 						 }
 					 }
@@ -154,7 +166,7 @@ public class AuthorizationManager {
 			@Override
 			public void onRegistrationFailure (RegistrationStatus error) {
 				logger.error(error.getDescription());
-				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
 			}
 
 			@Override
@@ -167,4 +179,22 @@ public class AuthorizationManager {
 	public void setAppIDRequestFactory(AppIDRequestFactory appIDRequestFactory) {
 		this.appIDRequestFactory = appIDRequestFactory;
 	}
+
+	public void obtainTokensWithROP(final Context context, final String username, final String password, final TokenResponseListener tokenResponseListener) {
+		registrationManager.ensureRegistered(context, new RegistrationListener() {
+			@Override
+			public void onRegistrationFailure (RegistrationStatus error) {
+				logger.error(error.getDescription());
+				tokenResponseListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+			}
+
+			@Override
+			public void onRegistrationSuccess () {
+				oAuthManager.getTokenManager().obtainTokens(username, password, tokenResponseListener);
+			}
+		});
+	}
+
+
+
 }
