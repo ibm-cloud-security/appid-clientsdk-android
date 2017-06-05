@@ -58,6 +58,8 @@ public class TokenManager {
     private final static String PASSWORD = "password";
     private final static String GRANT_TYPE_PASSWORD = "password";
     private final static String ERROR_DESCRIPTION= "error_description";
+    private final static String ERROR_CODE= "error";
+    private final static String INVALID_GRANT= "invalid_grant";
 
 	public TokenManager (OAuthManager oAuthManager) {
 		this.appId = oAuthManager.getAppId();
@@ -100,11 +102,17 @@ public class TokenManager {
 			@Override
 			public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
 				logger.error("Failed to retrieve tokens from authorization server", t);
-				String error_description = "";
+				String errorDescription = "";
 				try {
-					JSONObject responseJSON = new JSONObject(response.getResponseText());
-					error_description = responseJSON.getString(ERROR_DESCRIPTION);
-					listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + error_description));
+					if (response.getStatus() == 400) {
+                        JSONObject responseJSON = new JSONObject(response.getResponseText());
+                        if (INVALID_GRANT.equals(responseJSON.getString(ERROR_CODE))) {
+                            errorDescription = responseJSON.getString(ERROR_DESCRIPTION);
+                            listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + errorDescription));
+                            return;
+                        }
+                    }
+                    listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens"));
 				} catch (Exception e) {
 					logger.error("Failed to retrieve tokens from authorization server", t);
 					listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens"));

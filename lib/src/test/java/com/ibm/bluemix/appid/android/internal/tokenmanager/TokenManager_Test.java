@@ -178,7 +178,7 @@ public class TokenManager_Test {
 
             @Override
             public String getResponseText() {
-                return "{\"error_code\": \"some-oauth2-error\" , \"error_description\": \"" + testDescription + "\" }";
+                return "{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription + "\" }";
             }
 
             @Override
