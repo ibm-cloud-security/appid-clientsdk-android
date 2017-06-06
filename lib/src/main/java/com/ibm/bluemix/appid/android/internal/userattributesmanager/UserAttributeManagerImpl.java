@@ -45,16 +45,14 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 
 	@Override
 	public void setAttribute (@NonNull String name, @NonNull String value, UserAttributeResponseListener listener) {
-
 		this.setAttribute(name, value, null, listener);
 	}
 
 	@Override
-	public void setAttribute (@NonNull String name, @NonNull String value, @NonNull AccessToken accessToken, final UserAttributeResponseListener listener) {
-		if(accessToken == null){
+	public void setAttribute (@NonNull String name, @NonNull String value, AccessToken accessToken, final UserAttributeResponseListener listener) {
+		if(accessToken == null) {
 			accessToken = tokenManager.getLatestAccessToken();
 		}
-
 		sendProtectedRequest(AppIDRequest.PUT, name, value, accessToken, listener);
 	}
 
@@ -64,7 +62,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 	}
 
 	@Override
-	public void getAttribute (@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener) {
+	public void getAttribute (@NonNull String name, AccessToken accessToken, UserAttributeResponseListener listener) {
 		if(accessToken == null){
 			accessToken = tokenManager.getLatestAccessToken();
 		}
@@ -77,7 +75,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 	}
 
 	@Override
-	public void deleteAttribute (@NonNull String name, @NonNull AccessToken accessToken, UserAttributeResponseListener listener) {
+	public void deleteAttribute (@NonNull String name, AccessToken accessToken, UserAttributeResponseListener listener) {
 		if(accessToken == null){
 			accessToken = tokenManager.getLatestAccessToken();
 		}
@@ -90,18 +88,27 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 	}
 
 	@Override
-	public void getAllAttributes(@NonNull AccessToken accessToken, @NonNull UserAttributeResponseListener listener) {
-		if(accessToken == null){
+	public void getAllAttributes(AccessToken accessToken, @NonNull UserAttributeResponseListener listener) {
+		if (accessToken == null) {
 			accessToken = tokenManager.getLatestAccessToken();
 		}
 		sendProtectedRequest(AppIDRequest.GET, null, null, accessToken, listener);
 	}
 
+	//for testing purpose
+	AppIDRequest createAppIDRequest(String url, String method) {
+		return new AppIDRequest(url, method);
+	}
+    //for testing purpose
+    RequestBody createRequestBody(String value) {
+        return RequestBody.create(MediaType.parse("application/json"), value);
+    }
+
 	private void sendProtectedRequest(String method, String name, String value, AccessToken accessToken, final UserAttributeResponseListener listener){
 		String url = Config.getUserProfilesServerUrl(AppID.getInstance()) + USER_PROFILE_ATTRIBUTES_PATH;
 		url = (name == null || name.length() == 0) ? url : url  + '/' + name;
 
-		AppIDRequest req = new AppIDRequest(url, method);
+		AppIDRequest req = createAppIDRequest(url, method);
 
 		ResponseListener resListener = new ResponseListener() {
 			@Override
@@ -111,6 +118,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 				try {
 					listener.onSuccess(new JSONObject(responseText));
 				} catch (JSONException e) {
+					listener.onFailure(new UserAttributesException(UserAttributesException.Error.JSON_PARSE_ERROR));
 					e.printStackTrace();
 				}
 			}
@@ -134,7 +142,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 		};
 
 		RequestBody requestBody =
-				(value == null || value.length() == 0) ? null : RequestBody.create(MediaType.parse("application/json"), value);
+				(value == null || value.length() == 0) ? null : createRequestBody(value);
 
 		req.send (resListener, requestBody, accessToken);
 	}

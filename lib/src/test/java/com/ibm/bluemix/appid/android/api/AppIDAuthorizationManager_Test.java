@@ -13,6 +13,7 @@
 
 package com.ibm.bluemix.appid.android.api;
 
+import android.app.Activity;
 import android.os.Build;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
@@ -25,17 +26,23 @@ import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.bluemix.appid.android.testing.mocks.HttpURLConnection_Mock;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.DeviceIdentity;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.UserIdentity;
 
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -47,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import static junit.framework.Assert.assertEquals;
 import static org.assertj.core.api.Java6Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -182,4 +190,83 @@ public class AppIDAuthorizationManager_Test {
 		appIdAuthManager.logout(RuntimeEnvironment.application, null);
 		verify(tokenManagerMock, times(2)).clearStoredTokens();
 	}
+
+	@Test
+	public void obtainAuthorization_test_onAuthorizationSuccess(){
+		Mockito.doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Object[] args = invocation.getArguments();
+				AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
+				authorizationListener.onAuthorizationSuccess(accessToken,idToken);
+				return null;
+			}
+		}).when(authorizationManagerMock).launchAuthorizationUI(any(Activity.class), any(AuthorizationListener.class));
+
+
+		appIdAuthManager.obtainAuthorization(Mockito.mock(Activity.class), new ResponseListener() {
+			@Override
+			public void onSuccess(Response response) {
+                assertEquals(response, null);
+			}
+
+			@Override
+			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+				fail("should get to onSuccess");
+			}
+		}, null);
+	}
+
+	@Test
+	public void obtainAuthorization_test_onAuthorizationFailure(){
+		Mockito.doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Object[] args = invocation.getArguments();
+				AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
+				authorizationListener.onAuthorizationFailure(new AuthorizationException("test exception"));
+				return null;
+			}
+		}).when(authorizationManagerMock).launchAuthorizationUI(any(Activity.class), any(AuthorizationListener.class));
+
+
+		appIdAuthManager.obtainAuthorization(Mockito.mock(Activity.class), new ResponseListener() {
+			@Override
+			public void onSuccess(Response response) {
+				fail("should get to onFailure");
+			}
+
+			@Override
+			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+				assertEquals(t.getMessage(), "test exception");
+			}
+		}, null);
+	}
+
+	@Test
+	public void obtainAuthorization_test_onAuthorizationCanceled(){
+		Mockito.doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				Object[] args = invocation.getArguments();
+				AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
+				authorizationListener.onAuthorizationCanceled();
+				return null;
+			}
+		}).when(authorizationManagerMock).launchAuthorizationUI(any(Activity.class), any(AuthorizationListener.class));
+
+
+		appIdAuthManager.obtainAuthorization(Mockito.mock(Activity.class), new ResponseListener() {
+			@Override
+			public void onSuccess(Response response) {
+				fail("should get to onFailure");
+			}
+
+			@Override
+			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+				assertEquals(t.getMessage(), "Authorization canceled");
+			}
+		}, null);
+	}
+
 }
