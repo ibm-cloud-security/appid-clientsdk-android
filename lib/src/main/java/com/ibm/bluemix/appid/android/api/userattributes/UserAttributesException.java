@@ -30,6 +30,11 @@ public class UserAttributesException extends Exception {
 			public String getDescription(){
 				return "Access to attribute is unauthorized";
 			}
+		},
+		JSON_PARSE_ERROR {
+			public String getDescription(){
+				return "Response text is not a valid JSON format";
+			}
 		};
 
 		public abstract String getDescription();
