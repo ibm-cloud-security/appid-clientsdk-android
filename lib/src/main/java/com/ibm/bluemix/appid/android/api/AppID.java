@@ -16,9 +16,11 @@ package com.ibm.bluemix.appid.android.api;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
+import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
 
 import org.jetbrains.annotations.NotNull;
@@ -149,7 +151,24 @@ public class AppID {
 	 * @param tokenResponseListener the token response listener
 	 */
 	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
-		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, tokenResponseListener);
+        AccessToken accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
+        oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessToken, tokenResponseListener);
+	}
+    /**
+     * Obtain token using Resource owner Password (RoP).
+     *
+     * @param username the resource owner username
+     * @param password the resource owner password
+     * @param tokenResponseListener the token response listener
+     * @param accessTokenString previous access token of some anonymous user
+     */
+	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener, String accessTokenString) {
+        if(accessTokenString == null) {
+			obtainTokensWithROP(context, username, password, tokenResponseListener);
+		} else {
+            AccessTokenImpl accessToken = new AccessTokenImpl(accessTokenString);
+            oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessToken, tokenResponseListener);
+		}
 	}
 
 

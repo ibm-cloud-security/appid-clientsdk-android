@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                     identifiedAccessToken = accessToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 }
-            });
+            }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
         }
     }
 

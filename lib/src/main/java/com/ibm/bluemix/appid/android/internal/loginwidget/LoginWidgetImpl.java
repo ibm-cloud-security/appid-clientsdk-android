@@ -32,7 +32,7 @@ public class LoginWidgetImpl implements LoginWidget {
 
 
 	public void launch(@NonNull Activity activity, @NonNull AuthorizationListener authorizationListener, String accessTokenString) {
-		if(accessTokenString == null){
+		if(accessTokenString == null) {
 			launch(activity, authorizationListener);
 			return;
 		}

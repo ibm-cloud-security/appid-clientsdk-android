@@ -88,6 +88,7 @@ public class AuthorizationManager_Test {
     private String username = "testUser";
     private String password = "testPassword";
     private String testError = "Some Error";
+    private AccessToken passedAccessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
     private static final AccessToken expectedAccessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
     private static final IdentityToken expectedIdToken = new IdentityTokenImpl(Consts.ID_TOKEN);
 
@@ -128,12 +129,12 @@ public class AuthorizationManager_Test {
                      @Override
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
-                         TokenResponseListener tokenListener = (TokenResponseListener) args[2];
+                         TokenResponseListener tokenListener = (TokenResponseListener) args[3];
                          tokenListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken);
                          return null;
                      }
                  }
-        ).when(tokenManagerMock).obtainTokens(eq(username), eq(password), any(TokenResponseListener.class));
+        ).when(tokenManagerMock).obtainTokens(eq(username), eq(password), eq(passedAccessToken), any(TokenResponseListener.class));
 
         doAnswer(new Answer<Void>() {
                      @Override
@@ -163,7 +164,7 @@ public class AuthorizationManager_Test {
         }).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
 
-        authManager.obtainTokensWithROP(mockContext, username, password, new TokenResponseListener() {
+        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), RegistrationStatus.NOT_REGISTRED.getDescription());
@@ -188,7 +189,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
-        authManager.obtainTokensWithROP(mockContext, username, password, new TokenResponseListener() {
+        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 fail("should get to onAuthorizationSuccess");
