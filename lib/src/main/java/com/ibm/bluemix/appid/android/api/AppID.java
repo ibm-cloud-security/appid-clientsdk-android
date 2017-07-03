@@ -152,7 +152,10 @@ public class AppID {
 	 */
 	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
         AccessToken accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
-        oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessToken, tokenResponseListener);
+		if (accessToken != null && accessToken.isAnonymous()) {
+			oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessToken, tokenResponseListener);
+		}
+		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, null, tokenResponseListener);
 	}
     /**
      * Obtain token using Resource owner Password (RoP).
