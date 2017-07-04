@@ -127,15 +127,15 @@ public class TokenManager {
 		});
 	}
 
-	public void obtainTokens (String username, String password, AccessToken accessToken, final TokenResponseListener listener) {
+	public void obtainTokens (String username, String password, String accessTokenString, final TokenResponseListener listener) {
 		logger.debug("obtainTokens - with resource owner password");
 
 		HashMap<String, String> formParams = new HashMap<>();
         formParams.put(USERNAME, username);
         formParams.put(PASSWORD, password);
         formParams.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
-		if (accessToken != null) {
-			formParams.put(APPID_ACCESS_TOKEN, accessToken.getRaw());
+		if (accessTokenString != null) {
+			formParams.put(APPID_ACCESS_TOKEN, accessTokenString);
 		}
 		retrieveTokens(formParams, listener);
 	}

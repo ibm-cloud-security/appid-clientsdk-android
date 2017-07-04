@@ -160,7 +160,7 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokens(username, password, new AccessTokenImpl(Consts.ACCESS_TOKEN), new TokenResponseListener() {
+        spyTokenManager.obtainTokens(username, password, Consts.ACCESS_TOKEN, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 fail("should get to onAuthorizationSuccess");

@@ -88,7 +88,7 @@ public class AuthorizationManager_Test {
     private String username = "testUser";
     private String password = "testPassword";
     private String testError = "Some Error";
-    private AccessToken passedAccessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
+    private String passedAccessToken = Consts.ACCESS_TOKEN;
     private static final AccessToken expectedAccessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
     private static final IdentityToken expectedIdToken = new IdentityTokenImpl(Consts.ID_TOKEN);
 
