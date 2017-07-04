@@ -180,7 +180,7 @@ public class AuthorizationManager {
 		this.appIDRequestFactory = appIDRequestFactory;
 	}
 
-	public void obtainTokensWithROP(final Context context, final String username, final String password, final AccessToken accessToken, final TokenResponseListener tokenResponseListener) {
+	public void obtainTokensWithROP(final Context context, final String username, final String password, final String accessTokenString, final TokenResponseListener tokenResponseListener) {
 		registrationManager.ensureRegistered(context, new RegistrationListener() {
 			@Override
 			public void onRegistrationFailure (RegistrationStatus error) {
@@ -190,7 +190,7 @@ public class AuthorizationManager {
 
 			@Override
 			public void onRegistrationSuccess () {
-				oAuthManager.getTokenManager().obtainTokens(username, password, accessToken, tokenResponseListener);
+				oAuthManager.getTokenManager().obtainTokens(username, password, accessTokenString, tokenResponseListener);
 			}
 		});
 	}
