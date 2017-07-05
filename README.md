@@ -3,7 +3,7 @@ Android SDK for the Bluemix App ID service
 
 [![Bluemix powered][img-bluemix-powered]][url-bluemix]
 [![Travis][img-travis-master]][url-travis-master]
-[![Coveralls][img-coveralls-master]][url-coveralls-master]
+[![Coverage Status][img-coveralls-master]][url-coveralls-master]
 [![Codacy][img-codacy]][url-codacy]
 [![Release](https://jitpack.io/v/ibm-cloud-security/appid-clientsdk-android.svg)](https://jitpack.io/#ibm-cloud-security/appid-clientsdk-android)
 [![License][img-license]][url-bintray]
@@ -218,8 +218,8 @@ This package contains code licensed under the Apache License, Version 2.0 (the "
 [img-travis-master]: https://travis-ci.org/ibm-cloud-security/appid-clientsdk-android.svg
 [url-travis-master]: https://travis-ci.org/ibm-cloud-security/appid-clientsdk-android
 
-[img-coveralls-master]: https://coveralls.io/repos/github/ibm-cloud-security/appid-clientsdk-android/badge.svg
-[url-coveralls-master]: https://coveralls.io/github/ibm-cloud-security/appid-clientsdk-android
+[img-coveralls-master]: https://coveralls.io/repos/github/ibm-cloud-security/appid-clientsdk-android/badge.svg?branch=master
+[url-coveralls-master]: https://coveralls.io/github/ibm-cloud-security/appid-clientsdk-android?branch=master
 
-[img-codacy]: https://api.codacy.com/project/badge/Grade/d41f8f069dd343769fcbdb55089561fc?branch=master
+[img-codacy]: https://api.codacy.com/project/badge/Grade/d41f8f069dd343769fcbdb55089561fc
 [url-codacy]: https://www.codacy.com/app/ibm-cloud-security/appid-clientsdk-android
