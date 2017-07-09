@@ -25,5 +25,11 @@ public interface LoginWidget {
 	 */
 	void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener, String accessTokenString);
 	void launch (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener);
+    /**
+     * Lunch only the sign up user interface
+     * @param activity Parent activity
+     * @param authorizationListener
+     */
+    void launchSignUp (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener);
 }
 

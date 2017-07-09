@@ -127,6 +127,37 @@ public class MainActivity extends AppCompatActivity {
         }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
     }
 
+    public void onSignUpClick(View v) {
+        logger.debug("onSignUpClick");
+        showProgress();
+        LoginWidget loginWidget = appId.getLoginWidget();
+        loginWidget.launchSignUp(this, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("onAuthorizationCanceled");
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("onAuthorizationSuccess");
+                logger.info("access_token: " + accessToken.getRaw());
+                logger.info("id_token: " + identityToken.getRaw());
+                logger.info("access_token isExpired: " + accessToken.isExpired());
+                logger.info("id_token isExpired: " + identityToken.isExpired());
+                identifiedAccessToken = accessToken;
+                extractAndDisplayDataFromIdentityToken(identityToken);
+            }
+        });
+    }
+
     public void onGetTokenUsingRoP(View v) {
         logger.debug("onGetTokenUsingRoP");
         showResponse("");
@@ -349,6 +380,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.loginButton).setEnabled(false);
                 findViewById(R.id.ropButton).setEnabled(false);
                 findViewById(R.id.protectedRequestButton).setEnabled(false);
+                findViewById(R.id.signUpButton).setEnabled(false);
                 findViewById(R.id.deleteAttribute).setEnabled(false);
                 findViewById(R.id.anonloginButton).setEnabled(false);
                 findViewById(R.id.getAllAttributes).setEnabled(false);
@@ -369,6 +401,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.loginButton).setEnabled(true);
                 findViewById(R.id.ropButton).setEnabled(true);
                 findViewById(R.id.protectedRequestButton).setEnabled(true);
+                findViewById(R.id.signUpButton).setEnabled(true);
                 findViewById(R.id.deleteAttribute).setEnabled(true);
                 findViewById(R.id.anonloginButton).setEnabled(true);
                 findViewById(R.id.getAllAttributes).setEnabled(true);

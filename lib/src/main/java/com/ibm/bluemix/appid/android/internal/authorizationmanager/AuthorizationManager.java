@@ -48,6 +48,7 @@ public class AuthorizationManager {
 	private final static String CLIENT_ID = "client_id";
 	private final static String RESPONSE_TYPE = "response_type";
 	private final static String RESPONSE_TYPE_CODE = "code";
+	private final static String RESPONSE_TYPE_SIGN_UP = "sign_up";
 
 	private final static String SCOPE = "scope";
 	private final static String SCOPE_OPENID = "openid";
@@ -73,15 +74,15 @@ public class AuthorizationManager {
 		AuthorizationUIManager.bindCustomTabsService(ctx, serverUrl);
 	}
 
-    /**
+	/**
      * @return The Authorization endpoint url.
      */
-	private String getAuthorizationUrl(String idpName, AccessToken accessToken) {
+	private String getAuthorizationUrl(String idpName, AccessToken accessToken, String responseType) {
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
 		Uri.Builder builder = Uri.parse(serverUrl).buildUpon()
-				.appendQueryParameter(RESPONSE_TYPE, RESPONSE_TYPE_CODE)
+				.appendQueryParameter(RESPONSE_TYPE, responseType)
 				.appendQueryParameter(CLIENT_ID, clientId)
 				.appendQueryParameter(REDIRECT_URI, redirectUri)
 				.appendQueryParameter(SCOPE, SCOPE_OPENID);
@@ -106,22 +107,36 @@ public class AuthorizationManager {
      * launch the authorization url in the chrome tab after successful registration.
      */
 	public void launchAuthorizationUI (final Activity activity, final AccessToken accessToken, final AuthorizationListener authorizationListener){
-		registrationManager.ensureRegistered(activity, new RegistrationListener() {
-			@Override
-			public void onRegistrationFailure (RegistrationStatus error) {
-				logger.error(error.getDescription());
-				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
-			}
-
-			@Override
-			public void onRegistrationSuccess () {
-				String authorizationUrl = getAuthorizationUrl(null, accessToken);
-				String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
-				AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
-				auim.launch(activity);
-			}
-		});
+        String authorizationUrl = getAuthorizationUrl(null, accessToken, RESPONSE_TYPE_CODE);
+        launchAuthorizationURL(activity, authorizationUrl, authorizationListener);
 	}
+
+	/**
+	 * @param activity the activity to launch the chrome tab on to.
+	 * @param authorizationListener the authorization listener of the client.
+	 * launch the authorization url with response_type=sign_up in the chrome tab after successful registration.
+	 */
+	public void launchSignUpAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener){
+        String signUpAuthorizationUrl = getAuthorizationUrl(null, null, RESPONSE_TYPE_SIGN_UP);
+        launchAuthorizationURL(activity, signUpAuthorizationUrl, authorizationListener);
+	}
+
+	void launchAuthorizationURL(final Activity activity, final String authorizationUrl, final AuthorizationListener authorizationListener) {
+        registrationManager.ensureRegistered(activity, new RegistrationListener() {
+            @Override
+            public void onRegistrationFailure (RegistrationStatus error) {
+                logger.error(error.getDescription());
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+            }
+
+            @Override
+            public void onRegistrationSuccess () {
+                String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+                AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
+                auim.launch(activity);
+            }
+        });
+    }
 
 	private void continueAnonymousLogin (String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener){
 		AccessToken accessToken;
@@ -136,7 +151,7 @@ public class AuthorizationManager {
 			return;
 		}
 
-		String authorizationUrl = getAuthorizationUrl(AccessTokenImpl.IDP_ANONYMOUS, accessToken);
+		String authorizationUrl = getAuthorizationUrl(AccessTokenImpl.IDP_ANONYMOUS, accessToken, RESPONSE_TYPE_CODE);
 
 		AppIDRequest request = appIDRequestFactory.createRequest(authorizationUrl, AppIDRequest.GET);
 		request.send(new ResponseListener(){

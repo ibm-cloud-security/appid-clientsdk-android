@@ -53,7 +53,18 @@
                 android:layout_below="@+id/profilePic"
                 android:layout_weight="1"
                 android:onClick="onAnonLoginClick"
-                android:text="Use Anonymously"
+                android:text="use anonymously"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/signUpButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/profilePic"
+                android:layout_weight="1"
+                android:onClick="onSignUpClick"
+                android:text="launch sign up only"
                 android:textSize="12sp" />
 
             <Button
@@ -79,7 +90,8 @@
                 android:layout_below="@+id/name"
                 android:layout_weight="1"
                 android:onClick="onLoginClick"
-                android:text="Launch Login widget" />
+                android:text="Launch Login widget"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/protectedRequestButton"
