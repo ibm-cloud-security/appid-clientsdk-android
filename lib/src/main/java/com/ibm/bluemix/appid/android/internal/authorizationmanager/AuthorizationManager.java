@@ -16,6 +16,7 @@ package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.VisibleForTesting;
 
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
@@ -121,7 +122,8 @@ public class AuthorizationManager {
         launchAuthorizationURL(activity, signUpAuthorizationUrl, authorizationListener);
 	}
 
-	void launchAuthorizationURL(final Activity activity, final String authorizationUrl, final AuthorizationListener authorizationListener) {
+	@VisibleForTesting
+    void launchAuthorizationURL(final Activity activity, final String authorizationUrl, final AuthorizationListener authorizationListener) {
         registrationManager.ensureRegistered(activity, new RegistrationListener() {
             @Override
             public void onRegistrationFailure (RegistrationStatus error) {

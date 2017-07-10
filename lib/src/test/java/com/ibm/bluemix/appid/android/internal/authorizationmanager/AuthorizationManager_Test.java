@@ -41,13 +41,11 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -65,9 +63,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.verifyNew;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -362,7 +357,7 @@ public class AuthorizationManager_Test {
     @Test
     public void launchAuthorizationUI_success(){
 
-        final AuthorizationManager spyAuthManager = Mockito.spy(authManager);
+        final AuthorizationManager spyAuthManager = spy(authManager);
         doAnswer(new Answer<Void>() {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
@@ -429,7 +424,7 @@ public class AuthorizationManager_Test {
     @Test
     public void launchSigUpAuthorizationUI_success() throws Exception{
 
-        final AuthorizationManager spyAuthManager =  Mockito.spy(authManager);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
         doAnswer(new Answer<Void>() {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
