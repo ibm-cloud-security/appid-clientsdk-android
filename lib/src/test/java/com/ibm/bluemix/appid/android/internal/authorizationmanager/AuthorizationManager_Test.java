@@ -58,6 +58,8 @@ import static junit.framework.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doAnswer;
 
@@ -148,6 +150,7 @@ public class AuthorizationManager_Test {
         ).when(tokenManagerMock).obtainTokens(anyString(), any(AuthorizationListener.class));
 
         authManager = new AuthorizationManager(oAuthManagerMock, mockContext);
+        appidMock.overrideOAuthServerHost = null;
     }
 
     @Test
@@ -353,6 +356,7 @@ public class AuthorizationManager_Test {
     @Test
     public void launchAuthorizationUI_success(){
 
+        final AuthorizationManager spyAuthManager = spy(authManager);
         doAnswer(new Answer<Void>() {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
@@ -364,10 +368,79 @@ public class AuthorizationManager_Test {
         ).when(registrationManager).ensureRegistered(eq(mockActivity), any(RegistrationListener.class));
 
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
-        authManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
+        spyAuthManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid";
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
+                verify(spyAuthManager).launchAuthorizationURL(eq(mockActivity), eq(expectedAuthUrl), any(AuthorizationListener.class));
+
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchSignUpAuthorizationUI_failure(){
+        Activity activity = new Activity();
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         RegistrationListener regListener = (RegistrationListener) args[1];
+                         regListener.onRegistrationFailure(RegistrationStatus.NOT_REGISTRED);
+                         return null;
+                     }
+                 }
+        ).when(registrationManager).ensureRegistered(eq(activity), any(RegistrationListener.class));
+
+        authManager.launchSignUpAuthorizationUI(activity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertEquals(exception.getMessage(), RegistrationStatus.NOT_REGISTRED.getDescription());
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchSigUpAuthorizationUI_success() throws Exception{
+
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         RegistrationListener regListener = (RegistrationListener) args[1];
+                         regListener.onRegistrationSuccess();
+                         return null;
+                     }
+                 }
+        ).when(registrationManager).ensureRegistered(eq(mockActivity), any(RegistrationListener.class));
+
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchSignUpAuthorizationUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=sign_up&client_id=null&redirect_uri=null&scope=openid";
+                assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
+                verify(spyAuthManager).launchAuthorizationURL(eq(mockActivity), eq(expectedAuthUrl), any(AuthorizationListener.class));
             }
 
             @Override

@@ -143,6 +143,7 @@ public class AppID {
 	public void loginAnonymously(@NotNull Context context,  String accessToken, boolean allowCreateNewAnonymousUser, @NotNull AuthorizationListener authorizationListener){
 		oAuthManager.getAuthorizationManager().loginAnonymously(context, accessToken, allowCreateNewAnonymousUser, authorizationListener);
 	}
+
 	/**
 	 * Obtain token using Resource owner Password (RoP).
 	 *
@@ -157,6 +158,7 @@ public class AppID {
 		}
 		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, null, tokenResponseListener);
 	}
+
     /**
      * Obtain token using Resource owner Password (RoP).
      *
@@ -172,6 +174,5 @@ public class AppID {
             oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessTokenString, tokenResponseListener);
 		}
 	}
-
 
 }
