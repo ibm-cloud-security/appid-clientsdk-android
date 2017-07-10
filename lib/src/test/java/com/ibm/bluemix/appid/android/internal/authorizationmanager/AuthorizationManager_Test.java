@@ -373,7 +373,7 @@ public class AuthorizationManager_Test {
             public void onAuthorizationFailure(AuthorizationException exception) {
                 String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid";
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
-                verify(spyAuthManager).launchAuthorizationURL(eq(mockActivity), eq(expectedAuthUrl), any(AuthorizationListener.class));
+                verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
 
             }
 
@@ -440,7 +440,7 @@ public class AuthorizationManager_Test {
             public void onAuthorizationFailure(AuthorizationException exception) {
                 String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=sign_up&client_id=null&redirect_uri=null&scope=openid";
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
-                verify(spyAuthManager).launchAuthorizationURL(eq(mockActivity), eq(expectedAuthUrl), any(AuthorizationListener.class));
+                verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
 
             @Override

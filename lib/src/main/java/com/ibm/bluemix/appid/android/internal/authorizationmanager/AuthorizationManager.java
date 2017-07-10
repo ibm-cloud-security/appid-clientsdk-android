@@ -108,8 +108,21 @@ public class AuthorizationManager {
      * launch the authorization url in the chrome tab after successful registration.
      */
 	public void launchAuthorizationUI (final Activity activity, final AccessToken accessToken, final AuthorizationListener authorizationListener){
-        String authorizationUrl = getAuthorizationUrl(null, accessToken, RESPONSE_TYPE_CODE);
-        launchAuthorizationURL(activity, authorizationUrl, authorizationListener);
+		registrationManager.ensureRegistered(activity, new RegistrationListener() {
+			@Override
+			public void onRegistrationFailure (RegistrationStatus error) {
+				logger.error(error.getDescription());
+				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+			}
+
+			@Override
+			public void onRegistrationSuccess () {
+				String authorizationUrl = getAuthorizationUrl(null, accessToken, RESPONSE_TYPE_CODE);
+				String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+				AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
+				auim.launch(activity);
+			}
+		});
 	}
 
 	/**
@@ -118,27 +131,27 @@ public class AuthorizationManager {
 	 * launch the authorization url with response_type=sign_up in the chrome tab after successful registration.
 	 */
 	public void launchSignUpAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener){
-        String signUpAuthorizationUrl = getAuthorizationUrl(null, null, RESPONSE_TYPE_SIGN_UP);
-        launchAuthorizationURL(activity, signUpAuthorizationUrl, authorizationListener);
+		registrationManager.ensureRegistered(activity, new RegistrationListener() {
+			@Override
+			public void onRegistrationFailure (RegistrationStatus error) {
+				logger.error(error.getDescription());
+				authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+			}
+
+			@Override
+			public void onRegistrationSuccess () {
+				String signUpAuthorizationUrl = getAuthorizationUrl(null, null, RESPONSE_TYPE_SIGN_UP);
+				String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+				AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, signUpAuthorizationUrl, redirectUri);
+				auim.launch(activity);
+			}
+		});
 	}
 
 	@VisibleForTesting
-    void launchAuthorizationURL(final Activity activity, final String authorizationUrl, final AuthorizationListener authorizationListener) {
-        registrationManager.ensureRegistered(activity, new RegistrationListener() {
-            @Override
-            public void onRegistrationFailure (RegistrationStatus error) {
-                logger.error(error.getDescription());
-                authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
-            }
-
-            @Override
-            public void onRegistrationSuccess () {
-                String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
-                AuthorizationUIManager auim = new AuthorizationUIManager(oAuthManager, authorizationListener, authorizationUrl, redirectUri);
-                auim.launch(activity);
-            }
-        });
-    }
+	AuthorizationUIManager createAuthorizationUIManager(OAuthManager oAuthManager, AuthorizationListener authorizationListener, String authUrl, String redirectUri) {
+		return new AuthorizationUIManager(oAuthManager, authorizationListener, authUrl, redirectUri);
+	}
 
 	private void continueAnonymousLogin (String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener){
 		AccessToken accessToken;
