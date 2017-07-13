@@ -23,6 +23,7 @@ import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
@@ -35,10 +36,12 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class AuthorizationManager {
-	private static final String OAUTH_AUTHORIZATION_PATH = "/authorization";
+	private final static String OAUTH_AUTHORIZATION_PATH = "/authorization";
+    private final static String CHANGE_PASSWORD_PATH = "/cloud_directory/change_password";
 
 	private final AppID appId;
 	private final OAuthManager oAuthManager;
@@ -50,6 +53,7 @@ public class AuthorizationManager {
 	private final static String RESPONSE_TYPE = "response_type";
 	private final static String RESPONSE_TYPE_CODE = "code";
 	private final static String RESPONSE_TYPE_SIGN_UP = "sign_up";
+    private final static String USER_ID = "user_id";
 
 	private final static String SCOPE = "scope";
 	private final static String SCOPE_OPENID = "openid";
@@ -57,6 +61,7 @@ public class AuthorizationManager {
 	private final static String REDIRECT_URI = "redirect_uri";
 	private final static String IDP = "idp";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
+    private final static String ID = "id";
 
 	private String serverUrl;
 
@@ -96,6 +101,20 @@ public class AuthorizationManager {
 		}
 		return builder.build().toString();
 	}
+
+    /**
+     * @return the change password endpoint url.
+     */
+    private String getChangePasswordUrl(String userId, String redirectUri) {
+        String changePasswordEndpoint = Config.getOAuthServerUrl(this.appId) + CHANGE_PASSWORD_PATH;
+        String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
+        Uri.Builder builder = Uri.parse(changePasswordEndpoint).buildUpon()
+                .appendQueryParameter(USER_ID, userId)
+                .appendQueryParameter(CLIENT_ID, clientId)
+                .appendQueryParameter(REDIRECT_URI, redirectUri);
+
+        return  builder.build().toString();
+    }
 
 	public void launchAuthorizationUI (final Activity activity, final AuthorizationListener authorizationListener){
 		launchAuthorizationUI(activity, null, authorizationListener);
@@ -146,6 +165,31 @@ public class AuthorizationManager {
 				auim.launch(activity);
 			}
 		});
+	}
+
+	/**
+	 * @param activity the activity to launch the chrome tab on to.
+	 * @param authorizationListener the authorization listener of the client.
+	 * launch the change password UI in chrome tab only if the client logged-in otherwise return an error.
+	 */
+	public void launchChangePasswordUI (final Activity activity, final AuthorizationListener authorizationListener){
+        IdentityToken currentIdToken = this.oAuthManager.getTokenManager().getLatestIdentityToken();
+        if (currentIdToken == null) {
+            authorizationListener.onAuthorizationFailure(new AuthorizationException("Please login first."));
+        } else {
+            String userId;
+            try {
+                userId = currentIdToken.getIdentities().getJSONObject(0).getString(ID);
+                String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+                String changePasswordUrl = getChangePasswordUrl(userId, redirectUri);
+                AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, changePasswordUrl, redirectUri);
+                auim.launch(activity);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
+            }
+        }
 	}
 
 	@VisibleForTesting
