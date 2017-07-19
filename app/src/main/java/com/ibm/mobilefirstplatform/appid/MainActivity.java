@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onChangePasswordClick(View v) {
         logger.debug("onChangePasswordClick");
+        showResponse("");
         showProgress();
         LoginWidget loginWidget = appId.getLoginWidget();
         loginWidget.launchChangePassword(this, new AuthorizationListener() {
