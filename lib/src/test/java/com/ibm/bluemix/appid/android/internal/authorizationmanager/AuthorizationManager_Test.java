@@ -36,6 +36,8 @@ import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -86,6 +88,8 @@ public class AuthorizationManager_Test {
     private AppIDRequest mockRequest;
     @Mock
     private Activity mockActivity;
+    @Mock
+    private IdentityToken mockIdToken;
     private AuthorizationManager authManager;
     private String username = "testUser";
     private String password = "testPassword";
@@ -441,6 +445,114 @@ public class AuthorizationManager_Test {
                 String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=sign_up&client_id=null&redirect_uri=null&scope=openid";
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangePasswordUI_noIdToken() throws Exception {
+
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangePasswordUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertEquals(exception.getMessage(), "No identity token found.");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangePasswordUI_IdTokenNotRetrievedWithCD() throws Exception {
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(expectedIdToken);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangePasswordUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertEquals(exception.getMessage(), "The identity token was not retrieved using cloud directory idp.");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangePasswordUI_success() throws Exception {
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(mockIdToken);
+        JSONArray identitiesArray = new JSONArray();
+        JSONObject providerObject = new JSONObject();
+        providerObject.put("provider", "cloud_directory");
+        providerObject.put("id", "1234");
+        identitiesArray.put(providerObject);
+        when(mockIdToken.getIdentities()).thenReturn(identitiesArray);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangePasswordUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_password?user_id=1234&client_id=null&redirect_uri=null";
+                assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
+                verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangePasswordUI_JSONException() throws Exception {
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(mockIdToken);
+        JSONArray identitiesArray = new JSONArray();
+        JSONObject providerObject = new JSONObject();
+        providerObject.put("provider", "cloud_directory");
+        identitiesArray.put(providerObject);
+        when(mockIdToken.getIdentities()).thenReturn(identitiesArray);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangePasswordUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertEquals(exception.getMessage(), "No value for id");
             }
 
             @Override
