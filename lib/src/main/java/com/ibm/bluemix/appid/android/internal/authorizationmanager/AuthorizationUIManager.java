@@ -83,7 +83,7 @@ class AuthorizationUIManager {
         AuthorizationFlowContextStore.push(authFlowContextGuid, ctx);
 
         // If we cant find a package name, it means there's no browser that supports
-        // Chrome Custom Tabs installed. So, we fallback to the WebView
+        // Chrome Custom Tabs installed.
         // (There might be a browser other than Chrome that support Chrome tabs)
 
         if (getPackageNameToUse(context) == null || !isChromeTabSupported) {

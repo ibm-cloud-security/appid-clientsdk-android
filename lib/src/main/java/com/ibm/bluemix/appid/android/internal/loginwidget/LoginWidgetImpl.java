@@ -58,5 +58,13 @@ public class LoginWidgetImpl implements LoginWidget {
 	public void launchSignUp (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener) {
         oAuthManager.getAuthorizationManager().launchSignUpAuthorizationUI(activity, authorizationListener);
 	}
+
+	/**
+	 * @param activity
+	 * @param authorizationListener
+	 */
+	public void launchChangePassword (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener) {
+		oAuthManager.getAuthorizationManager().launchChangePasswordUI(activity, authorizationListener);
+	}
 }
 
