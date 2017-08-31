@@ -652,7 +652,7 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(mockRequest).send(any(ResponseListener.class));
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
         JSONArray identitiesArray = new JSONArray();
         JSONObject providerObject = new JSONObject();
         providerObject.put("provider", "cloud_directory");
@@ -695,7 +695,7 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(mockRequest).send(any(ResponseListener.class));
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
         JSONArray identitiesArray = new JSONArray();
         JSONObject providerObject = new JSONObject();
         identitiesArray.put(providerObject);
@@ -734,7 +734,7 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(mockRequest).send(any(ResponseListener.class));
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
         JSONArray identitiesArray = new JSONArray();
         JSONObject providerObject = new JSONObject();
         providerObject.put("provider", "cloud_directory");
@@ -778,7 +778,7 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(mockRequest).send(any(ResponseListener.class));
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
         JSONArray identitiesArray = new JSONArray();
         JSONObject providerObject = new JSONObject();
         providerObject.put("provider", "cloud_directory");
@@ -821,7 +821,7 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(mockRequest).send(any(ResponseListener.class));
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
         JSONArray identitiesArray = new JSONArray();
         JSONObject providerObject = new JSONObject();
         providerObject.put("provider", "cloud_directory");

@@ -251,7 +251,7 @@ public class AuthorizationManager {
                         logger.error(errorMsg);
                         authorizationListener.onAuthorizationFailure(new AuthorizationException(errorMsg));
                     }
-                });
+                }, this.oAuthManager.getTokenManager().getLatestAccessToken(), this.oAuthManager.getTokenManager().getLatestIdentityToken());
             }
         } catch (JSONException e) {
             e.printStackTrace();
