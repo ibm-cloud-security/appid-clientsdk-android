@@ -32,7 +32,6 @@ import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationLi
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
-import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
@@ -227,8 +226,8 @@ public class AuthorizationManager {
                 authorizationListener.onAuthorizationFailure(new AuthorizationException("The identity token was not retrieved using cloud directory idp."));
             } else {
                 String generateCodeURL = Config.getOAuthServerUrl(this.appId) + GENERATE_CODE_PATH;
-                Request r = new Request(generateCodeURL, Request.GET);
-                r.send(activity.getApplicationContext(), new ResponseListener() {
+                AppIDRequest request = appIDRequestFactory.createRequest(generateCodeURL, AppIDRequest.GET);
+                request.send(new ResponseListener() {
                     @Override
                     public void onSuccess(Response response) {
                         logger.info("Code request success");

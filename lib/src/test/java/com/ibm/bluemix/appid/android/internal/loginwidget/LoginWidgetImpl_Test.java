@@ -175,10 +175,43 @@ public class LoginWidgetImpl_Test {
                 authorizationListener.onAuthorizationSuccess(accessToken, null);
                 return null;
             }
-        }).when(mockAuthManager).launchSignUpAuthorizationUI(any(Activity.class), any(AuthorizationListener.class));
+        }).when(mockAuthManager).launchChangePasswordUI(any(Activity.class), any(AuthorizationListener.class));
 
 
         loginWidget.launchChangePassword(Mockito.mock(Activity.class), new AuthorizationListener() {
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationSuccess");
+            }
+
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                fail("should get to onAuthorizationSuccess");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                assertEquals(accessToken, expectedAccessToken);
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetails_test(){
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                AccessToken accessToken = expectedAccessToken;
+                AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
+                authorizationListener.onAuthorizationSuccess(accessToken, null);
+                return null;
+            }
+        }).when(mockAuthManager).launchChangeDetailsUI(any(Activity.class), any(AuthorizationListener.class));
+
+
+        loginWidget.launchChangeDetails(Mockito.mock(Activity.class), new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationSuccess");
