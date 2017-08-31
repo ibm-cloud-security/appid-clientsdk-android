@@ -190,6 +190,38 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void onChangeDetailsClick(View v) {
+        logger.debug("onChangeDetailsClick");
+        showResponse("");
+        showProgress();
+        LoginWidget loginWidget = appId.getLoginWidget();
+        loginWidget.launchChangeDetails(this, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("Change Details: onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("Change Details: onAuthorizationCanceled");
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("Change Details: onAuthorizationSuccess");
+                logger.info("access_token: " + accessToken.getRaw());
+                logger.info("id_token: " + identityToken.getRaw());
+                logger.info("access_token isExpired: " + accessToken.isExpired());
+                logger.info("id_token isExpired: " + identityToken.isExpired());
+                identifiedAccessToken = accessToken;
+                extractAndDisplayDataFromIdentityToken(identityToken);
+            }
+        });
+    }
+
     public void onGetTokenUsingRoP(View v) {
         logger.debug("onGetTokenUsingRoP");
         showResponse("");
@@ -422,6 +454,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.editAttrName).setEnabled(false);
                 findViewById(R.id.editAttrValue).setEnabled(false);
                 findViewById(R.id.changePasswordButton).setEnabled(false);
+                findViewById(R.id.changeDetailsButton).setEnabled(false);
             }
         });
     }
@@ -444,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.editAttrName).setEnabled(true);
                 findViewById(R.id.editAttrValue).setEnabled(true);
                 findViewById(R.id.changePasswordButton).setEnabled(true);
+                findViewById(R.id.changeDetailsButton).setEnabled(true);
             }
         });
     }

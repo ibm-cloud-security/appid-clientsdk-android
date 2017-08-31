@@ -42,6 +42,8 @@ import org.json.JSONObject;
 public class AuthorizationManager {
     private final static String OAUTH_AUTHORIZATION_PATH = "/authorization";
     private final static String CHANGE_PASSWORD_PATH = "/cloud_directory/change_password";
+    private final static String CHANGE_DETAILS_PATH = "/cloud_directory/change_details";
+    private final static String GENERATE_CODE_PATH = "/cloud_directory/generate_code";
 
     private final AppID appId;
     private final OAuthManager oAuthManager;
@@ -64,6 +66,7 @@ public class AuthorizationManager {
     private final static String ID = "id";
     private final static String PROVIDER = "provider";
     private final static String CLOUD_DIRECTORY_IDP = "cloud_directory";
+    private final static String CODE = "code";
 
     private String serverUrl;
 
@@ -109,12 +112,27 @@ public class AuthorizationManager {
      */
     private String getChangePasswordUrl(String userId, String redirectUri) {
         String changePasswordEndpoint = Config.getOAuthServerUrl(this.appId) + CHANGE_PASSWORD_PATH;
+        return buildUrl(changePasswordEndpoint, userId, redirectUri, null);
+    }
+    /**
+     * @return the change details endpoint url.
+     */
+    private String getChangeDetailsUrl(String redirectUri, String code) {
+        String changeDetailsEndpoint = Config.getOAuthServerUrl(this.appId) + CHANGE_DETAILS_PATH;
+        return buildUrl(changeDetailsEndpoint, null, redirectUri, code);
+    }
+
+    private String buildUrl(String endpointUrl, String userId, String redirectUri, String code) {
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
-        Uri.Builder builder = Uri.parse(changePasswordEndpoint).buildUpon()
-                .appendQueryParameter(USER_ID, userId)
+        Uri.Builder builder = Uri.parse(endpointUrl).buildUpon()
                 .appendQueryParameter(CLIENT_ID, clientId)
                 .appendQueryParameter(REDIRECT_URI, redirectUri);
-
+        if (null != code) {
+            builder.appendQueryParameter(CODE, code);
+        }
+        if (null != userId) {
+            builder.appendQueryParameter(USER_ID, userId);
+        }
         return builder.build().toString();
     }
 
@@ -172,7 +190,7 @@ public class AuthorizationManager {
     /**
      * @param activity              the activity to launch the chrome tab on to.
      * @param authorizationListener the authorization listener of the client.
-     *                              launch the change password UI in chrome tab only if the client logged-in otherwise return an error.
+     *                              Launch the change password UI in chrome tab only if the client logged-in otherwise return an error.
      */
     public void launchChangePasswordUI(final Activity activity, final AuthorizationListener authorizationListener) {
         try {
@@ -187,6 +205,53 @@ public class AuthorizationManager {
                 String changePasswordUrl = getChangePasswordUrl(userId, redirectUri);
                 AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, changePasswordUrl, redirectUri);
                 auim.launch(activity);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
+        }
+    }
+
+    /**
+     * @param activity              the activity to launch the chrome tab on to.
+     * @param authorizationListener the authorization listener of the client.
+     *                              Launch the change details UI in chrome tab only if the client logged-in otherwise return an error.
+     */
+    public void launchChangeDetailsUI(final Activity activity, final AuthorizationListener authorizationListener) {
+        try {
+            final IdentityToken currentIdToken = this.oAuthManager.getTokenManager().getLatestIdentityToken();
+            if (currentIdToken == null) {
+                authorizationListener.onAuthorizationFailure(new AuthorizationException("No identity token found."));
+            } else if (!CLOUD_DIRECTORY_IDP.equals(currentIdToken.getIdentities().getJSONObject(0).getString(PROVIDER))) {
+                authorizationListener.onAuthorizationFailure(new AuthorizationException("The identity token was not retrieved using cloud directory idp."));
+            } else {
+                String generateCodeURL = Config.getOAuthServerUrl(this.appId) + GENERATE_CODE_PATH;
+                AppIDRequest request = appIDRequestFactory.createRequest(generateCodeURL, AppIDRequest.GET);
+                request.send(new ResponseListener() {
+                    @Override
+                    public void onSuccess(Response response) {
+                        logger.info("Code request success");
+                        String code = response.getResponseText();
+                        String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+                        String changeDetailsUrl = getChangeDetailsUrl(redirectUri, code);
+                        AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, changeDetailsUrl, redirectUri);
+                        auim.launch(activity);
+                    }
+
+                    @Override
+                    public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+                        String errorMsg = "Code request failure ";
+                        if (response != null) {
+                            errorMsg += ",response: " + response.toString();
+                        } else if (extendedInfo != null) {
+                            errorMsg += " ,extendedInfo: " + extendedInfo.toString();
+                        } else if (t != null) {
+                            errorMsg += " ,exception: " + t.getMessage();
+                        }
+                        logger.error(errorMsg);
+                        authorizationListener.onAuthorizationFailure(new AuthorizationException(errorMsg));
+                    }
+                }, this.oAuthManager.getTokenManager().getLatestAccessToken(), this.oAuthManager.getTokenManager().getLatestIdentityToken());
             }
         } catch (JSONException e) {
             e.printStackTrace();

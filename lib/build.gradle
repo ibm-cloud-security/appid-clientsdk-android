@@ -54,5 +54,5 @@ dependencies {
     testCompile 'org.robolectric:shadows-httpclient:3.2.2'
     testCompile 'org.assertj:assertj-core:3.6.2'
     testCompile 'org.powermock:powermock-api-mockito:1.6.6'
-    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    testCompile 'commons-io:commons-io:2.4'
 }

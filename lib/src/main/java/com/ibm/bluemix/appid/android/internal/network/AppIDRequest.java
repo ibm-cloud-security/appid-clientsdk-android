@@ -14,6 +14,7 @@
 package com.ibm.bluemix.appid.android.internal.network;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.BaseRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.TLSEnabledSSLSocketFactory;
@@ -56,6 +57,14 @@ public class AppIDRequest extends BaseRequest {
 		httpClient.setFollowRedirects(false);
 	}
 
+	public void send(final ResponseListener listener, final AccessToken accessToken, final IdentityToken identityToken) {
+        if (accessToken != null && identityToken != null) {
+            removeHeaders("Authorization");
+            addHeader("Authorization", "Bearer " + accessToken.getRaw() + " " + identityToken.getRaw());
+        }
+        send(listener);
+	}
+
 	public void send(final ResponseListener listener, final RequestBody requestBody, final AccessToken accessToken) {
 
 		if (accessToken != null) {
@@ -63,9 +72,9 @@ public class AppIDRequest extends BaseRequest {
 			addHeader("Authorization", "Bearer " + accessToken.getRaw());
 		}
 
-		if (requestBody != null){
+		if (requestBody != null) {
 			super.sendRequest(listener, requestBody);
-		}else{
+		} else {
 			send(listener);
 		}
 	}

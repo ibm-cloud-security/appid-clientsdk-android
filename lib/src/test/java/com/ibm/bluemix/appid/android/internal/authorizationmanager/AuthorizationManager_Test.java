@@ -94,10 +94,10 @@ public class AuthorizationManager_Test {
     private String username = "testUser";
     private String password = "testPassword";
     private String testError = "Some Error";
+    private String code = "1234";
     private String passedAccessToken = Consts.ACCESS_TOKEN;
     private static final AccessToken expectedAccessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
     private static final IdentityToken expectedIdToken = new IdentityTokenImpl(Consts.ID_TOKEN);
-
     private Response testResponse = new Response() {
         @Override
         public int getStatus() {
@@ -107,6 +107,30 @@ public class AuthorizationManager_Test {
         @Override
         public String getResponseText() {
             return testError;
+        }
+
+        @Override
+        public byte[] getResponseBytes() {
+            return new byte[0];
+        }
+
+        @Override
+        public Map<String, List<String>> getHeaders() {
+            Map<String, List<String>> map =  new HashMap<String, List<String>>();
+            map.put("Location", new LinkedList<String>());
+            return map;
+        }
+    };
+
+    private Response testGoodResponse = new Response() {
+        @Override
+        public int getStatus() {
+            return 200;
+        }
+
+        @Override
+        public String getResponseText() {
+            return code;
         }
 
         @Override
@@ -521,7 +545,7 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchChangePasswordUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_password?user_id=1234&client_id=null&redirect_uri=null";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_password?client_id=null&redirect_uri=null&user_id=1234";
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
@@ -553,6 +577,264 @@ public class AuthorizationManager_Test {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), "No value for id");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetailsUI_noIdToken() throws Exception {
+
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertEquals(exception.getMessage(), "No identity token found.");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetailsUI_IdTokenNotRetrievedWithCD() throws Exception {
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(expectedIdToken);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertEquals(exception.getMessage(), "The identity token was not retrieved using cloud directory idp.");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetailsUI_success() throws Exception {
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(mockIdToken);
+        authManager.setAppIDRequestFactory(appIDRequestFactoryMock);
+        when(appIDRequestFactoryMock.createRequest(anyString(), anyString())).thenReturn(mockRequest);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         ResponseListener responseListener = (ResponseListener) args[0];
+                         responseListener.onSuccess(testGoodResponse);
+                         return null;
+                     }
+                 }
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
+        JSONArray identitiesArray = new JSONArray();
+        JSONObject providerObject = new JSONObject();
+        providerObject.put("provider", "cloud_directory");
+        providerObject.put("id", "1234");
+        identitiesArray.put(providerObject);
+        when(mockIdToken.getIdentities()).thenReturn(identitiesArray);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_details?client_id=null&redirect_uri=null&code=1234";
+                assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
+                verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetailsUI_JSONException() throws Exception {
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(mockIdToken);
+        authManager.setAppIDRequestFactory(appIDRequestFactoryMock);
+        when(appIDRequestFactoryMock.createRequest(anyString(), anyString())).thenReturn(mockRequest);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         ResponseListener responseListener = (ResponseListener) args[0];
+                         responseListener.onSuccess(testGoodResponse);
+                         return null;
+                     }
+                 }
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
+        JSONArray identitiesArray = new JSONArray();
+        JSONObject providerObject = new JSONObject();
+        identitiesArray.put(providerObject);
+        when(mockIdToken.getIdentities()).thenReturn(identitiesArray);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                assertEquals(exception.getMessage(), "No value for provider");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetailsUI_failure_in_request_with_response() throws Exception {
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(mockIdToken);
+        authManager.setAppIDRequestFactory(appIDRequestFactoryMock);
+        when(appIDRequestFactoryMock.createRequest(anyString(), anyString())).thenReturn(mockRequest);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         ResponseListener responseListener = (ResponseListener) args[0];
+                         responseListener.onFailure(testResponse, null, null);
+                         return null;
+                     }
+                 }
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
+        JSONArray identitiesArray = new JSONArray();
+        JSONObject providerObject = new JSONObject();
+        providerObject.put("provider", "cloud_directory");
+        providerObject.put("id", "1234");
+        identitiesArray.put(providerObject);
+        when(mockIdToken.getIdentities()).thenReturn(identitiesArray);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedError = "Code request failure ,response: " + testResponse.toString();
+                assertEquals(exception.getMessage(), expectedError);
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetailsUI_failure_in_request_with_json() throws Exception {
+        final JSONObject expectedInfo = new JSONObject();
+        expectedInfo.put("error", "some error");
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(mockIdToken);
+        authManager.setAppIDRequestFactory(appIDRequestFactoryMock);
+        when(appIDRequestFactoryMock.createRequest(anyString(), anyString())).thenReturn(mockRequest);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         ResponseListener responseListener = (ResponseListener) args[0];
+                         responseListener.onFailure(null, null, expectedInfo);
+                         return null;
+                     }
+                 }
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
+        JSONArray identitiesArray = new JSONArray();
+        JSONObject providerObject = new JSONObject();
+        providerObject.put("provider", "cloud_directory");
+        providerObject.put("id", "1234");
+        identitiesArray.put(providerObject);
+        when(mockIdToken.getIdentities()).thenReturn(identitiesArray);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedError = "Code request failure  ,extendedInfo: " + expectedInfo.toString();
+                assertEquals(exception.getMessage(), expectedError);
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
+    @Test
+    public void launchChangeDetailsUI_failure_in_request_with_exception() throws Exception {
+        final Throwable expectedException = new Throwable("some exception");
+        when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
+        when(tokenManagerMock.getLatestIdentityToken()).thenReturn(mockIdToken);
+        authManager.setAppIDRequestFactory(appIDRequestFactoryMock);
+        when(appIDRequestFactoryMock.createRequest(anyString(), anyString())).thenReturn(mockRequest);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         ResponseListener responseListener = (ResponseListener) args[0];
+                         responseListener.onFailure(null, expectedException, null);
+                         return null;
+                     }
+                 }
+        ).when(mockRequest).send(any(ResponseListener.class), any(AccessToken.class), any(IdentityToken.class));
+        JSONArray identitiesArray = new JSONArray();
+        JSONObject providerObject = new JSONObject();
+        providerObject.put("provider", "cloud_directory");
+        providerObject.put("id", "1234");
+        identitiesArray.put(providerObject);
+        when(mockIdToken.getIdentities()).thenReturn(identitiesArray);
+        final AuthorizationManager spyAuthManager =  spy(authManager);
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedError = "Code request failure  ,exception: " + expectedException.getMessage();
+                assertEquals(exception.getMessage(), expectedError);
             }
 
             @Override
