@@ -109,7 +109,7 @@ public class TokenManager {
                         JSONObject responseJSON = new JSONObject(response.getResponseText());
                         if (INVALID_GRANT.equals(responseJSON.getString(ERROR_CODE))) {
                             errorDescription = responseJSON.getString(ERROR_DESCRIPTION);
-                            listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + errorDescription));
+                            listener.onAuthorizationFailure(new AuthorizationException(errorDescription));
                             return;
                         }
                     }

@@ -213,7 +213,7 @@ public class TokenManager_Test {
         spyTokenManager.obtainTokens(username, password, null, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(), "Failed to retrieve tokens: " + testDescription);
+                assertEquals(exception.getMessage(),  testDescription);
             }
 
             @Override
