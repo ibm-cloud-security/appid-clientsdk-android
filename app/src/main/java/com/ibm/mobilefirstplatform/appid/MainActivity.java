@@ -16,6 +16,7 @@ import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AppIDAuthorizationManager;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.ForgotPasswordListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
@@ -156,6 +157,26 @@ public class MainActivity extends AppCompatActivity {
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
         });
+    }
+
+    public void onForgotPasswordClick(View v) {
+        logger.debug("onForgotPasswordClick");
+        showProgress();
+        LoginWidget loginWidget = appId.getLoginWidget();
+        loginWidget.launchForgotPassword(this, new ForgotPasswordListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("Forgot Password: onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("Forgot Password: onAuthorizationCanceled");
+                hideProgress();
+            }
+        } );
     }
 
     public void onChangePasswordClick(View v) {

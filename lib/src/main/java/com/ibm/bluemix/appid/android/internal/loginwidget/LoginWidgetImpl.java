@@ -17,6 +17,7 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.ForgotPasswordListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
@@ -73,6 +74,14 @@ public class LoginWidgetImpl implements LoginWidget {
 	 */
 	public void launchChangeDetails (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener) {
 		oAuthManager.getAuthorizationManager().launchChangeDetailsUI(activity, authorizationListener);
+	}
+
+	/**
+	 * @param activity
+	 * @param forgotPasswordListener
+	 */
+	public void launchForgotPassword (@NonNull final Activity activity, @NonNull final ForgotPasswordListener forgotPasswordListener) {
+		oAuthManager.getAuthorizationManager().launchForgotPassword(activity, forgotPasswordListener);
 	}
 }
 

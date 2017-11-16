@@ -43,5 +43,11 @@ public interface LoginWidget {
 	 * @param authorizationListener
 	 */
 	void launchChangeDetails (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener);
+	/**
+	 * Launch the forgot password user interface
+	 * @param activity Parent activity
+	 * @param forgotPasswordListener
+	 */
+	void launchForgotPassword (@NonNull final Activity activity, @NonNull final ForgotPasswordListener forgotPasswordListener);
 }
 

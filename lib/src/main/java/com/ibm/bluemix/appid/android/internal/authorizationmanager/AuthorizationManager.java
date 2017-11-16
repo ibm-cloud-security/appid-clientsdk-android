@@ -21,6 +21,7 @@ import android.support.annotation.VisibleForTesting;
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.ForgotPasswordListener;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
@@ -44,6 +45,7 @@ public class AuthorizationManager {
     private final static String CHANGE_PASSWORD_PATH = "/cloud_directory/change_password";
     private final static String CHANGE_DETAILS_PATH = "/cloud_directory/change_details";
     private final static String GENERATE_CODE_PATH = "/cloud_directory/generate_code";
+    private final static String FORGOT_PASSWORD_PATH = "/cloud_directory/forgot_password";
 
     private final AppID appId;
     private final OAuthManager oAuthManager;
@@ -121,12 +123,22 @@ public class AuthorizationManager {
         String changeDetailsEndpoint = Config.getOAuthServerUrl(this.appId) + CHANGE_DETAILS_PATH;
         return buildUrl(changeDetailsEndpoint, null, redirectUri, code);
     }
-
+    /**
+     * @return the forgot password endpoint url.
+     */
+    private String getForgotPasswordUrl() {
+        String forgotPasswordEndpoint = Config.getOAuthServerUrl(this.appId) + FORGOT_PASSWORD_PATH;
+        return buildUrl(forgotPasswordEndpoint, null, null, null);
+    }
     private String buildUrl(String endpointUrl, String userId, String redirectUri, String code) {
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
-        Uri.Builder builder = Uri.parse(endpointUrl).buildUpon()
-                .appendQueryParameter(CLIENT_ID, clientId)
-                .appendQueryParameter(REDIRECT_URI, redirectUri);
+        Uri.Builder builder = Uri.parse(endpointUrl).buildUpon();
+        if (null != clientId) {
+            builder.appendQueryParameter(CLIENT_ID, clientId);
+        }
+        if (null != redirectUri) {
+            builder.appendQueryParameter(REDIRECT_URI, redirectUri);
+        }
         if (null != code) {
             builder.appendQueryParameter(CODE, code);
         }
@@ -257,6 +269,29 @@ public class AuthorizationManager {
             e.printStackTrace();
             authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
         }
+    }
+
+    public void launchForgotPassword(final Activity activity, final ForgotPasswordListener forgotPasswordListener) {
+        AuthorizationListener authorizationListener = new AuthorizationListener() {
+            @Override
+            public void onAuthorizationCanceled() {
+                forgotPasswordListener.onAuthorizationCanceled();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                //This is empty since in the end of forgot password flow we don't get tokens
+            }
+
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                forgotPasswordListener.onAuthorizationFailure(exception);
+            }
+        };
+        String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+        String forgotPasswordUrl = getForgotPasswordUrl();
+        AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, forgotPasswordUrl, redirectUri);
+        auim.launch(activity);
     }
 
     @VisibleForTesting
