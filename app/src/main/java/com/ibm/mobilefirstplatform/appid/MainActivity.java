@@ -165,15 +165,15 @@ public class MainActivity extends AppCompatActivity {
         LoginWidget loginWidget = appId.getLoginWidget();
         loginWidget.launchForgotPassword(this, new ForgotPasswordListener() {
             @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                logger.info("Forgot Password: onAuthorizationFailure: " + exception.getMessage());
+            public void onFailure(AuthorizationException exception) {
+                logger.info("Forgot Password: onFailure: " + exception.getMessage());
                 showResponse(exception.getMessage());
                 hideProgress();
             }
 
             @Override
-            public void onAuthorizationCanceled() {
-                logger.info("Forgot Password: onAuthorizationCanceled");
+            public void onFinish() {
+                logger.info("Forgot Password: onFinish");
                 hideProgress();
             }
         } );

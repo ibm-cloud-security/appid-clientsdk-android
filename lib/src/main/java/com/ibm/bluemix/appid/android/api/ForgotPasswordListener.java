@@ -13,6 +13,6 @@
 package com.ibm.bluemix.appid.android.api;
 
 public interface ForgotPasswordListener {
-    void onAuthorizationFailure(AuthorizationException exception);
-    void onAuthorizationCanceled();
+    void onFailure(AuthorizationException exception);
+    void onFinish();
 }

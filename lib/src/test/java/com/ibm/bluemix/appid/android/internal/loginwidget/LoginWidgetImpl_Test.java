@@ -238,7 +238,7 @@ public class LoginWidgetImpl_Test {
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
                 ForgotPasswordListener forgotPasswordListener = (ForgotPasswordListener) args[1];
-                forgotPasswordListener.onAuthorizationCanceled();
+                forgotPasswordListener.onFinish();
                 return null;
             }
         }).when(mockAuthManager).launchForgotPasswordUI(any(Activity.class), any(ForgotPasswordListener.class));
@@ -246,11 +246,12 @@ public class LoginWidgetImpl_Test {
 
         loginWidget.launchForgotPassword(Mockito.mock(Activity.class), new ForgotPasswordListener() {
             @Override
-            public void onAuthorizationCanceled() {
+            public void onFinish() {
+                assert(true);
             }
 
             @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
+            public void onFailure(AuthorizationException exception) {
                 fail("should get to onAuthorizationCanceled");
             }
         });

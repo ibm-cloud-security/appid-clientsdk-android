@@ -276,7 +276,7 @@ public class AuthorizationManager {
             @Override
             public void onRegistrationFailure(RegistrationStatus error) {
                 logger.error(error.getDescription());
-                forgotPasswordListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+                forgotPasswordListener.onFailure(new AuthorizationException(error.getDescription()));
             }
 
             @Override
@@ -284,18 +284,18 @@ public class AuthorizationManager {
                 AuthorizationListener authorizationListener = new AuthorizationListener() {
                     @Override
                     public void onAuthorizationCanceled() {
-                        forgotPasswordListener.onAuthorizationCanceled();
+                        forgotPasswordListener.onFinish();
                     }
 
                     @Override
                     public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
                         //This should not get called since in the end of forgot password flow we don't get tokens
-                        forgotPasswordListener.onAuthorizationFailure(new AuthorizationException("Forgot password flow must not invoked onAuthorizationSuccess"));
+                        forgotPasswordListener.onFailure(new AuthorizationException("Forgot password flow must not invoked onAuthorizationSuccess"));
                     }
 
                     @Override
                     public void onAuthorizationFailure(AuthorizationException exception) {
-                        forgotPasswordListener.onAuthorizationFailure(exception);
+                        forgotPasswordListener.onFailure(exception);
                     }
                 };
                 String forgotPasswordUrl = getForgotPasswordUrl();

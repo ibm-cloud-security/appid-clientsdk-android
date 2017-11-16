@@ -867,14 +867,14 @@ public class AuthorizationManager_Test {
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
         spyAuthManager.launchForgotPasswordUI(mockActivity, new ForgotPasswordListener() {
             @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
+            public void onFailure(AuthorizationException exception) {
                 String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/forgot_password";
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
 
             @Override
-            public void onAuthorizationCanceled() {
+            public void onFinish() {
                 fail("should get to onAuthorizationFailure");
             }
         });
