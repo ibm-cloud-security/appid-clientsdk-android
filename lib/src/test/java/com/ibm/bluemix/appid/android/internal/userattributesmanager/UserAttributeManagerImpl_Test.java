@@ -465,16 +465,6 @@ public class UserAttributeManagerImpl_Test {
     @Test
     public void setAttribute_no_token_supply() {
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[0];
-                responseListener.onFailure(null, null, null);
-                return null;
-            }
-        }).when(stubRequest).send(any(ResponseListener.class), any(RequestBody.class), eq(expectedAccessToken));
-
         final Response testReponse = new Response() {
             @Override
             public int getStatus() {
@@ -539,16 +529,6 @@ public class UserAttributeManagerImpl_Test {
     @Test
     public void getAttribute_no_token_supply() {
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[0];
-                responseListener.onFailure(null, null, null);
-                return null;
-            }
-        }).when(stubRequest).send(any(ResponseListener.class), any(RequestBody.class), eq(expectedAccessToken));
-
         final Response testReponse = new Response() {
             @Override
             public int getStatus() {
@@ -611,16 +591,6 @@ public class UserAttributeManagerImpl_Test {
 
     @Test
     public void deleteAttribute_no_token_supply() {
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[0];
-                responseListener.onFailure(null, null, null);
-                return null;
-            }
-        }).when(stubRequest).send(any(ResponseListener.class), any(RequestBody.class), eq(expectedAccessToken));
 
         final Response testReponse = new Response() {
             @Override

@@ -271,27 +271,39 @@ public class AuthorizationManager {
         }
     }
 
-    public void launchForgotPassword(final Activity activity, final ForgotPasswordListener forgotPasswordListener) {
-        AuthorizationListener authorizationListener = new AuthorizationListener() {
+    public void launchForgotPasswordUI(final Activity activity, final ForgotPasswordListener forgotPasswordListener) {
+        registrationManager.ensureRegistered(activity, new RegistrationListener() {
             @Override
-            public void onAuthorizationCanceled() {
-                forgotPasswordListener.onAuthorizationCanceled();
+            public void onRegistrationFailure(RegistrationStatus error) {
+                logger.error(error.getDescription());
+                forgotPasswordListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                //This is empty since in the end of forgot password flow we don't get tokens
-            }
+            public void onRegistrationSuccess() {
+                AuthorizationListener authorizationListener = new AuthorizationListener() {
+                    @Override
+                    public void onAuthorizationCanceled() {
+                        forgotPasswordListener.onAuthorizationCanceled();
+                    }
 
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                forgotPasswordListener.onAuthorizationFailure(exception);
+                    @Override
+                    public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                        //This should not get called since in the end of forgot password flow we don't get tokens
+                        forgotPasswordListener.onAuthorizationFailure(new AuthorizationException("Forgot password flow must not invoked onAuthorizationSuccess"));
+                    }
+
+                    @Override
+                    public void onAuthorizationFailure(AuthorizationException exception) {
+                        forgotPasswordListener.onAuthorizationFailure(exception);
+                    }
+                };
+                String forgotPasswordUrl = getForgotPasswordUrl();
+                AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, forgotPasswordUrl, null);
+                auim.launch(activity);
             }
-        };
-        String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
-        String forgotPasswordUrl = getForgotPasswordUrl();
-        AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, forgotPasswordUrl, redirectUri);
-        auim.launch(activity);
+        });
+
     }
 
     @VisibleForTesting

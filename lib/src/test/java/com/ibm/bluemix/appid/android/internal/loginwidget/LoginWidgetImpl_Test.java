@@ -16,6 +16,7 @@ import android.app.Activity;
 
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.ForgotPasswordListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
@@ -225,6 +226,32 @@ public class LoginWidgetImpl_Test {
             @Override
             public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
                 assertEquals(accessToken, expectedAccessToken);
+            }
+        });
+    }
+
+    @Test
+    public void launchForgotPassword_test(){
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                ForgotPasswordListener forgotPasswordListener = (ForgotPasswordListener) args[1];
+                forgotPasswordListener.onAuthorizationCanceled();
+                return null;
+            }
+        }).when(mockAuthManager).launchForgotPasswordUI(any(Activity.class), any(ForgotPasswordListener.class));
+
+
+        loginWidget.launchForgotPassword(Mockito.mock(Activity.class), new ForgotPasswordListener() {
+            @Override
+            public void onAuthorizationCanceled() {
+            }
+
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                fail("should get to onAuthorizationCanceled");
             }
         });
     }

@@ -81,7 +81,7 @@ public class LoginWidgetImpl implements LoginWidget {
 	 * @param forgotPasswordListener
 	 */
 	public void launchForgotPassword (@NonNull final Activity activity, @NonNull final ForgotPasswordListener forgotPasswordListener) {
-		oAuthManager.getAuthorizationManager().launchForgotPassword(activity, forgotPasswordListener);
+		oAuthManager.getAuthorizationManager().launchForgotPasswordUI(activity, forgotPasswordListener);
 	}
 }
 
