@@ -17,7 +17,6 @@ import android.app.Activity;
 import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
-import com.ibm.bluemix.appid.android.api.ForgotPasswordListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
