@@ -126,9 +126,9 @@ public class AuthorizationManager {
     /**
      * @return the forgot password endpoint url.
      */
-    private String getForgotPasswordUrl() {
+    private String getForgotPasswordUrl(String redirectUri) {
         String forgotPasswordEndpoint = Config.getOAuthServerUrl(this.appId) + FORGOT_PASSWORD_PATH;
-        return buildUrl(forgotPasswordEndpoint, null, null, null);
+        return buildUrl(forgotPasswordEndpoint, null, redirectUri, null);
     }
     private String buildUrl(String endpointUrl, String userId, String redirectUri, String code) {
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
@@ -271,35 +271,19 @@ public class AuthorizationManager {
         }
     }
 
-    public void launchForgotPasswordUI(final Activity activity, final ForgotPasswordListener forgotPasswordListener) {
+    public void launchForgotPasswordUI(final Activity activity, final AuthorizationListener authorizationListener) {
         registrationManager.ensureRegistered(activity, new RegistrationListener() {
             @Override
             public void onRegistrationFailure(RegistrationStatus error) {
                 logger.error(error.getDescription());
-                forgotPasswordListener.onFailure(new AuthorizationException(error.getDescription()));
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
             }
 
             @Override
             public void onRegistrationSuccess() {
-                AuthorizationListener authorizationListener = new AuthorizationListener() {
-                    @Override
-                    public void onAuthorizationCanceled() {
-                        forgotPasswordListener.onFinish();
-                    }
-
-                    @Override
-                    public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                        //This should not get called since in the end of forgot password flow we don't get tokens
-                        forgotPasswordListener.onFailure(new AuthorizationException("Forgot password flow must not invoked onAuthorizationSuccess"));
-                    }
-
-                    @Override
-                    public void onAuthorizationFailure(AuthorizationException exception) {
-                        forgotPasswordListener.onFailure(exception);
-                    }
-                };
-                String forgotPasswordUrl = getForgotPasswordUrl();
-                AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, forgotPasswordUrl, null);
+                String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+                String forgotPasswordUrl = getForgotPasswordUrl(redirectUri);
+                AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, forgotPasswordUrl, redirectUri);
                 auim.launch(activity);
             }
         });

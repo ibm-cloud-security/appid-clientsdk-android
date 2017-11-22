@@ -98,6 +98,7 @@ public class ChromeTabActivity extends Activity {
         String url = uri.toString();
         String code = uri.getQueryParameter("code");
         String error = uri.getQueryParameter("error");
+        String flow = uri.getQueryParameter("flow");
 
         logger.info("onBroadcastReceived: " + url);
 
@@ -121,6 +122,14 @@ public class ChromeTabActivity extends Activity {
                 authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to obtain access and identity tokens"));
                 startActivity(clearTopActivityIntent);
             }
+        } else if (url.startsWith(redirectUrl) && flow != null) {
+            logger.debug("onBroadcastReceived: end of flow: " + flow);
+            authorizationListener.onAuthorizationSuccess(null, null);
+            startActivity(clearTopActivityIntent);
+        } else {
+            logger.debug("onBroadcastReceived: no match case");
+            authorizationListener.onAuthorizationFailure(new AuthorizationException("Bad callback uri"));
+            startActivity(clearTopActivityIntent);
         }
     }
 

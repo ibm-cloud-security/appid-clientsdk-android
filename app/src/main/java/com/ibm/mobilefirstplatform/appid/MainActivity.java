@@ -16,7 +16,6 @@ import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AppIDAuthorizationManager;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
-import com.ibm.bluemix.appid.android.api.ForgotPasswordListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
@@ -118,12 +117,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
                 logger.info("onAuthorizationSuccess");
-                logger.info("access_token: " + accessToken.getRaw());
-                logger.info("id_token: " + identityToken.getRaw());
-                logger.info("access_token isExpired: " + accessToken.isExpired());
-                logger.info("id_token isExpired: " + identityToken.isExpired());
-                identifiedAccessToken = accessToken;
-                extractAndDisplayDataFromIdentityToken(identityToken);
+                if (accessToken != null && identityToken != null) {
+                    logger.info("access_token: " + accessToken.getRaw());
+                    logger.info("id_token: " + identityToken.getRaw());
+                    logger.info("access_token isExpired: " + accessToken.isExpired());
+                    logger.info("id_token isExpired: " + identityToken.isExpired());
+                    identifiedAccessToken = accessToken;
+                    extractAndDisplayDataFromIdentityToken(identityToken);
+                } else {
+                    //in case we are in strict mode
+                    hideProgress();
+                }
+
             }
         }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
     }
@@ -149,12 +154,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
                 logger.info("sign up: onAuthorizationSuccess");
-                logger.info("access_token: " + accessToken.getRaw());
-                logger.info("id_token: " + identityToken.getRaw());
-                logger.info("access_token isExpired: " + accessToken.isExpired());
-                logger.info("id_token isExpired: " + identityToken.isExpired());
-                identifiedAccessToken = accessToken;
-                extractAndDisplayDataFromIdentityToken(identityToken);
+                if (accessToken != null && identityToken != null) {
+                    logger.info("access_token: " + accessToken.getRaw());
+                    logger.info("id_token: " + identityToken.getRaw());
+                    logger.info("access_token isExpired: " + accessToken.isExpired());
+                    logger.info("id_token isExpired: " + identityToken.isExpired());
+                    identifiedAccessToken = accessToken;
+                    extractAndDisplayDataFromIdentityToken(identityToken);
+                } else {
+                    //in case we are in strict mode
+                    hideProgress();
+                }
+
+
             }
         });
     }
@@ -163,20 +175,26 @@ public class MainActivity extends AppCompatActivity {
         logger.debug("onForgotPasswordClick");
         showProgress();
         LoginWidget loginWidget = appId.getLoginWidget();
-        loginWidget.launchForgotPassword(this, new ForgotPasswordListener() {
+        loginWidget.launchForgotPassword(this, new AuthorizationListener() {
             @Override
-            public void onFailure(AuthorizationException exception) {
-                logger.info("Forgot Password: onFailure: " + exception.getMessage());
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("Forgot Password: onAuthorizationFailure: " + exception.getMessage());
                 showResponse(exception.getMessage());
                 hideProgress();
             }
 
             @Override
-            public void onFinish() {
-                logger.info("Forgot Password: onFinish");
+            public void onAuthorizationCanceled() {
+                logger.info("Forgot Password: onAuthorizationCanceled");
                 hideProgress();
             }
-        } );
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("Forgot Password:  onAuthorizationSuccess");
+                hideProgress();
+            }
+        });
     }
 
     public void onChangePasswordClick(View v) {
@@ -476,6 +494,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.editAttrValue).setEnabled(false);
                 findViewById(R.id.changePasswordButton).setEnabled(false);
                 findViewById(R.id.changeDetailsButton).setEnabled(false);
+                findViewById(R.id.forgotPassword).setEnabled(false);
             }
         });
     }
@@ -499,6 +518,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.editAttrValue).setEnabled(true);
                 findViewById(R.id.changePasswordButton).setEnabled(true);
                 findViewById(R.id.changeDetailsButton).setEnabled(true);
+                findViewById(R.id.forgotPassword).setEnabled(true);
             }
         });
     }
