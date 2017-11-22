@@ -38,6 +38,9 @@ public class ChromeTabActivity extends Activity {
     private static final String INTENT_ALREADY_USED = "com.ibm.bluemix.appid.android.INTENT_ALREADY_USED";
     private String postAuthorizationIntent = ".POST_AUTHORIZATION_INTENT";
 
+    private static String FORGOT_PASSWORD = "forgot_password";
+    private static String SIGN_UP = "sign_up";
+
     private BroadcastReceiver broadcastReceiver;
     private AuthorizationListener authorizationListener;
     private OAuthManager oAuthManager;
@@ -122,7 +125,7 @@ public class ChromeTabActivity extends Activity {
                 authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to obtain access and identity tokens"));
                 startActivity(clearTopActivityIntent);
             }
-        } else if (url.startsWith(redirectUrl) && flow != null) {
+        } else if (url.startsWith(redirectUrl) && (FORGOT_PASSWORD.equals(flow) || SIGN_UP.equals(flow))) {
             logger.debug("onBroadcastReceived: end of flow: " + flow);
             authorizationListener.onAuthorizationSuccess(null, null);
             startActivity(clearTopActivityIntent);
