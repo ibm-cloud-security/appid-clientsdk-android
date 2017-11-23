@@ -100,6 +100,17 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/forgotPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/profilePic"
+                android:layout_weight="1"
+                android:onClick="onForgotPasswordClick"
+                android:text="forgot password"
+                android:textSize="12sp" />
+
+            <Button
                 android:id="@+id/anonloginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -44,6 +44,7 @@ public class AuthorizationManager {
     private final static String CHANGE_PASSWORD_PATH = "/cloud_directory/change_password";
     private final static String CHANGE_DETAILS_PATH = "/cloud_directory/change_details";
     private final static String GENERATE_CODE_PATH = "/cloud_directory/generate_code";
+    private final static String FORGOT_PASSWORD_PATH = "/cloud_directory/forgot_password";
 
     private final AppID appId;
     private final OAuthManager oAuthManager;
@@ -121,12 +122,22 @@ public class AuthorizationManager {
         String changeDetailsEndpoint = Config.getOAuthServerUrl(this.appId) + CHANGE_DETAILS_PATH;
         return buildUrl(changeDetailsEndpoint, null, redirectUri, code);
     }
-
+    /**
+     * @return the forgot password endpoint url.
+     */
+    private String getForgotPasswordUrl(String redirectUri) {
+        String forgotPasswordEndpoint = Config.getOAuthServerUrl(this.appId) + FORGOT_PASSWORD_PATH;
+        return buildUrl(forgotPasswordEndpoint, null, redirectUri, null);
+    }
     private String buildUrl(String endpointUrl, String userId, String redirectUri, String code) {
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
-        Uri.Builder builder = Uri.parse(endpointUrl).buildUpon()
-                .appendQueryParameter(CLIENT_ID, clientId)
-                .appendQueryParameter(REDIRECT_URI, redirectUri);
+        Uri.Builder builder = Uri.parse(endpointUrl).buildUpon();
+        if (null != clientId) {
+            builder.appendQueryParameter(CLIENT_ID, clientId);
+        }
+        if (null != redirectUri) {
+            builder.appendQueryParameter(REDIRECT_URI, redirectUri);
+        }
         if (null != code) {
             builder.appendQueryParameter(CODE, code);
         }
@@ -257,6 +268,25 @@ public class AuthorizationManager {
             e.printStackTrace();
             authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
         }
+    }
+
+    public void launchForgotPasswordUI(final Activity activity, final AuthorizationListener authorizationListener) {
+        registrationManager.ensureRegistered(activity, new RegistrationListener() {
+            @Override
+            public void onRegistrationFailure(RegistrationStatus error) {
+                logger.error(error.getDescription());
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+            }
+
+            @Override
+            public void onRegistrationSuccess() {
+                String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
+                String forgotPasswordUrl = getForgotPasswordUrl(redirectUri);
+                AuthorizationUIManager auim = createAuthorizationUIManager(oAuthManager, authorizationListener, forgotPasswordUrl, redirectUri);
+                auim.launch(activity);
+            }
+        });
+
     }
 
     @VisibleForTesting

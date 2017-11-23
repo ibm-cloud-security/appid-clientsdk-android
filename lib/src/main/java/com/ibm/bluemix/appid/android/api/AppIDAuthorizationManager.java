@@ -165,6 +165,12 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 		return new BaseAppIdentity(map);
 	}
 
+	/**
+	 * log out
+	 * @param context
+	 * @param listener
+	 * currently just call to clearAuthorizationData()
+	 */
 	@Override
 	public void logout (Context context, ResponseListener listener) {
 		logger.debug("logout");
