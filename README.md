@@ -82,10 +82,11 @@ loginWidget.launch(this, new AuthorizationListener() {
 If you configure only one of them the login widget will NOT launch and the user will be redirect to the configured idp authentication screen.
  * In case of using Cloud Directory, and "Email verification" is configured to NOT allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
- ###Cloud Directory APIs
+ ### Cloud Directory APIs
+ 
  Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
 
- ##### Login using Resource Owner Password
+ #### Login using Resource Owner Password
  You can obtain access token and id token by supplying the end user's username and the end user's password.
  ```java
  AppID.getInstance().obtainTokensWithROP(getApplicationContext(), username, password, 
@@ -101,7 +102,7 @@ If you configure only one of them the login widget will NOT launch and the user 
           }
          });
  ```
- ##### Sign Up
+ #### Sign Up
  Make sure to set "Allow users to sign up and reset their password" to ON,
  in Cloud Directory settings that are in AppID dashboard.
 
@@ -130,7 +131,7 @@ If you configure only one of them the login widget will NOT launch and the user 
 			 }
 		 });
  ```
-  ##### Forgot Password
+  #### Forgot Password
   Make sure to set "Allow users to sign up and reset their password" and "Forgot password email" to ON,
   in Cloud Directory settings that are in AppID dashboard.
   
@@ -155,7 +156,7 @@ If you configure only one of them the login widget will NOT launch and the user 
  			 }
  		 });
   ```
-  ##### Change Details
+  #### Change Details
   Make sure to set "Allow users to sign up and reset their password" to ON,
   in Cloud Directory settings that are in AppID dashboard.
   
@@ -180,13 +181,14 @@ If you configure only one of them the login widget will NOT launch and the user 
   			 }
   		 });
    ```
-   ##### Change Password
+   #### Change Password
    Make sure to set "Allow users to sign up and reset their password" to ON,
    in Cloud Directory settings that are in AppID dashboard.
    
    Use LoginWidget class to start the change password flow.
    This API can be used only when the user is logged in using Cloud Directory identity provider.
-    ```java
+   
+   ```java
     LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
     loginWidget.launchChangePassword(this, new AuthorizationListener() {
    			 @Override
@@ -204,7 +206,7 @@ If you configure only one of them the login widget will NOT launch and the user 
    				   //User authenticated, and fresh tokens received 
    			 }
    		 });
-    ```
+   ```
  
 ### Anonymous Login
 ```java
