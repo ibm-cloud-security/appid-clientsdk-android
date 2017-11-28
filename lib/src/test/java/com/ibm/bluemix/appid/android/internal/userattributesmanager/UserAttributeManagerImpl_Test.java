@@ -25,7 +25,7 @@ import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-import com.squareup.okhttp.RequestBody;
+import okhttp3.RequestBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +41,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -89,6 +90,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -99,8 +105,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -144,6 +165,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -154,8 +180,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -193,6 +234,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -203,8 +249,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -242,6 +303,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -252,8 +318,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -317,6 +398,11 @@ public class UserAttributeManagerImpl_Test {
     public void getAllAttributes_request_failure_401() {
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 401;
             }
@@ -327,8 +413,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -364,6 +465,11 @@ public class UserAttributeManagerImpl_Test {
     public void getAllAttributes_request_failure_404() {
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 404;
             }
@@ -374,8 +480,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -412,6 +533,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -422,8 +548,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -467,6 +608,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -477,8 +623,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -531,6 +692,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -541,8 +707,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -594,6 +775,11 @@ public class UserAttributeManagerImpl_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -604,8 +790,23 @@ public class UserAttributeManagerImpl_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
