@@ -50,6 +50,7 @@ import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,6 +101,11 @@ public class AuthorizationManager_Test {
     private static final IdentityToken expectedIdToken = new IdentityTokenImpl(Consts.ID_TOKEN);
     private Response testResponse = new Response() {
         @Override
+        public String getRequestURL() {
+            return null;
+        }
+
+        @Override
         public int getStatus() {
             return 0;
         }
@@ -110,8 +116,23 @@ public class AuthorizationManager_Test {
         }
 
         @Override
+        public JSONObject getResponseJSON() {
+            return null;
+        }
+
+        @Override
         public byte[] getResponseBytes() {
             return new byte[0];
+        }
+
+        @Override
+        public InputStream getResponseByteStream() {
+            return null;
+        }
+
+        @Override
+        public long getContentLength() {
+            return 0;
         }
 
         @Override
@@ -124,6 +145,11 @@ public class AuthorizationManager_Test {
 
     private Response testGoodResponse = new Response() {
         @Override
+        public String getRequestURL() {
+            return null;
+        }
+
+        @Override
         public int getStatus() {
             return 200;
         }
@@ -134,8 +160,23 @@ public class AuthorizationManager_Test {
         }
 
         @Override
+        public JSONObject getResponseJSON() {
+            return null;
+        }
+
+        @Override
         public byte[] getResponseBytes() {
             return new byte[0];
+        }
+
+        @Override
+        public InputStream getResponseByteStream() {
+            return null;
+        }
+
+        @Override
+        public long getContentLength() {
+            return 0;
         }
 
         @Override

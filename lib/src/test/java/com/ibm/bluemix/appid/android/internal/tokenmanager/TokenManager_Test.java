@@ -29,6 +29,7 @@ import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import org.mockito.stubbing.Answer;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.RobolectricTestRunner;
 
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
@@ -129,6 +131,11 @@ public class TokenManager_Test {
 
         testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -140,8 +147,23 @@ public class TokenManager_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -180,6 +202,11 @@ public class TokenManager_Test {
         final String testDescription = "test description error123";
         testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 400;
             }
@@ -190,8 +217,23 @@ public class TokenManager_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -267,6 +309,11 @@ public class TokenManager_Test {
         //bad access token
         testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -278,8 +325,23 @@ public class TokenManager_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -302,6 +364,11 @@ public class TokenManager_Test {
         //bad id token
         testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -313,8 +380,23 @@ public class TokenManager_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -344,6 +426,11 @@ public class TokenManager_Test {
 
         testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -355,8 +442,23 @@ public class TokenManager_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
@@ -399,6 +501,11 @@ public class TokenManager_Test {
 
         testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -410,8 +517,23 @@ public class TokenManager_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override

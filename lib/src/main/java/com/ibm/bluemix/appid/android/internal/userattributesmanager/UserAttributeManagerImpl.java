@@ -26,8 +26,8 @@ import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.RequestBody;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -141,8 +141,7 @@ public class UserAttributeManagerImpl implements UserAttributeManager {
 			}
 		};
 
-		RequestBody requestBody =
-				(value == null || value.length() == 0) ? null : createRequestBody(value);
+		RequestBody requestBody = (value == null || value.length() == 0) ? null : createRequestBody(value);
 
 		req.send (resListener, requestBody, accessToken);
 	}

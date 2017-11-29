@@ -27,6 +27,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
+
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +80,11 @@ public class AppIDRequest_Test {
 
         final Response testReponse = new Response() {
             @Override
+            public String getRequestURL() {
+                return null;
+            }
+
+            @Override
             public int getStatus() {
                 return 200;
             }
@@ -88,8 +95,23 @@ public class AppIDRequest_Test {
             }
 
             @Override
+            public JSONObject getResponseJSON() {
+                return null;
+            }
+
+            @Override
             public byte[] getResponseBytes() {
                 return new byte[0];
+            }
+
+            @Override
+            public InputStream getResponseByteStream() {
+                return null;
+            }
+
+            @Override
+            public long getContentLength() {
+                return 0;
             }
 
             @Override
