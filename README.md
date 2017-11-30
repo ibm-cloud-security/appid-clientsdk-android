@@ -1,5 +1,4 @@
-# IBM Cloud App ID
-Android SDK for the IBM Cloud App ID service
+# IBM Cloud App ID Android SDK
 
 [![Bluemix powered][img-bluemix-powered]][url-bluemix]
 [![Travis][img-travis-master]][url-travis-master]
@@ -13,11 +12,14 @@ Android SDK for the IBM Cloud App ID service
 [![GithubForks][img-github-forks]][url-github-forks]
 
 ## Requirements
-API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platform Tools 25.0.3 or above, Android Build Tools version 25.0.2
+* API 25 or above
+* Java 8.x
+* Android SDK tools 25.2.5 or above
+* Android SDK Platform Tools 25.0.3 or above
+* Android Build Tools version 25.0.2
 
 ## Installing the SDK:
-1.  Add the JitPack repository to your build file, 
-     Add it in your root build.gradle at the end of repositories:
+1.  Add the JitPack repository to the your root `build.gradle` file at the end of the repository.
 
     ```gradle
 	    allprojects {
@@ -43,9 +45,7 @@ API 25 or above, Java 8.x, Android SDK tools 25.2.5 or above, Android SDK Platfo
     }
     ```
 
-## Using the SDK:
-
-### Initializing the App ID client SDK
+## Initializing the App ID client SDK
 
 Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the onCreate method of the main activity in your Android application.
 ```java
@@ -54,8 +54,8 @@ AppID.getInstance().initialize(getApplicationContext(), <tenantId>, AppID.REGION
 * Replace "tenantId" with the App ID service tenantId.
 * Replace the AppID.REGION_UK with your App ID region (AppID.REGION_US_SOUTH, AppID.REGION_SYDNEY).
 
-### Using Login Widget
-Use LoginWidget class to start the authorization flow.   
+## Using the Login Widget
+Use the LoginWidget class to start the authorization flow.   
 
 ```java
 LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
@@ -77,36 +77,36 @@ loginWidget.launch(this, new AuthorizationListener() {
 		});
 ```
 **Note**: 
+* The default configuration use Facebook and Google as authentication options. If you configure only one of them the login widget will *not* launch and the user will be redirected to the configured identity provider authentication screen.
+* When using Cloud Directory, and "Email verification" is configured to *not* allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
-* The Login widget default configuration use Facebook and Google as authentication options.
-If you configure only one of them the login widget will NOT launch and the user will be redirect to the configured idp authentication screen.
- * In case of using Cloud Directory, and "Email verification" is configured to NOT allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
+## Managing Cloud Directory with the Android SDK
+{: #managing-android}
 
- ### Cloud Directory APIs
- 
- Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
+Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
 
- #### Login using Resource Owner Password
- You can obtain access token and id token by supplying the end user's username and the end user's password.
+### Login using Resource Owner Password
+You can obtain access token and id token by supplying the end user's username and the end user's password.
+
  ```java
- AppID.getInstance().obtainTokensWithROP(getApplicationContext(), username, password, 
+ AppID.getInstance().obtainTokensWithROP(getApplicationContext(), username, password,
          new TokenResponseListener() {
          @Override
           public void onAuthorizationFailure (AuthorizationException exception) {
              //Exception occurred
           }
-                                                                                              
+
           @Override
           public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
             //User authenticated
           }
          });
  ```
- #### Sign Up
- Make sure to set "Allow users to sign up and reset their password" to ON,
- in Cloud Directory settings that are in AppID dashboard.
+### Sign Up
 
- Use LoginWidget class to start the sign up flow.
+Make sure to set **Allow users to sign up and reset their password** to **ON**, in the settings for Cloud Directory.
+Use the LoginWidget class to start the sign up flow.
+
  ```java
  LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
  loginWidget.launchSignUp(this, new AuthorizationListener() {
@@ -127,15 +127,14 @@ If you configure only one of them the login widget will NOT launch and the user 
 				 } else {
 				     //email verification is required
 				 }
-				 
+
 			 }
 		 });
  ```
-  #### Forgot Password
-  Make sure to set "Allow users to sign up and reset their password" and "Forgot password email" to ON,
-  in Cloud Directory settings that are in AppID dashboard.
-  
- Use LoginWidget class to start the forgot password flow. 
+### Forgot Password
+Make sure to set **Allow users to sign up and reset their password** and **Forgot password email** to **ON**, in the settings for Cloud Directory
+
+Use LoginWidget class to start the forgot password flow.
   ```java
   LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
   loginWidget.launchForgotPassword(this, new AuthorizationListener() {
@@ -143,25 +142,21 @@ If you configure only one of them the login widget will NOT launch and the user 
  			 public void onAuthorizationFailure (AuthorizationException exception) {
  				 //Exception occurred
  			 }
-  
+
  			 @Override
  			 public void onAuthorizationCanceled () {
  				 //forogt password canceled by the user
  			 }
-  
+
  			 @Override
  			 public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
  				 //forgot password finished, in this case accessToken and identityToken will be null.
- 				 
+
  			 }
  		 });
   ```
-  #### Change Details
-  Make sure to set "Allow users to sign up and reset their password" to ON,
-  in Cloud Directory settings that are in AppID dashboard.
-  
-  Use LoginWidget class to start the change details flow.
-  This API can be used only when the user is logged in using Cloud Directory identity provider.
+### Change Details
+Make sure to set **Allow users to sign up and reset their password** to **ON**, in Cloud Directory settings that are in AppID dashboard. Use LoginWidget class to start the change details flow. This API can be used only when the user is logged in using Cloud Directory identity provider.
    ```java
    LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
    loginWidget.launchChangeDetails(this, new AuthorizationListener() {
@@ -169,25 +164,23 @@ If you configure only one of them the login widget will NOT launch and the user 
   			 public void onAuthorizationFailure (AuthorizationException exception) {
   				 //Exception occurred
   			 }
-   
+
   			 @Override
   			 public void onAuthorizationCanceled () {
   				 //changed details canceled by the user
   			 }
-   
+
   			 @Override
   			 public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-  				 //User authenticated, and fresh tokens received 
+  				 //User authenticated, and fresh tokens received
   			 }
   		 });
    ```
-   #### Change Password
-   Make sure to set "Allow users to sign up and reset their password" to ON,
-   in Cloud Directory settings that are in AppID dashboard.
-   
-   Use LoginWidget class to start the change password flow.
-   This API can be used only when the user is logged in using Cloud Directory identity provider.
-   
+### Change Password
+Make sure to set **Allow users to sign up and reset their password** to **ON**, in the settings for Cloud Directory.
+
+Use LoginWidget class to start the change password flow. This API can be used only when the user logged in by using Cloud Directory as their identity provider.
+
    ```java
     LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
     loginWidget.launchChangePassword(this, new AuthorizationListener() {
@@ -195,20 +188,20 @@ If you configure only one of them the login widget will NOT launch and the user 
    			 public void onAuthorizationFailure (AuthorizationException exception) {
    				 //Exception occurred
    			 }
-    
+
    			 @Override
    			 public void onAuthorizationCanceled () {
    				 //change password canceled by the user
    			 }
-    
+
    			 @Override
    			 public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-   				   //User authenticated, and fresh tokens received 
+   				   //User authenticated, and fresh tokens received
    			 }
    		 });
    ```
  
-### Anonymous Login
+## Anonymous Login
 ```java
 AppID.getInstance().loginAnonymously(getApplicationContext(), new AuthorizationListener() {
 			@Override
@@ -228,7 +221,7 @@ AppID.getInstance().loginAnonymously(getApplicationContext(), new AuthorizationL
 		});
 ```
 
-### User profile attributes
+## User profile attributes
 ```java
 AppID appId = AppID.getInstance();
 String name = "name";
@@ -282,7 +275,7 @@ appId.getUserAttributeManager().deleteAttribute(name, new UserAttributeResponseL
 		});
 ```
 
-### Invoking protected resources
+## Invoking protected resources
 ```java
 BMSClient bmsClient = BMSClient.getInstance();
 bmsClient.initialize(getApplicationContext(), AppID.REGION_UK);
@@ -309,7 +302,7 @@ public void onFailure (Response response, Throwable t, JSONObject extendedInfo) 
 });
 ```
 
-### License
+## License
 This package contains code licensed under the Apache License, Version 2.0 (the "License"). You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 and may also view the License in the LICENSE file within this package.
 
 [img-bluemix-powered]: https://img.shields.io/badge/bluemix-powered-blue.svg
