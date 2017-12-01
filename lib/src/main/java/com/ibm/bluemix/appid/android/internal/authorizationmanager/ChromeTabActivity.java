@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.LocalBroadcastManager;
 
-
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
