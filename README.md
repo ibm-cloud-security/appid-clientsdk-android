@@ -5,6 +5,7 @@ Android SDK for the Bluemix App ID service
 [![Travis][img-travis-master]][url-travis-master]
 [![Coveralls][img-coveralls-master]][url-coveralls-master]
 [![Codacy][img-codacy]][url-codacy]
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/be6f5f4cdae446909279d014bc650b1b)](https://www.codacy.com/app/rotembr/appid-clientsdk-android?utm_source=github.com&utm_medium=referral&utm_content=ibm-cloud-security/appid-clientsdk-android&utm_campaign=badger)
 [![Release](https://jitpack.io/v/ibm-cloud-security/appid-clientsdk-android.svg)](https://jitpack.io/#ibm-cloud-security/appid-clientsdk-android)
 [![License][img-license]][url-bintray]
 
