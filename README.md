@@ -1,6 +1,7 @@
 # IBM Cloud App ID
 Android SDK for the IBM Cloud App ID service
 
+
 [![Bluemix powered][img-bluemix-powered]][url-bluemix]
 [![Travis][img-travis-master]][url-travis-master]
 [![Coverage Status][img-coveralls-master]][url-coveralls-master]
