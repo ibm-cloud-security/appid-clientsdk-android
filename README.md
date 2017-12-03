@@ -82,7 +82,6 @@ loginWidget.launch(this, new AuthorizationListener() {
 * When using Cloud Directory, and "Email verification" is configured to *not* allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
 ## Managing Cloud Directory with the Android SDK
-{: #managing-android} 
 
  Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
 
