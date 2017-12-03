@@ -3,7 +3,7 @@
 [![Bluemix powered][img-bluemix-powered]][url-bluemix]
 [![Travis][img-travis-master]][url-travis-master]
 [![Coverage Status][img-coveralls-master]][url-coveralls-master]
-[![Codacy][img-codacy]][url-codacy]
+[![Codacy Badge][img-codacy]][url-codacy]
 [![Release](https://jitpack.io/v/ibm-cloud-security/appid-clientsdk-android.svg)](https://jitpack.io/#ibm-cloud-security/appid-clientsdk-android)
 [![License][img-license]][url-bintray]
 
@@ -82,6 +82,7 @@ loginWidget.launch(this, new AuthorizationListener() {
 * When using Cloud Directory, and "Email verification" is configured to *not* allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
 ## Managing Cloud Directory with the Android SDK
+{: #managing-android} 
 
  Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
 
@@ -323,5 +324,5 @@ This package contains code licensed under the Apache License, Version 2.0 (the "
 [img-coveralls-master]: https://coveralls.io/repos/github/ibm-cloud-security/appid-clientsdk-android/badge.svg?branch=master
 [url-coveralls-master]: https://coveralls.io/github/ibm-cloud-security/appid-clientsdk-android?branch=master
 
-[img-codacy]: https://api.codacy.com/project/badge/Grade/d41f8f069dd343769fcbdb55089561fc
-[url-codacy]: https://www.codacy.com/app/ibm-cloud-security/appid-clientsdk-android
+[img-codacy]: https://api.codacy.com/project/badge/Grade/be6f5f4cdae446909279d014bc650b1b
+[url-codacy]: https://www.codacy.com/app/rotembr/appid-clientsdk-android?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ibm-cloud-security/appid-clientsdk-android&amp;utm_campaign=Badge_Grad
