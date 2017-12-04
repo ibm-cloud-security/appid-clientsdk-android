@@ -20,7 +20,6 @@ import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
-import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
 
 import org.jetbrains.annotations.NotNull;
