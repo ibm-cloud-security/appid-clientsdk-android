@@ -20,6 +20,7 @@ import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
 import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.ClassHelper;
+import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
 import org.assertj.core.api.ThrowableAssert;
@@ -130,22 +131,59 @@ public class AppID_Test {
 
 	@Test
 	public void test03_loginUsingRoP(){
-        this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
+		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
 
-        TokenResponseListener listener = new TokenResponseListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
-            }
+		TokenResponseListener listener = new TokenResponseListener() {
+			@Override
+			public void onAuthorizationFailure(AuthorizationException exception) {
+				assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
+			}
 
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                assert(false);
-            }
-        };
+			@Override
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+				assert(false);
+			}
+		};
 
-        appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener);
+		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener);
+	}
 
+	@Test
+	public void test04_loginUsingRoPWithNullAccessToken(){
+		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
+
+		TokenResponseListener listener = new TokenResponseListener() {
+			@Override
+			public void onAuthorizationFailure(AuthorizationException exception) {
+				assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
+			}
+
+			@Override
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+				assert(false);
+			}
+		};
+
+		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener, null);
+	}
+
+	@Test
+	public void test05_loginUsingRoPWithAccessToken(){
+		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
+
+		TokenResponseListener listener = new TokenResponseListener() {
+			@Override
+			public void onAuthorizationFailure(AuthorizationException exception) {
+				assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
+			}
+
+			@Override
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+				assert(false);
+			}
+		};
+
+		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener, Consts.ACCESS_TOKEN);
 	}
 }
 

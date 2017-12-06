@@ -45,7 +45,13 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-    compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:2.2.7'
+
+    compile 'com.android.support:multidex:1.0.0'
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.squareup.okhttp3:okhttp-urlconnection:3.9.0'
+    compile 'com.ibm.mobilefirstplatform.clientsdk.android:analyticsapi:[1.0.0,)'
+    compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:3.1.0@aar'
+
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:customtabs:25.1.0'
     compile 'org.jetbrains:annotations-java5:15.0'

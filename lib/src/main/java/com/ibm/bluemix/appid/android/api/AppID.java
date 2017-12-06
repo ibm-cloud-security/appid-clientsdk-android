@@ -16,6 +16,7 @@ package com.ibm.bluemix.appid.android.api;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
@@ -141,6 +142,7 @@ public class AppID {
 	public void loginAnonymously(@NotNull Context context,  String accessToken, boolean allowCreateNewAnonymousUser, @NotNull AuthorizationListener authorizationListener){
 		oAuthManager.getAuthorizationManager().loginAnonymously(context, accessToken, allowCreateNewAnonymousUser, authorizationListener);
 	}
+
 	/**
 	 * Obtain token using Resource owner Password (RoP).
 	 *
@@ -149,8 +151,27 @@ public class AppID {
 	 * @param tokenResponseListener the token response listener
 	 */
 	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
-		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, tokenResponseListener);
+        AccessToken accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
+		if (accessToken != null && accessToken.isAnonymous()) {
+			oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessToken.getRaw(), tokenResponseListener);
+		}
+		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, null, tokenResponseListener);
 	}
 
+    /**
+     * Obtain token using Resource owner Password (RoP).
+     *
+     * @param username the resource owner username
+     * @param password the resource owner password
+     * @param tokenResponseListener the token response listener
+     * @param accessTokenString previous access token of some anonymous user
+     */
+	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener, String accessTokenString) {
+        if(accessTokenString == null) {
+			obtainTokensWithROP(context, username, password, tokenResponseListener);
+		} else {
+            oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessTokenString, tokenResponseListener);
+		}
+	}
 
 }

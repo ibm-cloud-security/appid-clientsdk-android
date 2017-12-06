@@ -117,6 +117,108 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
                 logger.info("onAuthorizationSuccess");
+                if (accessToken != null && identityToken != null) {
+                    logger.info("access_token: " + accessToken.getRaw());
+                    logger.info("id_token: " + identityToken.getRaw());
+                    logger.info("access_token isExpired: " + accessToken.isExpired());
+                    logger.info("id_token isExpired: " + identityToken.isExpired());
+                    identifiedAccessToken = accessToken;
+                    extractAndDisplayDataFromIdentityToken(identityToken);
+                } else {
+                    //in case we are in strict mode
+                    hideProgress();
+                }
+
+            }
+        }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
+    }
+
+    public void onSignUpClick(View v) {
+        logger.debug("onSignUpClick");
+        showProgress();
+        LoginWidget loginWidget = appId.getLoginWidget();
+        loginWidget.launchSignUp(this, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("sign up: onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("sign up: onAuthorizationCanceled");
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("sign up: onAuthorizationSuccess");
+                if (accessToken != null && identityToken != null) {
+                    logger.info("access_token: " + accessToken.getRaw());
+                    logger.info("id_token: " + identityToken.getRaw());
+                    logger.info("access_token isExpired: " + accessToken.isExpired());
+                    logger.info("id_token isExpired: " + identityToken.isExpired());
+                    identifiedAccessToken = accessToken;
+                    extractAndDisplayDataFromIdentityToken(identityToken);
+                } else {
+                    //in case we are in strict mode
+                    hideProgress();
+                }
+
+
+            }
+        });
+    }
+
+    public void onForgotPasswordClick(View v) {
+        logger.debug("onForgotPasswordClick");
+        showProgress();
+        LoginWidget loginWidget = appId.getLoginWidget();
+        loginWidget.launchForgotPassword(this, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("Forgot Password: onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("Forgot Password: onAuthorizationCanceled");
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("Forgot Password:  onAuthorizationSuccess");
+                hideProgress();
+            }
+        });
+    }
+
+    public void onChangePasswordClick(View v) {
+        logger.debug("onChangePasswordClick");
+        showResponse("");
+        showProgress();
+        LoginWidget loginWidget = appId.getLoginWidget();
+        loginWidget.launchChangePassword(this, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("Change Password: onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("Change Password: onAuthorizationCanceled");
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("Change Password: onAuthorizationSuccess");
                 logger.info("access_token: " + accessToken.getRaw());
                 logger.info("id_token: " + identityToken.getRaw());
                 logger.info("access_token isExpired: " + accessToken.isExpired());
@@ -124,7 +226,39 @@ public class MainActivity extends AppCompatActivity {
                 identifiedAccessToken = accessToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
-        }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
+        });
+    }
+
+    public void onChangeDetailsClick(View v) {
+        logger.debug("onChangeDetailsClick");
+        showResponse("");
+        showProgress();
+        LoginWidget loginWidget = appId.getLoginWidget();
+        loginWidget.launchChangeDetails(this, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                logger.info("Change Details: onAuthorizationFailure: " + exception.getMessage());
+                showResponse(exception.getMessage());
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                logger.info("Change Details: onAuthorizationCanceled");
+                hideProgress();
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                logger.info("Change Details: onAuthorizationSuccess");
+                logger.info("access_token: " + accessToken.getRaw());
+                logger.info("id_token: " + identityToken.getRaw());
+                logger.info("access_token isExpired: " + accessToken.isExpired());
+                logger.info("id_token isExpired: " + identityToken.isExpired());
+                identifiedAccessToken = accessToken;
+                extractAndDisplayDataFromIdentityToken(identityToken);
+            }
+        });
     }
 
     public void onGetTokenUsingRoP(View v) {
@@ -164,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
                     identifiedAccessToken = accessToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 }
-            });
+            }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
         }
     }
 
@@ -349,6 +483,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.loginButton).setEnabled(false);
                 findViewById(R.id.ropButton).setEnabled(false);
                 findViewById(R.id.protectedRequestButton).setEnabled(false);
+                findViewById(R.id.signUpButton).setEnabled(false);
                 findViewById(R.id.deleteAttribute).setEnabled(false);
                 findViewById(R.id.anonloginButton).setEnabled(false);
                 findViewById(R.id.getAllAttributes).setEnabled(false);
@@ -357,6 +492,9 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.putAttribute).setEnabled(false);
                 findViewById(R.id.editAttrName).setEnabled(false);
                 findViewById(R.id.editAttrValue).setEnabled(false);
+                findViewById(R.id.changePasswordButton).setEnabled(false);
+                findViewById(R.id.changeDetailsButton).setEnabled(false);
+                findViewById(R.id.forgotPassword).setEnabled(false);
             }
         });
     }
@@ -369,6 +507,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.loginButton).setEnabled(true);
                 findViewById(R.id.ropButton).setEnabled(true);
                 findViewById(R.id.protectedRequestButton).setEnabled(true);
+                findViewById(R.id.signUpButton).setEnabled(true);
                 findViewById(R.id.deleteAttribute).setEnabled(true);
                 findViewById(R.id.anonloginButton).setEnabled(true);
                 findViewById(R.id.getAllAttributes).setEnabled(true);
@@ -377,6 +516,9 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.putAttribute).setEnabled(true);
                 findViewById(R.id.editAttrName).setEnabled(true);
                 findViewById(R.id.editAttrValue).setEnabled(true);
+                findViewById(R.id.changePasswordButton).setEnabled(true);
+                findViewById(R.id.changeDetailsButton).setEnabled(true);
+                findViewById(R.id.forgotPassword).setEnabled(true);
             }
         });
     }

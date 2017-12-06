@@ -14,32 +14,59 @@
 package com.ibm.bluemix.appid.android.internal.network;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.BaseRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.internal.TLSEnabledSSLSocketFactory;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.RequestBody;
+import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+
+import okhttp3.RequestBody;
+import okhttp3.OkHttpClient;
 
 import org.json.JSONObject;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Map;
 
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.TrustManager;
 
 public class AppIDRequest extends BaseRequest {
-	private static OkHttpClient httpClient = new OkHttpClient();
+	private static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + BaseRequest.class.getSimpleName());
+	private static  OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
 	static {
 		SSLSocketFactory tlsEnabledSSLSocketFactory;
 		try {
+			final TrustManager[] trustAllCerts = new TrustManager[]{
+					new X509TrustManager() {
+						@Override
+						public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+							logger.info("AppIDRequest checkClientTrusted method : " + authType);
+						}
+
+						@Override
+						public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+							logger.info("AppIDRequest checkServerTrusted method : " + authType);
+						}
+
+						@Override
+						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+							return new java.security.cert.X509Certificate[]{};
+						}
+					}
+			};
 			tlsEnabledSSLSocketFactory = new TLSEnabledSSLSocketFactory();
-			httpClient.setSslSocketFactory(tlsEnabledSSLSocketFactory);
+			httpClient.sslSocketFactory(tlsEnabledSSLSocketFactory, (X509TrustManager) trustAllCerts[0]);
 		} catch (KeyManagementException e) {
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
+		} catch (RuntimeException e) {
+			logger.error("AppIDRequest RuntimeException : " + e.getLocalizedMessage());
 		}
 	}
 
@@ -53,7 +80,15 @@ public class AppIDRequest extends BaseRequest {
 		super(url, method);
 
 		// we want to handle redirects in-place
-		httpClient.setFollowRedirects(false);
+		httpClient.followSslRedirects(false);
+	}
+
+	public void send(final ResponseListener listener, final AccessToken accessToken, final IdentityToken identityToken) {
+        if (accessToken != null && identityToken != null) {
+            removeHeaders("Authorization");
+            addHeader("Authorization", "Bearer " + accessToken.getRaw() + " " + identityToken.getRaw());
+        }
+        send(listener);
 	}
 
 	public void send(final ResponseListener listener, final RequestBody requestBody, final AccessToken accessToken) {
@@ -63,9 +98,9 @@ public class AppIDRequest extends BaseRequest {
 			addHeader("Authorization", "Bearer " + accessToken.getRaw());
 		}
 
-		if (requestBody != null){
-			super.sendRequest(listener, requestBody);
-		}else{
+		if (requestBody != null) {
+			super.sendRequest(null, listener, requestBody);
+		} else {
 			send(listener);
 		}
 	}

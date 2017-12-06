@@ -214,7 +214,7 @@ public class AppIDAuthorizationManager_Test {
 			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
 				fail("should get to onSuccess");
 			}
-		}, null);
+		});
 	}
 
 	@Test
@@ -240,7 +240,7 @@ public class AppIDAuthorizationManager_Test {
 			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
 				assertEquals(t.getMessage(), "test exception");
 			}
-		}, null);
+		});
 	}
 
 	@Test
@@ -266,7 +266,7 @@ public class AppIDAuthorizationManager_Test {
 			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
 				assertEquals(t.getMessage(), "Authorization canceled");
 			}
-		}, null);
+		});
 	}
 
 }

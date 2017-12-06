@@ -24,7 +24,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="52dp"
             android:layout_alignParentStart="true">
 
             <Button
@@ -41,19 +41,18 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="82dp"
-            android:orientation="horizontal"
-            android:layout_weight="0.05">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <Button
-                android:id="@+id/anonloginButton"
+                android:id="@+id/signUpButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/profilePic"
                 android:layout_weight="1"
-                android:onClick="onAnonLoginClick"
-                android:text="Use Anonymously"
+                android:onClick="onSignUpClick"
+                android:text="launch sign up only"
                 android:textSize="12sp" />
 
             <Button
@@ -79,7 +78,8 @@
                 android:layout_below="@+id/name"
                 android:layout_weight="1"
                 android:onClick="onLoginClick"
-                android:text="Launch Login widget" />
+                android:text="Launch Login widget"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/protectedRequestButton"
@@ -92,6 +92,56 @@
                 android:text="Protected Resource Request"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/forgotPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/profilePic"
+                android:layout_weight="1"
+                android:onClick="onForgotPasswordClick"
+                android:text="forgot password"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/anonloginButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/profilePic"
+                android:layout_weight="1"
+                android:onClick="onAnonLoginClick"
+                android:text="use anonymously"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/changePasswordButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/orText"
+                android:layout_weight="1"
+                android:onClick="onChangePasswordClick"
+                android:text="change password"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/changeDetailsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/orText"
+                android:layout_weight="1"
+                android:onClick="onChangeDetailsClick"
+                android:text="change details"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <RelativeLayout

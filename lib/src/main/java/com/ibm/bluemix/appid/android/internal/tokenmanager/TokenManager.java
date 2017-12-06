@@ -57,6 +57,7 @@ public class TokenManager {
     private final static String USERNAME = "username";
     private final static String PASSWORD = "password";
     private final static String GRANT_TYPE_PASSWORD = "password";
+	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
     private final static String ERROR_DESCRIPTION= "error_description";
     private final static String ERROR_CODE= "error";
     private final static String INVALID_GRANT= "invalid_grant";
@@ -108,7 +109,7 @@ public class TokenManager {
                         JSONObject responseJSON = new JSONObject(response.getResponseText());
                         if (INVALID_GRANT.equals(responseJSON.getString(ERROR_CODE))) {
                             errorDescription = responseJSON.getString(ERROR_DESCRIPTION);
-                            listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens: " + errorDescription));
+                            listener.onAuthorizationFailure(new AuthorizationException(errorDescription));
                             return;
                         }
                     }
@@ -126,14 +127,16 @@ public class TokenManager {
 		});
 	}
 
-	public void obtainTokens (String username, String password, final TokenResponseListener listener) {
+	public void obtainTokens (String username, String password, String accessTokenString, final TokenResponseListener listener) {
 		logger.debug("obtainTokens - with resource owner password");
 
 		HashMap<String, String> formParams = new HashMap<>();
         formParams.put(USERNAME, username);
         formParams.put(PASSWORD, password);
         formParams.put(GRANT_TYPE, GRANT_TYPE_PASSWORD);
-
+		if (accessTokenString != null) {
+			formParams.put(APPID_ACCESS_TOKEN, accessTokenString);
+		}
 		retrieveTokens(formParams, listener);
 	}
 

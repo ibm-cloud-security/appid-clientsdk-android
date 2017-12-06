@@ -32,7 +32,7 @@ public class LoginWidgetImpl implements LoginWidget {
 
 
 	public void launch(@NonNull Activity activity, @NonNull AuthorizationListener authorizationListener, String accessTokenString) {
-		if(accessTokenString == null){
+		if(accessTokenString == null) {
 			launch(activity, authorizationListener);
 			return;
 		}
@@ -49,6 +49,38 @@ public class LoginWidgetImpl implements LoginWidget {
 		oAuthManager.getAuthorizationManager().launchAuthorizationUI(activity,
 				oAuthManager.getTokenManager().getLatestAccessToken(),
 				authorizationListener);
+	}
+
+	/**
+	 * @param activity
+     * @param authorizationListener
+	 */
+	public void launchSignUp (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener) {
+        oAuthManager.getAuthorizationManager().launchSignUpAuthorizationUI(activity, authorizationListener);
+	}
+
+	/**
+	 * @param activity
+	 * @param authorizationListener
+	 */
+	public void launchChangePassword (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener) {
+		oAuthManager.getAuthorizationManager().launchChangePasswordUI(activity, authorizationListener);
+	}
+
+	/**
+	 * @param activity
+	 * @param authorizationListener
+	 */
+	public void launchChangeDetails (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener) {
+		oAuthManager.getAuthorizationManager().launchChangeDetailsUI(activity, authorizationListener);
+	}
+
+	/**
+	 * @param activity
+	 * @param authorizationListener
+	 */
+	public void launchForgotPassword (@NonNull final Activity activity, @NonNull final AuthorizationListener authorizationListener) {
+		oAuthManager.getAuthorizationManager().launchForgotPasswordUI(activity, authorizationListener);
 	}
 }
 
