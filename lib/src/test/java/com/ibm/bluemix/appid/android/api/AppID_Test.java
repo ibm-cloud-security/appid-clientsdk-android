@@ -33,6 +33,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.Locale;
+
 import static org.assertj.core.api.Java6Assertions.*;
 
 @RunWith (RobolectricTestRunner.class)
@@ -88,11 +90,19 @@ public class AppID_Test {
 			}
 		});
 
+		Throwable thrown6 = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+			@Override
+			public void call () throws Throwable {
+				appId.setPreferredLocale(Locale.GERMAN);
+			}
+		});
+
 		assertThat(thrown1).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown2).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown3).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown4).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown5).hasMessageContaining("AppID is not initialized");
+		assertThat(thrown6).hasMessageContaining("AppID is not initialized");
 	}
 
 	@Test()
@@ -127,6 +137,8 @@ public class AppID_Test {
 		appId.loginAnonymously(RuntimeEnvironment.application, listener);
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", listener);
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", false, listener);
+
+		appId.setPreferredLocale(Locale.GERMAN);
 	}
 
 	@Test
