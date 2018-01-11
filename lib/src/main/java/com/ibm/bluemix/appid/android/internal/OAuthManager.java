@@ -21,6 +21,8 @@ import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 
+import java.util.Locale;
+
 public class OAuthManager {
 
 	private AppID appId;
@@ -55,6 +57,10 @@ public class OAuthManager {
 
 	public TokenManager getTokenManager () {
 		return tokenManager;
+	}
+
+	public void setPreferredLocale(Locale locale) {
+		authorizationManager.setPreferredLocale(locale);
 	}
 
 }
