@@ -72,7 +72,7 @@ public class ChromeTabActivity extends Activity {
             CustomTabsIntent customTabsIntent = builder.build();
 
             customTabsIntent.intent.setPackage(AuthorizationUIManager.getPackageNameToUse(this.getApplicationContext()));
-            customTabsIntent.intent.addFlags(PendingIntent.FLAG_ONE_SHOT);
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
@@ -88,7 +88,6 @@ public class ChromeTabActivity extends Activity {
             Uri uri = Uri.parse(serverUrl);
             logger.debug("launching custom tab with url: " + uri.toString());
             customTabsIntent.launchUrl(this, uri);
-
         } else {
             //if we launch after authorization completed
             finish();
@@ -118,10 +117,10 @@ public class ChromeTabActivity extends Activity {
             } else {
                 String errorCode = uri.getQueryParameter("error_code");
                 String errorDescription = uri.getQueryParameter("error_description");
-                logger.error("error: " + error);
+                logger.error("Failed to obtain access and identity tokens, error: " + error);
                 logger.error("errorCode: " + errorCode);
                 logger.error("errorDescription: " + errorDescription);
-                authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to obtain access and identity tokens"));
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error));
                 startActivity(clearTopActivityIntent);
             }
         } else if (url.startsWith(redirectUrl) && (FORGOT_PASSWORD.equals(flow) || SIGN_UP.equals(flow))) {
