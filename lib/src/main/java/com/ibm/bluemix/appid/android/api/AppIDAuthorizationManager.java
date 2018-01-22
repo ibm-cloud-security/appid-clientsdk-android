@@ -20,6 +20,7 @@ import android.os.Build;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
@@ -99,7 +100,7 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 			}
 
 			@Override
-			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
+			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
 				listener.onSuccess(null);
 			}
 		});

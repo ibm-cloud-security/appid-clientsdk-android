@@ -21,16 +21,19 @@ import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.config.Config;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
+import com.ibm.bluemix.appid.android.internal.tokens.RefreshTokenImpl;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.PrivateKey;
@@ -44,6 +47,7 @@ public class TokenManager {
 
 	private AccessToken latestAccessToken;
 	private IdentityToken latestIdentityToken;
+	private RefreshToken latestRefreshToken;
 
 	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + TokenManager.class.getName());
 
@@ -159,11 +163,13 @@ public class TokenManager {
 		String idTokenString;
 		AccessToken accessToken;
 		IdentityToken identityToken;
+		RefreshToken refreshToken = null;
 
 		logger.debug("Extracting tokens from server response");
 
+		JSONObject responseJSON;
 		try {
-			JSONObject responseJSON = new JSONObject(response.getResponseText());
+			responseJSON = new JSONObject(response.getResponseText());
 			accessTokenString = responseJSON.getString("access_token");
 			idTokenString = responseJSON.getString("id_token");
 		} catch (Exception e){
@@ -189,10 +195,18 @@ public class TokenManager {
 			return;
 		}
 
+		try {
+			String refershTokenString = responseJSON.getString("refresh_token");
+			refreshToken = new RefreshTokenImpl(refershTokenString);
+		} catch (RuntimeException|JSONException e){
+			logger.error("Failed to parse refresh_token", e);
+		}
+
 		latestAccessToken = accessToken;
 		latestIdentityToken = identityToken;
+		latestRefreshToken = refreshToken;
 
-		tokenResponseListener.onAuthorizationSuccess(accessToken, identityToken);
+		tokenResponseListener.onAuthorizationSuccess(accessToken, identityToken, refreshToken);
 	}
 
 	public AccessToken getLatestAccessToken () {
@@ -203,8 +217,13 @@ public class TokenManager {
 		return latestIdentityToken;
 	}
 
+	public RefreshToken getLatestRefreshToken() {
+		return latestRefreshToken;
+	}
+
 	public void clearStoredTokens(){
 		latestAccessToken = null;
 		latestIdentityToken = null;
+		latestRefreshToken = null;
 	}
 }

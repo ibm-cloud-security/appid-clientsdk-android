@@ -125,7 +125,7 @@ public class ChromeTabActivity extends Activity {
             }
         } else if (url.startsWith(redirectUrl) && (FORGOT_PASSWORD.equals(flow) || SIGN_UP.equals(flow))) {
             logger.debug("onBroadcastReceived: end of flow: " + flow);
-            authorizationListener.onAuthorizationSuccess(null, null);
+            authorizationListener.onAuthorizationSuccess(null, null, null);
             startActivity(clearTopActivityIntent);
         } else {
             logger.debug("onBroadcastReceived: no match case");
