@@ -24,6 +24,7 @@ import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 
 import org.junit.Before;
@@ -101,7 +102,7 @@ public class AuthorizationUIManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         };

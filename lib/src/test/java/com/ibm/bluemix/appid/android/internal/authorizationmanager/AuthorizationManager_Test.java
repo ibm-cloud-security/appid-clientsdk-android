@@ -22,6 +22,7 @@ import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequestFactory;
@@ -201,7 +202,7 @@ public class AuthorizationManager_Test {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
                          TokenResponseListener tokenListener = (TokenResponseListener) args[3];
-                         tokenListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken);
+                         tokenListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken, null);
                          return null;
                      }
                  }
@@ -212,7 +213,7 @@ public class AuthorizationManager_Test {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
                          AuthorizationListener authListener = (AuthorizationListener) args[1];
-                         authListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken);
+                         authListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken, null);
                          return null;
                      }
                  }
@@ -243,7 +244,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -268,7 +269,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
                 assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
             }
@@ -311,7 +312,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
                 assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
             }
@@ -343,7 +344,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -385,7 +386,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -411,7 +412,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -447,7 +448,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -478,7 +479,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -513,7 +514,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -536,7 +537,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -560,7 +561,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -592,7 +593,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -621,7 +622,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -644,7 +645,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -668,7 +669,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -711,7 +712,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -750,7 +751,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -792,7 +793,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -836,7 +837,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -879,7 +880,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -907,7 +908,7 @@ public class AuthorizationManager_Test {
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
         spyAuthManager.launchForgotPasswordUI(mockActivity, new AuthorizationListener() {
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 

@@ -89,10 +89,9 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 	public void obtainAuthorization (final Context context, final ResponseListener listener, Object... params) {
 		logger.debug("obtainAuthorization");
 
-		TokenManager tokenManager = oAuthManager.getTokenManager();
-		RefreshToken latestRefreshToken = tokenManager.getLatestRefreshToken();
+		RefreshToken latestRefreshToken = getRefreshToken();
 		if (latestRefreshToken != null) {
-			tokenManager.obtainTokensRefreshToken(latestRefreshToken.getRaw(), new TokenResponseListener() {
+			oAuthManager.getTokenManager().obtainTokensRefreshToken(latestRefreshToken.getRaw(), new TokenResponseListener() {
 				@Override
 				public void onAuthorizationFailure(AuthorizationException exception) {
 					launchAuthorization(context, listener);

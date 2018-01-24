@@ -15,6 +15,7 @@ package com.ibm.bluemix.appid.android.api;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
@@ -119,7 +120,7 @@ public class AppID_Test {
 			}
 
 			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assert(false);
 			}
 		};
@@ -140,7 +141,7 @@ public class AppID_Test {
 			}
 
 			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
 				assert(false);
 			}
 		};
@@ -159,7 +160,7 @@ public class AppID_Test {
 			}
 
 			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
 				assert(false);
 			}
 		};
@@ -178,7 +179,7 @@ public class AppID_Test {
 			}
 
 			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
 				assert(false);
 			}
 		};

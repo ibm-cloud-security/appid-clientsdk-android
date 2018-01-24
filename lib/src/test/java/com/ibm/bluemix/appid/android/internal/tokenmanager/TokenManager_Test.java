@@ -15,9 +15,9 @@ package com.ibm.bluemix.appid.android.internal.tokenmanager;
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
-import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.preferences.JSONPreference;
@@ -25,16 +25,21 @@ import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
+import com.ibm.bluemix.appid.android.internal.tokens.RefreshTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
+import com.ibm.bluemix.appid.android.testing.mocks.Response_Mock;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 
+import org.codehaus.plexus.util.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -42,16 +47,16 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -80,6 +85,7 @@ public class TokenManager_Test {
     private String stubRedirectUri = "http://stub";
     private static final AccessToken expectedAccessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
     private static final IdentityToken expectedIdToken = new IdentityTokenImpl(Consts.ID_TOKEN);
+    private static final RefreshToken expectedRefreshToken = new RefreshTokenImpl(Consts.REFRESH_TOKEN);
     private Response testReponse;
 
     @Before
@@ -126,49 +132,7 @@ public class TokenManager_Test {
 
     @Test
     public void obtainTokensRop_success() {
-
-        testReponse = new Response() {
-            @Override
-            public String getRequestURL() {
-                return null;
-            }
-
-            @Override
-            public int getStatus() {
-                return 200;
-            }
-
-            @Override
-            public String getResponseText() {
-                return "{\"access_token\": " + expectedAccessToken.getRaw() +", " +
-                        "\"id_token\":" + expectedIdToken.getRaw() + "}";
-            }
-
-            @Override
-            public JSONObject getResponseJSON() {
-                return null;
-            }
-
-            @Override
-            public byte[] getResponseBytes() {
-                return new byte[0];
-            }
-
-            @Override
-            public InputStream getResponseByteStream() {
-                return null;
-            }
-
-            @Override
-            public long getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public Map<String, List<String>> getHeaders() {
-                return null;
-            }
-        };
+        testReponse = createResponse();
 
         doAnswer(new Answer() {
             @Override
@@ -180,65 +144,48 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokensRoP(username, password, Consts.ACCESS_TOKEN, new TokenResponseListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                fail("should get to onAuthorizationSuccess");
-            }
-
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
-                assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
-            }
-        });
+        spyTokenManager.obtainTokensRoP(username, password, Consts.ACCESS_TOKEN, getExpectedSuccessListener());
     }
 
     @Test
-    public void obtainTokensRop_failure() {
+    public void obtainTokensRefreshToken_success() {
+        final String accessToken = expectedAccessToken.getRaw();
+        final String idToken = expectedIdToken.getRaw();
+        final String refreshToken = expectedRefreshToken.getRaw();
 
-        final String testDescription = "test description error123";
-        testReponse = new Response() {
+        testReponse = createResponse(createTokensResponseText(accessToken, idToken, refreshToken), 200);
+
+        doAnswer(new Answer() {
             @Override
-            public String getRequestURL() {
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                ResponseListener responseListener = (ResponseListener) args[1];
+                responseListener.onSuccess(testReponse);
                 return null;
             }
-
+        }).when(stubRequest).send(argThat(new ArgumentMatcher<Map<String, String>>(){
             @Override
-            public int getStatus() {
-                return 400;
+            public boolean matches(Object argument) {
+                return ((Map<String, String>)argument).containsKey("refresh_token");
             }
+        }), any(ResponseListener.class));
 
-            @Override
-            public String getResponseText() {
-                return "{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription + "\" }";
-            }
+        // obtain tokens with refresh, should store the retrieved tokens (incl. refresh)
+        spyTokenManager.obtainTokensRefreshToken(refreshToken, getExpectedSuccessListener(accessToken, idToken, refreshToken));
 
-            @Override
-            public JSONObject getResponseJSON() {
-                return null;
-            }
+        RefreshToken latestRefreshToken = spyTokenManager.getLatestRefreshToken();
+        assertNotNull(latestRefreshToken);
+        assertEquals(refreshToken, latestRefreshToken.getRaw());
 
-            @Override
-            public byte[] getResponseBytes() {
-                return new byte[0];
-            }
+        AccessToken latestAccessToken = spyTokenManager.getLatestAccessToken();
+        assertNotNull(latestAccessToken);
+        assertEquals(accessToken, latestAccessToken.getRaw());
+    }
 
-            @Override
-            public InputStream getResponseByteStream() {
-                return null;
-            }
-
-            @Override
-            public long getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public Map<String, List<String>> getHeaders() {
-                return null;
-            }
-        };
+    @Test
+    public void obtainTokensRefreshToken_failure() {
+        final String testDescription = "invalid refresh token";
+        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription + "\" }", 400);
 
         doAnswer(new Answer() {
             @Override
@@ -250,32 +197,37 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(),  testDescription);
-            }
+        spyTokenManager.obtainTokensRefreshToken(expectedRefreshToken.getRaw(), getExpectedFailureListener(testDescription));
+    }
 
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                fail("should get to onAuthorizationFailure");
+    private Response createResponse() {
+        return createResponse(createExpectedTokensResponse(), 200);
+    }
 
+    private Response createResponse(String responseText, int code) {
+        return new Response_Mock(responseText, code);
+    }
+
+    @Test
+    public void obtainTokensRop_failure() {
+        final String testDescription = "test description error123";
+        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription + "\" }", 400);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                ResponseListener responseListener = (ResponseListener) args[1];
+                responseListener.onFailure(testReponse ,null, null);
+                return null;
             }
-        });
+        }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
+
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription));
+
         //test the exception parsing
         testReponse = null;
-        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(), "Failed to retrieve tokens" );
-            }
-
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                fail("should get to onAuthorizationFailure");
-
-            }
-        });
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener("Failed to retrieve tokens"));
     }
 
     @Test
@@ -292,178 +244,19 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(), "Failed to parse server response");
-            }
-
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                fail("should get to onAuthorizationFailure");
-
-            }
-        });
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener("Failed to parse server response"));
         //bad access token
-        testReponse = new Response() {
-            @Override
-            public String getRequestURL() {
-                return null;
-            }
-
-            @Override
-            public int getStatus() {
-                return 200;
-            }
-
-            @Override
-            public String getResponseText() {
-                return "{\"access_token\": " + "\"bad access token\"" + ", " +
-                        "\"id_token\":" + expectedIdToken.getRaw() + "}";
-            }
-
-            @Override
-            public JSONObject getResponseJSON() {
-                return null;
-            }
-
-            @Override
-            public byte[] getResponseBytes() {
-                return new byte[0];
-            }
-
-            @Override
-            public InputStream getResponseByteStream() {
-                return null;
-            }
-
-            @Override
-            public long getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public Map<String, List<String>> getHeaders() {
-                return null;
-            }
-        };
-        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(), "Failed to parse access_token");
-            }
-
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                fail("should get to onAuthorizationFailure");
-
-            }
-        });
+        testReponse = createResponse(createTokensResponseText("bad access token", expectedIdToken.getRaw()), 400);
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener("Failed to parse access_token"));
         //bad id token
-        testReponse = new Response() {
-            @Override
-            public String getRequestURL() {
-                return null;
-            }
+        testReponse = createResponse(createTokensResponseText(expectedAccessToken.getRaw(), "bad Id token"), 400);
 
-            @Override
-            public int getStatus() {
-                return 200;
-            }
-
-            @Override
-            public String getResponseText() {
-                return "{\"access_token\": " + expectedAccessToken.getRaw() + ", " +
-                        "\"id_token\":" + "\"bad Id token\"" + "}";
-            }
-
-            @Override
-            public JSONObject getResponseJSON() {
-                return null;
-            }
-
-            @Override
-            public byte[] getResponseBytes() {
-                return new byte[0];
-            }
-
-            @Override
-            public InputStream getResponseByteStream() {
-                return null;
-            }
-
-            @Override
-            public long getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public Map<String, List<String>> getHeaders() {
-                return null;
-            }
-        };
-
-        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(), "Failed to parse id_token");
-            }
-
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                fail("should get to onAuthorizationFailure");
-
-            }
-        });
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener("Failed to parse id_token"));
     }
-
-
 
     @Test
     public void obtainTokens_Authorization_Code_success() {
-
-        testReponse = new Response() {
-            @Override
-            public String getRequestURL() {
-                return null;
-            }
-
-            @Override
-            public int getStatus() {
-                return 200;
-            }
-
-            @Override
-            public String getResponseText() {
-                return "{\"access_token\": " + expectedAccessToken.getRaw() +", " +
-                        "\"id_token\":" + expectedIdToken.getRaw() + "}";
-            }
-
-            @Override
-            public JSONObject getResponseJSON() {
-                return null;
-            }
-
-            @Override
-            public byte[] getResponseBytes() {
-                return new byte[0];
-            }
-
-            @Override
-            public InputStream getResponseByteStream() {
-                return null;
-            }
-
-            @Override
-            public long getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public Map<String, List<String>> getHeaders() {
-                return null;
-            }
-        };
+        testReponse = createResponse();
 
         doAnswer(new Answer() {
             @Override
@@ -475,70 +268,12 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokensAuthCode("Some Code", new AuthorizationListener() {
-            @Override
-            public void onAuthorizationCanceled() {
-                fail("should get to onAuthorizationSuccess");
-            }
-
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
-                fail("should get to onAuthorizationSuccess");
-            }
-
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
-                assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
-            }
-        });
+        spyTokenManager.obtainTokensAuthCode("Some Code", getExpectedSuccessListener());
     }
 
     @Test
     public void obtainTokens_Authorization_Code_failure() {
-
-        testReponse = new Response() {
-            @Override
-            public String getRequestURL() {
-                return null;
-            }
-
-            @Override
-            public int getStatus() {
-                return 200;
-            }
-
-            @Override
-            public String getResponseText() {
-                return "{\"access_token\": " + expectedAccessToken.getRaw() +", " +
-                        "\"id_token\":" + expectedIdToken.getRaw() + "}";
-            }
-
-            @Override
-            public JSONObject getResponseJSON() {
-                return null;
-            }
-
-            @Override
-            public byte[] getResponseBytes() {
-                return new byte[0];
-            }
-
-            @Override
-            public InputStream getResponseByteStream() {
-                return null;
-            }
-
-            @Override
-            public long getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public Map<String, List<String>> getHeaders() {
-                return null;
-            }
-        };
+        testReponse = createResponse();
 
         doAnswer(new Answer() {
             @Override
@@ -550,7 +285,11 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokensAuthCode("Some Code", new AuthorizationListener() {
+        spyTokenManager.obtainTokensAuthCode("Some Code", getExpectedFailureListener("Failed to retrieve tokens"));
+    }
+
+    private AuthorizationListener getExpectedFailureListener(final String expectedErrorMessage) {
+        return new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");
@@ -558,14 +297,70 @@ public class TokenManager_Test {
 
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                assertEquals(exception.getMessage(), "Failed to retrieve tokens");
+                assertEquals(expectedErrorMessage, exception.getMessage());
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
 
             }
-        });
+        };
+    }
+
+    private AuthorizationListener getExpectedSuccessListener() {
+        return getExpectedSuccessListener(expectedAccessToken.getRaw(), expectedIdToken.getRaw(), null);
+    }
+
+    private AuthorizationListener getExpectedSuccessListener(final String expAccessToken, final String expIdToken, final String expRefreshToken) {
+        return new AuthorizationListener() {
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationSuccess");
+            }
+
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                fail("should get to onAuthorizationSuccess");
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+                assertEquals(expAccessToken, accessToken.getRaw());
+                assertEquals(expIdToken, identityToken.getRaw());
+                if (expRefreshToken != null) {
+                    assertEquals(expRefreshToken, refreshToken.getRaw());
+                }
+            }
+        };
+    }
+
+    private String createExpectedTokensResponse() {
+        return createTokensResponseText(expectedAccessToken.getRaw(), expectedIdToken.getRaw(), expectedRefreshToken.getRaw());
+    }
+
+    private String createTokensResponseText(String accessToken, String idToken) {
+        return createTokensResponseText(accessToken, idToken, null);
+    }
+
+    private String createTokensResponseText(String accessToken, String idToken, String refreshToken) {
+        JSONObject params = new JSONObject();
+        try {
+            params.put("access_token", accessToken);
+            params.put("id_token", idToken);
+            if (!StringUtils.isEmpty(refreshToken)) {
+                params.put("refresh_token", refreshToken);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return params.toString();
+    }
+
+    private static class A extends ArgumentMatcher<Map> {
+        @Override
+        public boolean matches(Object argument) {
+            return false;
+        }
     }
 }

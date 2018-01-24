@@ -18,6 +18,7 @@ import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationManager;
 import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
@@ -73,7 +74,7 @@ public class LoginWidgetImpl_Test {
                 Object[] args = invocation.getArguments();
                 AccessToken accessToken = (AccessToken) args[1];
                 AuthorizationListener authorizationListener = (AuthorizationListener) args[2];
-                authorizationListener.onAuthorizationSuccess(accessToken, null);
+                authorizationListener.onAuthorizationSuccess(accessToken, null, null);
                 return null;
             }
         }).when(mockAuthManager).launchAuthorizationUI(any(Activity.class), any(AccessToken.class),any(AuthorizationListener.class));
@@ -91,7 +92,7 @@ public class LoginWidgetImpl_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken, expectedAccessToken);
             }
         }, null);
@@ -106,7 +107,7 @@ public class LoginWidgetImpl_Test {
                 Object[] args = invocation.getArguments();
                 AccessToken accessToken = (AccessToken) args[1];
                 AuthorizationListener authorizationListener = (AuthorizationListener) args[2];
-                authorizationListener.onAuthorizationSuccess(accessToken, null);
+                authorizationListener.onAuthorizationSuccess(accessToken, null, null);
                 return null;
             }
         }).when(mockAuthManager).launchAuthorizationUI(any(Activity.class), any(AccessToken.class),any(AuthorizationListener.class));
@@ -124,7 +125,7 @@ public class LoginWidgetImpl_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
             }
         }, expectedAccessToken.getRaw());
@@ -139,7 +140,7 @@ public class LoginWidgetImpl_Test {
                 Object[] args = invocation.getArguments();
                 AccessToken accessToken = expectedAccessToken;
                 AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
-                authorizationListener.onAuthorizationSuccess(accessToken, null);
+                authorizationListener.onAuthorizationSuccess(accessToken, null, null);
                 return null;
             }
         }).when(mockAuthManager).launchSignUpAuthorizationUI(any(Activity.class), any(AuthorizationListener.class));
@@ -157,7 +158,7 @@ public class LoginWidgetImpl_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken, expectedAccessToken);
             }
         });
@@ -172,7 +173,7 @@ public class LoginWidgetImpl_Test {
                 Object[] args = invocation.getArguments();
                 AccessToken accessToken = expectedAccessToken;
                 AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
-                authorizationListener.onAuthorizationSuccess(accessToken, null);
+                authorizationListener.onAuthorizationSuccess(accessToken, null, null);
                 return null;
             }
         }).when(mockAuthManager).launchChangePasswordUI(any(Activity.class), any(AuthorizationListener.class));
@@ -190,7 +191,7 @@ public class LoginWidgetImpl_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken, expectedAccessToken);
             }
         });
@@ -205,7 +206,7 @@ public class LoginWidgetImpl_Test {
                 Object[] args = invocation.getArguments();
                 AccessToken accessToken = expectedAccessToken;
                 AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
-                authorizationListener.onAuthorizationSuccess(accessToken, null);
+                authorizationListener.onAuthorizationSuccess(accessToken, null, null);
                 return null;
             }
         }).when(mockAuthManager).launchChangeDetailsUI(any(Activity.class), any(AuthorizationListener.class));
@@ -223,7 +224,7 @@ public class LoginWidgetImpl_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken, expectedAccessToken);
             }
         });
@@ -237,7 +238,7 @@ public class LoginWidgetImpl_Test {
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
                 AuthorizationListener forgotPasswordListener = (AuthorizationListener) args[1];
-                forgotPasswordListener.onAuthorizationSuccess(null, null);
+                forgotPasswordListener.onAuthorizationSuccess(null, null, null);
                 return null;
             }
         }).when(mockAuthManager).launchForgotPasswordUI(any(Activity.class), any(AuthorizationListener.class));
@@ -245,7 +246,7 @@ public class LoginWidgetImpl_Test {
 
         loginWidget.launchForgotPassword(Mockito.mock(Activity.class), new AuthorizationListener() {
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assert(true);
             }
 

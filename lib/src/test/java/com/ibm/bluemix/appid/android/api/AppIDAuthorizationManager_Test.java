@@ -198,7 +198,7 @@ public class AppIDAuthorizationManager_Test {
 			public Object answer(InvocationOnMock invocation) throws Throwable {
 				Object[] args = invocation.getArguments();
 				AuthorizationListener authorizationListener = (AuthorizationListener) args[1];
-				authorizationListener.onAuthorizationSuccess(accessToken,idToken);
+				authorizationListener.onAuthorizationSuccess(accessToken,idToken, null);
 				return null;
 			}
 		}).when(authorizationManagerMock).launchAuthorizationUI(any(Activity.class), any(AuthorizationListener.class));
