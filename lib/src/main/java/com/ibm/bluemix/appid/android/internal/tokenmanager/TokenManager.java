@@ -44,23 +44,25 @@ public class TokenManager {
 
 	private final AppID appId;
 	private final RegistrationManager registrationManager;
-
 	private AccessToken latestAccessToken;
+
 	private IdentityToken latestIdentityToken;
 	private RefreshToken latestRefreshToken;
-
 	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + TokenManager.class.getName());
 
 	private static final String OAUTH_TOKEN_PATH = "/token";
+
 	private final static String CLIENT_ID = "client_id";
 	private final static String GRANT_TYPE = "grant_type";
 	private final static String GRANT_TYPE_AUTH_CODE = "authorization_code";
 	private final static String CODE = "code";
 	private final static String REDIRECT_URI = "redirect_uri";
 	private final static String AUTHORIZATION_HEADER = "Authorization";
-    private final static String USERNAME = "username";
-    private final static String PASSWORD = "password";
-    private final static String GRANT_TYPE_PASSWORD = "password";
+	private final static String USERNAME = "username";
+	private final static String PASSWORD = "password";
+	private final static String GRANT_TYPE_PASSWORD = "password";
+	private static final String REFRESH_TOKEN = "refresh_token";
+	private static final String GRANT_TYPE_REFRESH = "refresh_token";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
     private final static String ERROR_DESCRIPTION= "error_description";
     private final static String ERROR_CODE= "error";
@@ -71,8 +73,8 @@ public class TokenManager {
 		this.registrationManager = oAuthManager.getRegistrationManager();
 	}
 
-	public void obtainTokens (String code, final AuthorizationListener listener) {
-		logger.debug("obtainTokens");
+	public void obtainTokensAuthCode(String code, final AuthorizationListener listener) {
+		logger.debug("obtainTokensAuthCode");
 		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
 
@@ -131,8 +133,8 @@ public class TokenManager {
 		});
 	}
 
-	public void obtainTokens (String username, String password, String accessTokenString, final TokenResponseListener listener) {
-		logger.debug("obtainTokens - with resource owner password");
+	public void obtainTokensRoP(String username, String password, String accessTokenString, final TokenResponseListener listener) {
+		logger.debug("obtainTokensRoP");
 
 		HashMap<String, String> formParams = new HashMap<>();
         formParams.put(USERNAME, username);
@@ -141,6 +143,17 @@ public class TokenManager {
 		if (accessTokenString != null) {
 			formParams.put(APPID_ACCESS_TOKEN, accessTokenString);
 		}
+		retrieveTokens(formParams, listener);
+	}
+
+	public void obtainTokensRefreshToken(String refreshTokenString, final TokenResponseListener listener) {
+		logger.debug("obtainTokensRefreshToken");
+		if (refreshTokenString == null) {
+			listener.onAuthorizationFailure(new AuthorizationException("Missing refresh-token"));
+		}
+		HashMap<String, String> formParams = new HashMap<>();
+		formParams.put(REFRESH_TOKEN, refreshTokenString);
+		formParams.put(GRANT_TYPE, GRANT_TYPE_REFRESH);
 		retrieveTokens(formParams, listener);
 	}
 

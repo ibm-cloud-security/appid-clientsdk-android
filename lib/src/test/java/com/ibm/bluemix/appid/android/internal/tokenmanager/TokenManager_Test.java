@@ -40,12 +40,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.RobolectricTestRunner;
 
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +180,7 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokens(username, password, Consts.ACCESS_TOKEN, new TokenResponseListener() {
+        spyTokenManager.obtainTokensRoP(username, password, Consts.ACCESS_TOKEN, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 fail("should get to onAuthorizationSuccess");
@@ -252,7 +250,7 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokens(username, password, null, new TokenResponseListener() {
+        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(),  testDescription);
@@ -266,7 +264,7 @@ public class TokenManager_Test {
         });
         //test the exception parsing
         testReponse = null;
-        spyTokenManager.obtainTokens(username, password, null, new TokenResponseListener() {
+        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), "Failed to retrieve tokens" );
@@ -294,7 +292,7 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokens(username, password, null, new TokenResponseListener() {
+        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), "Failed to parse server response");
@@ -349,7 +347,7 @@ public class TokenManager_Test {
                 return null;
             }
         };
-        spyTokenManager.obtainTokens(username, password, null, new TokenResponseListener() {
+        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), "Failed to parse access_token");
@@ -405,7 +403,7 @@ public class TokenManager_Test {
             }
         };
 
-        spyTokenManager.obtainTokens(username, password, null, new TokenResponseListener() {
+        spyTokenManager.obtainTokensRoP(username, password, null, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), "Failed to parse id_token");
@@ -477,7 +475,7 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokens("Some Code", new AuthorizationListener() {
+        spyTokenManager.obtainTokensAuthCode("Some Code", new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationSuccess");
@@ -552,7 +550,7 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokens("Some Code", new AuthorizationListener() {
+        spyTokenManager.obtainTokensAuthCode("Some Code", new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");

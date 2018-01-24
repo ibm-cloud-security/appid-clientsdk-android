@@ -317,7 +317,7 @@ public class AuthorizationManager {
                              String location = response.getHeaders().get("Location").toString();
                              String locationUrl = location.substring(1, location.length() - 1); // removing []
                              String code = Uri.parse(locationUrl).getQueryParameter("code");
-                             oAuthManager.getTokenManager().obtainTokens(code, listener);
+                             oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
                          }
 
                          @Override
@@ -361,7 +361,7 @@ public class AuthorizationManager {
 
             @Override
             public void onRegistrationSuccess() {
-                oAuthManager.getTokenManager().obtainTokens(username, password, accessTokenString, tokenResponseListener);
+                oAuthManager.getTokenManager().obtainTokensRoP(username, password, accessTokenString, tokenResponseListener);
             }
         });
     }

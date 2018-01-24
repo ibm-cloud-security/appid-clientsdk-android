@@ -205,7 +205,7 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(tokenManagerMock).obtainTokens(eq(username), eq(password), eq(passedAccessToken), any(TokenResponseListener.class));
+        ).when(tokenManagerMock).obtainTokensRoP(eq(username), eq(password), eq(passedAccessToken), any(TokenResponseListener.class));
 
         doAnswer(new Answer<Void>() {
                      @Override
@@ -216,7 +216,7 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(tokenManagerMock).obtainTokens(anyString(), any(AuthorizationListener.class));
+        ).when(tokenManagerMock).obtainTokensAuthCode(anyString(), any(AuthorizationListener.class));
 
         authManager = new AuthorizationManager(oAuthManagerMock, mockContext);
         appidMock.overrideOAuthServerHost = null;

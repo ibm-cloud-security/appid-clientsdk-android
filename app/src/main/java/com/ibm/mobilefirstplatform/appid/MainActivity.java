@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private AccessToken anonymousAccessToken;
     private AccessToken identifiedAccessToken;
     private AccessToken useThisToken;
+    private RefreshToken identifiedRefreshToken;
 
     public final static int LOGIN_SUBMITTED = 2;
     public final static int LOGIN_CANCEL = 3;
@@ -127,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
                         logger.info("refresh_token: " + refreshToken.getRaw());
                     }
                     identifiedAccessToken = accessToken;
+                    identifiedRefreshToken = refreshToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 } else {
                     //in case we are in strict mode
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                         logger.info("refresh_token: " + refreshToken.getRaw());
                     }
                     identifiedAccessToken = accessToken;
+                    identifiedRefreshToken = refreshToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 } else {
                     //in case we are in strict mode
@@ -234,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                     logger.info("refresh_token: " + refreshToken.getRaw());
                 }
                 identifiedAccessToken = accessToken;
+                identifiedRefreshToken = refreshToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
         });
@@ -269,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
                     logger.info("refresh_token: " + refreshToken.getRaw());
                 }
                 identifiedAccessToken = accessToken;
+                identifiedRefreshToken = refreshToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
         });
@@ -312,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
                         logger.info("refresh_token: " + refreshToken.getRaw());
                     }
                     identifiedAccessToken = accessToken;
+                    identifiedRefreshToken = refreshToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 }
             }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
@@ -567,6 +573,9 @@ public class MainActivity extends AppCompatActivity {
                 token = useThisToken != null ?
                         useThisToken.getRaw() : "No token";
                 ((TextView) findViewById(R.id.textViewProtectedResourceResponse)).setText(token);
+                break;
+            case R.id.radio_refresh:
+                ((TextView) findViewById(R.id.textViewProtectedResourceResponse)).setText(identifiedRefreshToken != null ? identifiedRefreshToken.getRaw() : "No token");
                 break;
         }
     }
