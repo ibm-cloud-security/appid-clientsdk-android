@@ -24,6 +24,8 @@ import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttribut
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 public class AppID {
 
 	private static AppID instance;
@@ -107,6 +109,17 @@ public class AppID {
 			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
 		}
 		return this.loginWidget;
+	}
+
+	/**
+	 * Sets the preferred locale for UI pages
+	 * @param locale
+     */
+	public void setPreferredLocale(Locale locale) {
+		if (null == oAuthManager) {
+			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
+		}
+		oAuthManager.setPreferredLocale(locale);
 	}
 
 	/**

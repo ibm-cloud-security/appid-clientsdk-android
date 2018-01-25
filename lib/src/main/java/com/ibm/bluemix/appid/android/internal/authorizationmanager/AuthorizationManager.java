@@ -39,6 +39,8 @@ import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class AuthorizationManager {
     private final static String OAUTH_AUTHORIZATION_PATH = "/authorization";
     private final static String CHANGE_PASSWORD_PATH = "/cloud_directory/change_password";
@@ -57,6 +59,7 @@ public class AuthorizationManager {
     private final static String RESPONSE_TYPE_CODE = "code";
     private final static String RESPONSE_TYPE_SIGN_UP = "sign_up";
     private final static String USER_ID = "user_id";
+    private final static String LOCALE_PARAM_NAME = "language";
 
     private final static String SCOPE = "scope";
     private final static String SCOPE_OPENID = "openid";
@@ -70,6 +73,7 @@ public class AuthorizationManager {
     private final static String CODE = "code";
 
     private String serverUrl;
+    private Locale locale;
 
     private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationManager.class.getName());
 
@@ -105,6 +109,9 @@ public class AuthorizationManager {
         if (accessToken != null) {
             builder.appendQueryParameter(APPID_ACCESS_TOKEN, accessToken.getRaw());
         }
+
+        addLocaleToUri(builder);
+
         return builder.build().toString();
     }
 
@@ -144,7 +151,15 @@ public class AuthorizationManager {
         if (null != userId) {
             builder.appendQueryParameter(USER_ID, userId);
         }
+
+        addLocaleToUri(builder);
+
         return builder.build().toString();
+    }
+
+    private void addLocaleToUri(Uri.Builder builder) {
+        Locale localeToUse = locale != null ? locale : Locale.getDefault();
+        builder.appendQueryParameter(LOCALE_PARAM_NAME, localeToUse.toString());
     }
 
     public void launchAuthorizationUI(final Activity activity, final AuthorizationListener authorizationListener) {
@@ -349,6 +364,10 @@ public class AuthorizationManager {
 
     public void setAppIDRequestFactory(AppIDRequestFactory appIDRequestFactory) {
         this.appIDRequestFactory = appIDRequestFactory;
+    }
+
+    public void setPreferredLocale(Locale locale) {
+        this.locale = locale;
     }
 
     public void obtainTokensWithROP(final Context context, final String username, final String password, final String accessTokenString, final TokenResponseListener tokenResponseListener) {
