@@ -55,6 +55,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
@@ -92,6 +93,7 @@ public class AuthorizationManager_Test {
     private Activity mockActivity;
     @Mock
     private IdentityToken mockIdToken;
+    private Locale defaultLocale = Locale.getDefault();
     private AuthorizationManager authManager;
     private String username = "testUser";
     private String password = "testPassword";
@@ -441,7 +443,7 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
 
@@ -458,6 +460,47 @@ public class AuthorizationManager_Test {
             }
         });
     }
+
+
+    @Test
+    public void launchAuthorizationUI_localeTest(){
+
+        final Locale overrideLocale = Locale.FRENCH;
+        final AuthorizationManager spyAuthManager = spy(authManager);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         RegistrationListener regListener = (RegistrationListener) args[1];
+                         regListener.onRegistrationSuccess();
+                         return null;
+                     }
+                 }
+        ).when(registrationManager).ensureRegistered(eq(mockActivity), any(RegistrationListener.class));
+
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+
+        spyAuthManager.setPreferredLocale(overrideLocale);
+        spyAuthManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
+            @Override
+            public void onAuthorizationFailure(AuthorizationException exception) {
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid&language="+overrideLocale;
+                assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
+                verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
+
+            }
+
+            @Override
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                fail("should get to onAuthorizationFailure");
+            }
+
+            @Override
+            public void onAuthorizationCanceled() {
+                fail("should get to onAuthorizationFailure");
+            }
+        });
+    }
+
 
     @Test
     public void launchSignUpAuthorizationUI_failure(){
@@ -508,7 +551,7 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchSignUpAuthorizationUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=sign_up&client_id=null&redirect_uri=null&scope=openid";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=sign_up&client_id=null&redirect_uri=null&scope=openid&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
@@ -587,7 +630,7 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchChangePasswordUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_password?user_id=1234";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_password?user_id=1234&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
@@ -706,7 +749,7 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_details?code=1234";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_details?code=1234&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
@@ -914,7 +957,7 @@ public class AuthorizationManager_Test {
 
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/forgot_password";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/forgot_password?language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }

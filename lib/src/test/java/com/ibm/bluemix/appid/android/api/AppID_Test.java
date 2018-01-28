@@ -39,6 +39,8 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
+import java.util.Locale;
+
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Config (constants = BuildConfig.class)
@@ -56,6 +58,7 @@ public class AppID_Test {
 
 	@Test()
 	public void test01_uninitialized(){
+
 		Throwable thrown1 = catchThrowable(new ThrowableAssert.ThrowingCallable() {
 			@Override
 			public void call () throws Throwable {
@@ -91,11 +94,19 @@ public class AppID_Test {
 			}
 		});
 
+		Throwable thrown6 = catchThrowable(new ThrowableAssert.ThrowingCallable() {
+			@Override
+			public void call () throws Throwable {
+				appId.setPreferredLocale(Locale.GERMAN);
+			}
+		});
+
 		assertThat(thrown1).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown2).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown3).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown4).hasMessageContaining("AppID is not initialized");
 		assertThat(thrown5).hasMessageContaining("AppID is not initialized");
+		assertThat(thrown6).hasMessageContaining("AppID is not initialized");
 	}
 
 	@Test()
@@ -115,6 +126,8 @@ public class AppID_Test {
 		appId.loginAnonymously(RuntimeEnvironment.application, listener);
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", listener);
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", false, listener);
+
+        appId.setPreferredLocale(Locale.GERMAN);
 
 		verifyListenerFailed(3, listener);
 	}
