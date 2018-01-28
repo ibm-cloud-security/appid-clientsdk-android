@@ -33,6 +33,7 @@ import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
+import com.ibm.bluemix.appid.android.testing.helpers.ExceptionMessageMatcher;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
@@ -45,6 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -62,6 +64,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -480,25 +483,21 @@ public class AuthorizationManager_Test {
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
 
         spyAuthManager.setPreferredLocale(overrideLocale);
-        spyAuthManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
+
+        AuthorizationListener listener = Mockito.mock(AuthorizationListener.class);
+
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
                 String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid&language="+overrideLocale;
-                assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
-
+                return null;
             }
+        }).when(listener).onAuthorizationFailure(any(AuthorizationException.class));
 
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                fail("should get to onAuthorizationFailure");
-            }
+        spyAuthManager.launchAuthorizationUI(mockActivity, listener);
 
-            @Override
-            public void onAuthorizationCanceled() {
-                fail("should get to onAuthorizationFailure");
-            }
-        });
+        ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>("Could NOT find installed browser that support Chrome tabs on the device.");
+        Mockito.verify(listener).onAuthorizationFailure(argThat(matcher));
     }
 
 
