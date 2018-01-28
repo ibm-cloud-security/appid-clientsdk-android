@@ -366,5 +366,18 @@ public class AuthorizationManager {
         });
     }
 
+    public void obtainTokensWithRefreshToken(final Context context, final String refreshToken, final TokenResponseListener tokenResponseListener) {
+        registrationManager.ensureRegistered(context, new RegistrationListener() {
+            @Override
+            public void onRegistrationFailure(RegistrationStatus error) {
+                logger.error(error.getDescription());
+                tokenResponseListener.onAuthorizationFailure(new AuthorizationException(error.getDescription()));
+            }
 
+            @Override
+            public void onRegistrationSuccess() {
+                oAuthManager.getTokenManager().obtainTokensRefreshToken(refreshToken, tokenResponseListener);
+            }
+        });
+    }
 }

@@ -13,15 +13,13 @@
 
 package com.ibm.bluemix.appid.android.api;
 
-import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
-import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
-import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
 import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.ClassHelper;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
+import com.ibm.bluemix.appid.android.testing.helpers.ExceptionMessageMatcher;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
 import org.assertj.core.api.ThrowableAssert;
@@ -30,11 +28,16 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static org.assertj.core.api.Java6Assertions.*;
+import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.catchThrowable;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -53,7 +56,6 @@ public class AppID_Test {
 
 	@Test()
 	public void test01_uninitialized(){
-
 		Throwable thrown1 = catchThrowable(new ThrowableAssert.ThrowingCallable() {
 			@Override
 			public void call () throws Throwable {
@@ -108,83 +110,62 @@ public class AppID_Test {
 		assertThat(appId.getUserAttributeManager()).isNotNull();
 		ClassHelper.assertSame(appId.getUserAttributeManager(), UserAttributeManagerImpl.class);
 
-		AuthorizationListener listener = new AuthorizationListener() {
-			@Override
-			public void onAuthorizationFailure(AuthorizationException exception) {
-                assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
-            }
-
-			@Override
-			public void onAuthorizationCanceled() {
-                assert(false);
-			}
-
-			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
-                assert(false);
-			}
-		};
+		AuthorizationListener listener = mock(AuthorizationListener.class);
 
 		appId.loginAnonymously(RuntimeEnvironment.application, listener);
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", listener);
 		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", false, listener);
+
+		verifyListenerFailed(3, listener);
 	}
 
 	@Test
 	public void test03_loginUsingRoP(){
 		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
 
-		TokenResponseListener listener = new TokenResponseListener() {
-			@Override
-			public void onAuthorizationFailure(AuthorizationException exception) {
-				assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
-			}
-
-			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
-				assert(false);
-			}
-		};
+		TokenResponseListener listener = mock(TokenResponseListener.class);
 
 		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener);
+
+		verifyListenerFailed(1, listener);
 	}
 
 	@Test
 	public void test04_loginUsingRoPWithNullAccessToken(){
 		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
 
-		TokenResponseListener listener = new TokenResponseListener() {
-			@Override
-			public void onAuthorizationFailure(AuthorizationException exception) {
-				assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
-			}
-
-			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
-				assert(false);
-			}
-		};
+		TokenResponseListener listener = mock(TokenResponseListener.class);
 
 		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener, null);
+
+		verifyListenerFailed(1, listener);
 	}
 
 	@Test
 	public void test05_loginUsingRoPWithAccessToken(){
 		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
 
-		TokenResponseListener listener = new TokenResponseListener() {
-			@Override
-			public void onAuthorizationFailure(AuthorizationException exception) {
-				assertThat(exception.getMessage().equals(RegistrationStatus.FAILED_TO_REGISTER.getDescription()));
-			}
-
-			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
-				assert(false);
-			}
-		};
+		TokenResponseListener listener = mock(TokenResponseListener.class);
 
 		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener, Consts.ACCESS_TOKEN);
+
+		verifyListenerFailed(1, listener);
+	}
+
+	@Test
+	public void test06_refreshTokens(){
+		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
+
+		TokenResponseListener listener = mock(TokenResponseListener.class);
+
+		appId.refreshTokens(RuntimeEnvironment.application, "refreshToken", listener);
+
+		verifyListenerFailed(1, listener);
+	}
+
+	private void verifyListenerFailed(int wantedNumberOfInvocations, TokenResponseListener listener) {
+		ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>(RegistrationStatus.FAILED_TO_REGISTER.getDescription());
+		Mockito.verify(listener, times(wantedNumberOfInvocations)).onAuthorizationFailure(argThat(matcher));
 	}
 }
 

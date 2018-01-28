@@ -158,6 +158,20 @@ public class AppID {
 		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, null, tokenResponseListener);
 	}
 
+	/**
+	 * Obtain token using a refresh token
+	 *
+	 * @param refreshToken the refresh token
+	 * @param tokenResponseListener the token response listener
+	 */
+	public void refreshTokens(@NotNull Context context, @NotNull String refreshToken, @NotNull TokenResponseListener tokenResponseListener) {
+		if (refreshToken == null) {
+			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Missing refresh-token"));
+			return;
+		}
+		oAuthManager.getAuthorizationManager().obtainTokensWithRefreshToken(context, refreshToken, tokenResponseListener);
+	}
+
     /**
      * Obtain token using Resource owner Password (RoP).
      *

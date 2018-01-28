@@ -61,6 +61,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
@@ -155,6 +157,13 @@ public class TokenManager_Test {
 
         testReponse = createResponse(createTokensResponseText(accessToken, idToken, refreshToken), 200);
 
+        ArgumentMatcher<Map<String, String>> formParametersIncludeRefreshTokenMatcher = new ArgumentMatcher<Map<String, String>>() {
+            @Override
+            public boolean matches(Object argument) {
+                return ((Map<String, String>) argument).containsKey("refresh_token");
+            }
+        };
+
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -163,15 +172,12 @@ public class TokenManager_Test {
                 responseListener.onSuccess(testReponse);
                 return null;
             }
-        }).when(stubRequest).send(argThat(new ArgumentMatcher<Map<String, String>>(){
-            @Override
-            public boolean matches(Object argument) {
-                return ((Map<String, String>)argument).containsKey("refresh_token");
-            }
-        }), any(ResponseListener.class));
+        }).when(stubRequest).send(argThat(formParametersIncludeRefreshTokenMatcher), any(ResponseListener.class));
 
         // obtain tokens with refresh, should store the retrieved tokens (incl. refresh)
         spyTokenManager.obtainTokensRefreshToken(refreshToken, getExpectedSuccessListener(accessToken, idToken, refreshToken));
+
+        verify(stubRequest, times(1)).send(argThat(formParametersIncludeRefreshTokenMatcher), any(ResponseListener.class));
 
         RefreshToken latestRefreshToken = spyTokenManager.getLatestRefreshToken();
         assertNotNull(latestRefreshToken);
@@ -180,6 +186,10 @@ public class TokenManager_Test {
         AccessToken latestAccessToken = spyTokenManager.getLatestAccessToken();
         assertNotNull(latestAccessToken);
         assertEquals(accessToken, latestAccessToken.getRaw());
+
+        IdentityToken latestIdToken = spyTokenManager.getLatestIdentityToken();
+        assertNotNull(latestIdToken);
+        assertEquals(idToken, latestIdToken.getRaw());
     }
 
     @Test

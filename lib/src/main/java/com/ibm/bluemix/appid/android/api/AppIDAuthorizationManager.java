@@ -21,9 +21,8 @@ import android.os.Build;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
-import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
-import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
+import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
@@ -102,6 +101,8 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 					listener.onSuccess(null);
 				}
 			});
+		} else {
+			launchAuthorization(context, listener);
 		}
 	}
 
