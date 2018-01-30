@@ -166,7 +166,7 @@ public class AppID_Test {
 	}
 
 	@Test
-	public void test06_refreshTokens(){
+	public void testRefreshTokensFailed(){
 		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
 
 		TokenResponseListener listener = mock(TokenResponseListener.class);

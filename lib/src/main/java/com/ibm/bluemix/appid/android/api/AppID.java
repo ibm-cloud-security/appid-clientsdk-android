@@ -17,6 +17,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
@@ -183,6 +184,20 @@ public class AppID {
 			return;
 		}
 		oAuthManager.getAuthorizationManager().obtainTokensWithRefreshToken(context, refreshToken, tokenResponseListener);
+	}
+
+	/**
+	 * Obtain token using the latest refresh token stored in the SDK
+	 *
+	 * @param tokenResponseListener the token response listener
+	 */
+	public void refreshTokens(@NotNull Context context, @NotNull TokenResponseListener tokenResponseListener) {
+		String refreshTokenString = null;
+		RefreshToken refreshToken = oAuthManager.getTokenManager().getLatestRefreshToken();
+		if (refreshToken != null) {
+			refreshTokenString = refreshToken.getRaw();
+		}
+		refreshTokens(context, refreshTokenString, tokenResponseListener);
 	}
 
     /**

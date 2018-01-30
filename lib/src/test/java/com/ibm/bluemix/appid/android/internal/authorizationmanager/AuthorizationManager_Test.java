@@ -467,7 +467,6 @@ public class AuthorizationManager_Test {
 
     @Test
     public void launchAuthorizationUI_localeTest(){
-
         final Locale overrideLocale = Locale.FRENCH;
         final AuthorizationManager spyAuthManager = spy(authManager);
         doAnswer(new Answer<Void>() {
@@ -497,7 +496,7 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchAuthorizationUI(mockActivity, listener);
 
         ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>("Could NOT find installed browser that support Chrome tabs on the device.");
-        Mockito.verify(listener).onAuthorizationFailure(argThat(matcher));
+        verify(listener).onAuthorizationFailure(argThat(matcher));
     }
 
 
