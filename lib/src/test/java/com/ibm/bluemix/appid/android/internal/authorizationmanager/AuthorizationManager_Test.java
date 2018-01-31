@@ -242,7 +242,7 @@ public class AuthorizationManager_Test {
         }).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
 
-        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
+        authManager.signinWithResourceOwnerPassword(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), RegistrationStatus.NOT_REGISTRED.getDescription());
@@ -267,7 +267,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
-        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
+        authManager.signinWithResourceOwnerPassword(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 fail("should get to onAuthorizationSuccess");
@@ -305,7 +305,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(mockRequest).send(any(ResponseListener.class));
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationSuccess");
@@ -337,7 +337,7 @@ public class AuthorizationManager_Test {
         ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");
@@ -379,7 +379,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(mockRequest).send(any(ResponseListener.class));
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");

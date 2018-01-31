@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     public void onAnonLoginClick(View v) {
         logger.debug("onAnonLoginClick");
         showProgress();
-        appId.loginAnonymously(getApplicationContext(), new AuthorizationListener() {
+        appId.signinAnonymously(getApplicationContext(), new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 logger.error("Anonymous authorization failure");
@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == LOGIN_SUBMITTED && data != null) {
             String username = data.getStringExtra("username");
             String password = data.getStringExtra("password");
-            appId.obtainTokensWithROP(getApplicationContext(), username, password, new TokenResponseListener() {
+            appId.signinWithResourceOwnerPassword(getApplicationContext(), username, password, new TokenResponseListener() {
                 @Override
                 public void onAuthorizationFailure(AuthorizationException exception) {
                     logger.info("onAuthorizationFailure: " + exception.getMessage());

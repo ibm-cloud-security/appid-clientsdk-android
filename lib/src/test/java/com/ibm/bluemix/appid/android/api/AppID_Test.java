@@ -123,9 +123,9 @@ public class AppID_Test {
 
 		AuthorizationListener listener = mock(AuthorizationListener.class);
 
-		appId.loginAnonymously(RuntimeEnvironment.application, listener);
-		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", listener);
-		appId.loginAnonymously(RuntimeEnvironment.application, "access_token", false, listener);
+		appId.signinAnonymously(RuntimeEnvironment.application, listener);
+		appId.signinAnonymously(RuntimeEnvironment.application, "access_token", listener);
+		appId.signinAnonymously(RuntimeEnvironment.application, "access_token", false, listener);
 
         appId.setPreferredLocale(Locale.GERMAN);
 
@@ -138,7 +138,7 @@ public class AppID_Test {
 
 		TokenResponseListener listener = mock(TokenResponseListener.class);
 
-		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener);
+		appId.signinWithResourceOwnerPassword(RuntimeEnvironment.application, "testUsername", "testPassword", listener);
 
 		verifyListenerFailed(1, listener);
 	}
@@ -149,7 +149,7 @@ public class AppID_Test {
 
 		TokenResponseListener listener = mock(TokenResponseListener.class);
 
-		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener, null);
+		appId.signinWithResourceOwnerPassword(RuntimeEnvironment.application, "testUsername", "testPassword", listener, null);
 
 		verifyListenerFailed(1, listener);
 	}
@@ -160,7 +160,7 @@ public class AppID_Test {
 
 		TokenResponseListener listener = mock(TokenResponseListener.class);
 
-		appId.obtainTokensWithROP(RuntimeEnvironment.application, "testUsername", "testPassword", listener, Consts.ACCESS_TOKEN);
+		appId.signinWithResourceOwnerPassword(RuntimeEnvironment.application, "testUsername", "testPassword", listener, Consts.ACCESS_TOKEN);
 
 		verifyListenerFailed(1, listener);
 	}
@@ -171,7 +171,7 @@ public class AppID_Test {
 
 		TokenResponseListener listener = mock(TokenResponseListener.class);
 
-		appId.refreshTokens(RuntimeEnvironment.application, "refreshToken", listener);
+		appId.signinWithRefreshToken(RuntimeEnvironment.application, "refreshToken", listener);
 
 		verifyListenerFailed(1, listener);
 	}

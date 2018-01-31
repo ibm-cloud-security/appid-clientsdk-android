@@ -328,7 +328,7 @@ public class AuthorizationManager {
         request.send(new ResponseListener() {
                          @Override
                          public void onSuccess(Response response) {
-                             logger.debug("loginAnonymously.Response in onSuccess:" + response.getResponseText());
+                             logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
                              String location = response.getHeaders().get("Location").toString();
                              String locationUrl = location.substring(1, location.length() - 1); // removing []
                              String code = Uri.parse(locationUrl).getQueryParameter("code");
@@ -338,7 +338,7 @@ public class AuthorizationManager {
                          @Override
                          public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
                              String message = (response == null) ? "" : response.getResponseText();
-                             logger.debug("loginAnonymously.Response in onFailure:" + message, t);
+                             logger.debug("signinAnonymously.Response in onFailure:" + message, t);
                              message = (t != null) ? t.getLocalizedMessage() : "Authorization request failed.";
                              message = (extendedInfo != null) ? message + extendedInfo.toString() : message;
                              listener.onAuthorizationFailure(new AuthorizationException(message));
@@ -347,7 +347,7 @@ public class AuthorizationManager {
         );
     }
 
-    public void loginAnonymously(final Context context, final String accessTokenString, final boolean allowCreateNewAnonymousUser, final AuthorizationListener authorizationListener) {
+    public void signinAnonymously(final Context context, final String accessTokenString, final boolean allowCreateNewAnonymousUser, final AuthorizationListener authorizationListener) {
         registrationManager.ensureRegistered(context, new RegistrationListener() {
             @Override
             public void onRegistrationFailure(RegistrationStatus error) {
@@ -370,7 +370,7 @@ public class AuthorizationManager {
         this.locale = locale;
     }
 
-    public void obtainTokensWithROP(final Context context, final String username, final String password, final String accessTokenString, final TokenResponseListener tokenResponseListener) {
+    public void signinWithResourceOwnerPassword(final Context context, final String username, final String password, final String accessTokenString, final TokenResponseListener tokenResponseListener) {
         registrationManager.ensureRegistered(context, new RegistrationListener() {
             @Override
             public void onRegistrationFailure(RegistrationStatus error) {
@@ -385,7 +385,7 @@ public class AuthorizationManager {
         });
     }
 
-    public void obtainTokensWithRefreshToken(final Context context, final String refreshToken, final TokenResponseListener tokenResponseListener) {
+    public void signinWithRefreshToken(final Context context, final String refreshToken, final TokenResponseListener tokenResponseListener) {
         registrationManager.ensureRegistered(context, new RegistrationListener() {
             @Override
             public void onRegistrationFailure(RegistrationStatus error) {
