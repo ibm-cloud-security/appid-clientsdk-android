@@ -21,29 +21,29 @@
 ## Installing the SDK:
 1.  Add the JitPack repository to the your root `build.gradle` file at the end of the repository.
 
-    ```gradle
-	    allprojects {
-		    repositories {
-			    ...
-			    maven { url 'https://jitpack.io' }
-		    }
-	    }
-    ```
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
 
 2. Add the dependency for the App ID client SDK:
-    ```gradle
-    dependencies {
-		    compile 'com.github.ibm-cloud-security:appid-clientsdk-android:3.+'
-	    }
-    ```
+```gradle
+dependencies {
+        compile 'com.github.ibm-cloud-security:appid-clientsdk-android:3.+'
+}
+```
     
 3. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
-    ```
-    defaultConfig {
+```
+defaultConfig {
     ...
     manifestPlaceholders = ['appIdRedirectScheme': android.defaultConfig.applicationId]
-    }
-    ```
+}
+```
 
 ## Initializing the App ID client SDK
 
