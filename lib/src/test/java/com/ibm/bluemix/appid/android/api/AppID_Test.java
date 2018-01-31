@@ -176,6 +176,18 @@ public class AppID_Test {
 		verifyListenerFailed(1, listener);
 	}
 
+	@Test
+	public void testRefreshTokensLatestFailed(){
+		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
+
+		TokenResponseListener listener = mock(TokenResponseListener.class);
+
+		appId.signinWithRefreshToken(RuntimeEnvironment.application, listener);
+
+		ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>("Missing refresh-token");
+		Mockito.verify(listener).onAuthorizationFailure(argThat(matcher));
+	}
+
 	private void verifyListenerFailed(int wantedNumberOfInvocations, TokenResponseListener listener) {
 		ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>(RegistrationStatus.FAILED_TO_REGISTER.getDescription());
 		Mockito.verify(listener, times(wantedNumberOfInvocations)).onAuthorizationFailure(argThat(matcher));

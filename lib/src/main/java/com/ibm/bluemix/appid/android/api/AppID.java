@@ -145,6 +145,30 @@ public class AppID {
 		return this.userAttributeManager;
 	}
 
+	/**
+	 * @deprecated use {@link #signinAnonymously(Context, AuthorizationListener)}
+	 */
+	@Deprecated
+	public void loginAnonymously(@NotNull Context context, @NotNull AuthorizationListener authorizationListener){
+		this.signinAnonymously(context, authorizationListener);
+	}
+
+	/**
+	 * @deprecated use {@link #signinAnonymously(Context, String, AuthorizationListener)}
+	 */
+	@Deprecated
+	public void loginAnonymously(@NotNull Context context, String accessToken, @NotNull AuthorizationListener authorizationListener){
+		this.signinAnonymously(context, accessToken, authorizationListener);
+	}
+
+	/**
+	 * @deprecated use {@link #signinAnonymously(Context, String, boolean, AuthorizationListener)}
+	 */
+	@Deprecated
+	public void loginAnonymously(@NotNull Context context, String accessToken, boolean allowCreateNewAnonymousUser, @NotNull AuthorizationListener authorizationListener){
+		oAuthManager.getAuthorizationManager().signinAnonymously(context, accessToken, allowCreateNewAnonymousUser, authorizationListener);
+	}
+
 	public void signinAnonymously(@NotNull Context context, @NotNull AuthorizationListener authorizationListener){
 		this.signinAnonymously(context, null, true, authorizationListener);
 	}
@@ -170,6 +194,36 @@ public class AppID {
 			oAuthManager.getAuthorizationManager().signinWithResourceOwnerPassword(context, username, password, accessToken.getRaw(), tokenResponseListener);
 		}
 		oAuthManager.getAuthorizationManager().signinWithResourceOwnerPassword(context, username, password, null, tokenResponseListener);
+	}
+
+	/**
+	 * @deprecated use {@link #obtainTokensWithROP(Context, String, String, TokenResponseListener, String)}
+	 */
+	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener, String accessTokenString) {
+		signinWithResourceOwnerPassword(context, username, password, tokenResponseListener, accessTokenString);
+	}
+
+	/**
+	 * @deprecated use {@link #obtainTokensWithROP(Context, String, String, TokenResponseListener)}
+	 */
+	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
+        signinWithResourceOwnerPassword(context, username, password, tokenResponseListener);
+	}
+
+	/**
+	 * Obtain token using Resource owner Password (RoP).
+	 *
+	 * @param username the resource owner username
+	 * @param password the resource owner password
+	 * @param tokenResponseListener the token response listener
+	 * @param accessTokenString previous access token of some anonymous user
+	 */
+	public void signinWithResourceOwnerPassword(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener, String accessTokenString) {
+		if(accessTokenString == null) {
+			signinWithResourceOwnerPassword(context, username, password, tokenResponseListener);
+		} else {
+			oAuthManager.getAuthorizationManager().signinWithResourceOwnerPassword(context, username, password, accessTokenString, tokenResponseListener);
+		}
 	}
 
 	/**
@@ -199,21 +253,4 @@ public class AppID {
 		}
 		signinWithRefreshToken(context, refreshTokenString, tokenResponseListener);
 	}
-
-    /**
-     * Obtain token using Resource owner Password (RoP).
-     *
-     * @param username the resource owner username
-     * @param password the resource owner password
-     * @param tokenResponseListener the token response listener
-     * @param accessTokenString previous access token of some anonymous user
-     */
-	public void signinWithResourceOwnerPassword(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener, String accessTokenString) {
-        if(accessTokenString == null) {
-			signinWithResourceOwnerPassword(context, username, password, tokenResponseListener);
-		} else {
-            oAuthManager.getAuthorizationManager().signinWithResourceOwnerPassword(context, username, password, accessTokenString, tokenResponseListener);
-		}
-	}
-
 }
