@@ -21,29 +21,29 @@
 ## Installing the SDK:
 1.  Add the JitPack repository to the your root `build.gradle` file at the end of the repository.
 
-    ```gradle
-	    allprojects {
-		    repositories {
-			    ...
-			    maven { url 'https://jitpack.io' }
-		    }
-	    }
-    ```
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
 
 2. Add the dependency for the App ID client SDK:
-    ```gradle
-    dependencies {
-		    compile 'com.github.ibm-cloud-security:appid-clientsdk-android:2.+'
-	    }
-    ```
+```gradle
+dependencies {
+        compile 'com.github.ibm-cloud-security:appid-clientsdk-android:3.+'
+}
+```
     
 3. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
-    ```
-    defaultConfig {
+```
+defaultConfig {
     ...
     manifestPlaceholders = ['appIdRedirectScheme': android.defaultConfig.applicationId]
-    }
-    ```
+}
+```
 
 ## Initializing the App ID client SDK
 
@@ -60,165 +60,162 @@ Use the LoginWidget class to start the authorization flow.
 ```java
 LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
 loginWidget.launch(this, new AuthorizationListener() {
-			@Override
-			public void onAuthorizationFailure (AuthorizationException exception) {
-				//Exception occurred
-			}
+    @Override
+    public void onAuthorizationFailure (AuthorizationException exception) {
+        //Exception occurred
+    }
 
-			@Override
-			public void onAuthorizationCanceled () {
-				//Authentication canceled by the user
-			}
+    @Override
+    public void onAuthorizationCanceled () {
+        //Authentication canceled by the user
+    }
 
-			@Override
-			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-				//User authenticated
-			}
-		});
+    @Override
+    public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        //User authenticated
+    }
+});
 ```
 **Note**: 
 
 * The default configuration use Facebook and Google as authentication options. If you configure only one of them the login widget will *not* launch and the user will be redirected to the configured identity provider authentication screen.
 * When using Cloud Directory, and "Email verification" is configured to *not* allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
-## Managing Cloud Directory with the Android SDK
-{: #managing-android} 
+## Managing Cloud Directory with the Android SDK 
 
  Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
 
- ### Login using Resource Owner Password
- You can obtain access token and id token by supplying the end user's username and the end user's password.
- ```java
- AppID.getInstance().obtainTokensWithROP(getApplicationContext(), username, password, 
-         new TokenResponseListener() {
-         @Override
-          public void onAuthorizationFailure (AuthorizationException exception) {
-             //Exception occurred
-          }
-                                                                                              
-          @Override
-          public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-            //User authenticated
-          }
-         });
- ```
- ### Sign Up
+### Login using Resource Owner Password
+ You can obtain access token, id token and refresh token by supplying the end user's username and password.
+```java
+AppID.getInstance().signinWithResourceOwnerPassword(getApplicationContext(), username, password, new TokenResponseListener() {
+    @Override
+    public void onAuthorizationFailure (AuthorizationException exception) {
+        //Exception occurred
+    }
+                                                                                          
+    @Override
+    public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        //User authenticated
+    }
+});
+```
+
+### Sign Up
 Make sure to set **Allow users to sign up and reset their password** to **ON**, in the settings for Cloud Directory.
 Use the LoginWidget class to start the sign up flow.
 
- ```java
- LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
- loginWidget.launchSignUp(this, new AuthorizationListener() {
-			 @Override
-			 public void onAuthorizationFailure (AuthorizationException exception) {
-				 //Exception occurred
-			 }
-
-			 @Override
-			 public void onAuthorizationCanceled () {
-				 //Sign up canceled by the user
-			 }
-
-			 @Override
-			 public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-				 if (accessToken != null && identityToken != null) {
-				     //User authenticated
-				 } else {
-				     //email verification is required
-				 }
-				 
-			 }
-		 });
- ```
-  ### Forgot Password
+```java
+LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
+loginWidget.launchSignUp(this, new AuthorizationListener() {
+    @Override
+    public void onAuthorizationFailure (AuthorizationException exception) {
+        //Exception occurred
+    }
+    
+    @Override
+    public void onAuthorizationCanceled () {
+        //Sign up canceled by the user
+    }
+    
+    @Override
+    public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        if (accessToken != null && identityToken != null) {
+            //User authenticated
+        } else {
+            //email verification is required
+        }
+    }
+});
+```
+### Forgot Password
   Make sure to set **Allow users to sign up and reset their password** and **Forgot password email** to **ON**, in the settings for Cloud Directory
   
  Use LoginWidget class to start the forgot password flow. 
-  ```java
-  LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
-  loginWidget.launchForgotPassword(this, new AuthorizationListener() {
- 			 @Override
- 			 public void onAuthorizationFailure (AuthorizationException exception) {
- 				 //Exception occurred
- 			 }
-  
- 			 @Override
- 			 public void onAuthorizationCanceled () {
- 				 //forogt password canceled by the user
- 			 }
-  
- 			 @Override
- 			 public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
- 				 //forgot password finished, in this case accessToken and identityToken will be null.
- 				 
- 			 }
- 		 });
-  ```
-  ### Change Details
+```java
+LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
+loginWidget.launchForgotPassword(this, new AuthorizationListener() {
+    @Override
+ 	public void onAuthorizationFailure (AuthorizationException exception) {
+        //Exception occurred
+    }
+
+    @Override
+    public void onAuthorizationCanceled () {
+        // Forogt password canceled by the user
+    }
+    
+    @Override
+    public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        // Forgot password finished, in this case accessToken and identityToken will be null.
+    }
+});
+```
+### Change Details
   Make sure to set **Allow users to sign up and reset their password** to **ON**, in Cloud Directory settings that are in AppID dashboard. Use LoginWidget class to start the change details flow. This API can be used only when the user is logged in using Cloud Directory identity provider.
   
-   ```java
-   LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
-   loginWidget.launchChangeDetails(this, new AuthorizationListener() {
-  			 @Override
-  			 public void onAuthorizationFailure (AuthorizationException exception) {
-  				 //Exception occurred
-  			 }
-   
-  			 @Override
-  			 public void onAuthorizationCanceled () {
-  				 //changed details canceled by the user
-  			 }
-   
-  			 @Override
-  			 public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-  				 //User authenticated, and fresh tokens received 
-  			 }
-  		 });
-   ```
-   ### Change Password
+```java
+LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
+loginWidget.launchChangeDetails(this, new AuthorizationListener() {
+    @Override
+    public void onAuthorizationFailure (AuthorizationException exception) {
+        // Exception occurred
+    }
+
+    @Override
+    public void onAuthorizationCanceled () {
+        // Changed details canceled by the user
+    }
+
+    @Override
+    public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        // User authenticated, and fresh tokens received 
+    }
+});
+```
+### Change Password
    Make sure to set **Allow users to sign up and reset their password** to **ON**, in the settings for Cloud Directory.
    
    Use LoginWidget class to start the change password flow. This API can be used only when the user logged in by using Cloud Directory as their identity provider.
    
-   ```java
-    LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
-    loginWidget.launchChangePassword(this, new AuthorizationListener() {
-   			 @Override
-   			 public void onAuthorizationFailure (AuthorizationException exception) {
-   				 //Exception occurred
-   			 }
+```java
+LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
+loginWidget.launchChangePassword(this, new AuthorizationListener() {
+    @Override
+    public void onAuthorizationFailure (AuthorizationException exception) {
+        // Exception occurred
+    }
     
-   			 @Override
-   			 public void onAuthorizationCanceled () {
-   				 //change password canceled by the user
-   			 }
+    @Override
+    public void onAuthorizationCanceled () {
+        // Change password canceled by the user
+    }
     
-   			 @Override
-   			 public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
-   				   //User authenticated, and fresh tokens received 
-   			 }
-   		 });
-   ```
+    @Override
+    public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        // User authenticated, and fresh tokens received 
+    }
+});
+```
  
 ## Anonymous Login
 ```java
-AppID.getInstance().loginAnonymously(getApplicationContext(), new AuthorizationListener() {
-			@Override
-			public void onAuthorizationFailure(AuthorizationException exception) {
-				//Exception occurred
-			}
+AppID.getInstance().signinAnonymously(getApplicationContext(), new AuthorizationListener() {
+    @Override
+    public void onAuthorizationFailure(AuthorizationException exception) {
+        //Exception occurred
+    }
 
-			@Override
-			public void onAuthorizationCanceled() {
-				//Authentication canceled by the user
-			}
+    @Override
+    public void onAuthorizationCanceled() {
+        //Authentication canceled by the user
+    }
 
-			@Override
-			public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-				//User authenticated
-			}
-		});
+    @Override
+    public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        //User authenticated
+    }
+});
 ```
 
 ## User profile attributes
@@ -227,52 +224,52 @@ AppID appId = AppID.getInstance();
 String name = "name";
 String value = "value";
 appId.getUserAttributeManager().setAttribute(name, value, new UserAttributeResponseListener() {
-			@Override
-			public void onSuccess(JSONObject attributes) {
-				//Set attribute "name" to "value" successfully 
-			}
-
-			@Override
-			public void onFailure(UserAttributesException e) {
-				//Exception occurred
-			}
-		});
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Set attribute "name" to "value" successfully 
+    }
+    
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
 		
 appId.getUserAttributeManager().getAttribute(name, new UserAttributeResponseListener() {
-			@Override
-			public void onSuccess(JSONObject attributes) {
-				//Got attribute "name" successfully 
-			}
-
-			@Override
-			public void onFailure(UserAttributesException e) {
-				//Exception occurred
-			}
-		});
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Got attribute "name" successfully 
+    }
+    
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
 		
-appId.getUserAttributeManager().getAllAttributes( new UserAttributeResponseListener() {
-			@Override
-			public void onSuccess(JSONObject attributes) {
-				//Got all attributes successfully
-			}
-
-			@Override
-			public void onFailure(UserAttributesException e) {
-				//Exception occurred
-			}
-		});
+appId.getUserAttributeManager().getAllAttributes(new UserAttributeResponseListener() {
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Got all attributes successfully
+    }
+    
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
 		
 appId.getUserAttributeManager().deleteAttribute(name, new UserAttributeResponseListener() {
-			@Override
-			public void onSuccess(JSONObject attributes) {
-				//Attribute "name" deleted successfully
-			}
-
-			@Override
-			public void onFailure(UserAttributesException e) {
-				//Exception occurred
-			}
-		});
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Attribute "name" deleted successfully
+    }
+    
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
 ```
 
 ## Invoking protected resources
@@ -285,10 +282,12 @@ bmsClient.setAuthorizationManager(appIdAuthMgr);
 
 Request request = new Request("http://my-mobile-backend.mybluemix.net/protected", Request.GET);
 request.send(this, new ResponseListener() {
+
 @Override
 public void onSuccess (Response response) {
     Log.d("Myapp", "onRegistrationSuccess :: " + response.getResponseText());
 }
+
 @Override
 public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
     if (null != t) {

@@ -14,7 +14,6 @@
 package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -108,7 +107,7 @@ public class ChromeTabActivity extends Activity {
 
         if (url.startsWith(redirectUrl) && code != null) {
             logger.debug("Grant code received from authorization server.");
-            oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
+            oAuthManager.getTokenManager().obtainTokensAuthCode(code, authorizationListener);
             startActivity(clearTopActivityIntent);
         } else if (url.startsWith(redirectUrl) && error != null) {
             if (error.equals("invalid_client")) {
@@ -125,7 +124,7 @@ public class ChromeTabActivity extends Activity {
             }
         } else if (url.startsWith(redirectUrl) && (FORGOT_PASSWORD.equals(flow) || SIGN_UP.equals(flow))) {
             logger.debug("onBroadcastReceived: end of flow: " + flow);
-            authorizationListener.onAuthorizationSuccess(null, null);
+            authorizationListener.onAuthorizationSuccess(null, null, null);
             startActivity(clearTopActivityIntent);
         } else {
             logger.debug("onBroadcastReceived: no match case");

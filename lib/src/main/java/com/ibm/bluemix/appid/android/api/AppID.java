@@ -17,6 +17,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
@@ -144,16 +145,40 @@ public class AppID {
 		return this.userAttributeManager;
 	}
 
+	/**
+	 * @deprecated use {@link #signinAnonymously(Context, AuthorizationListener)}
+	 */
+	@Deprecated
 	public void loginAnonymously(@NotNull Context context, @NotNull AuthorizationListener authorizationListener){
-		this.loginAnonymously(context, null, true, authorizationListener);
+		this.signinAnonymously(context, authorizationListener);
 	}
 
+	/**
+	 * @deprecated use {@link #signinAnonymously(Context, String, AuthorizationListener)}
+	 */
+	@Deprecated
 	public void loginAnonymously(@NotNull Context context, String accessToken, @NotNull AuthorizationListener authorizationListener){
-		this.loginAnonymously(context, accessToken, true, authorizationListener);
+		this.signinAnonymously(context, accessToken, authorizationListener);
 	}
 
-	public void loginAnonymously(@NotNull Context context,  String accessToken, boolean allowCreateNewAnonymousUser, @NotNull AuthorizationListener authorizationListener){
-		oAuthManager.getAuthorizationManager().loginAnonymously(context, accessToken, allowCreateNewAnonymousUser, authorizationListener);
+	/**
+	 * @deprecated use {@link #signinAnonymously(Context, String, boolean, AuthorizationListener)}
+	 */
+	@Deprecated
+	public void loginAnonymously(@NotNull Context context, String accessToken, boolean allowCreateNewAnonymousUser, @NotNull AuthorizationListener authorizationListener){
+		oAuthManager.getAuthorizationManager().signinAnonymously(context, accessToken, allowCreateNewAnonymousUser, authorizationListener);
+	}
+
+	public void signinAnonymously(@NotNull Context context, @NotNull AuthorizationListener authorizationListener){
+		this.signinAnonymously(context, null, true, authorizationListener);
+	}
+
+	public void signinAnonymously(@NotNull Context context, String accessToken, @NotNull AuthorizationListener authorizationListener){
+		this.signinAnonymously(context, accessToken, true, authorizationListener);
+	}
+
+	public void signinAnonymously(@NotNull Context context, String accessToken, boolean allowCreateNewAnonymousUser, @NotNull AuthorizationListener authorizationListener){
+		oAuthManager.getAuthorizationManager().signinAnonymously(context, accessToken, allowCreateNewAnonymousUser, authorizationListener);
 	}
 
 	/**
@@ -163,28 +188,69 @@ public class AppID {
 	 * @param password the resource owner password
 	 * @param tokenResponseListener the token response listener
 	 */
-	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
+	public void signinWithResourceOwnerPassword(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
         AccessToken accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
 		if (accessToken != null && accessToken.isAnonymous()) {
-			oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessToken.getRaw(), tokenResponseListener);
+			oAuthManager.getAuthorizationManager().signinWithResourceOwnerPassword(context, username, password, accessToken.getRaw(), tokenResponseListener);
 		}
-		oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, null, tokenResponseListener);
+		oAuthManager.getAuthorizationManager().signinWithResourceOwnerPassword(context, username, password, null, tokenResponseListener);
 	}
 
-    /**
-     * Obtain token using Resource owner Password (RoP).
-     *
-     * @param username the resource owner username
-     * @param password the resource owner password
-     * @param tokenResponseListener the token response listener
-     * @param accessTokenString previous access token of some anonymous user
-     */
+	/**
+	 * @deprecated use {@link #obtainTokensWithROP(Context, String, String, TokenResponseListener, String)}
+	 */
 	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener, String accessTokenString) {
-        if(accessTokenString == null) {
-			obtainTokensWithROP(context, username, password, tokenResponseListener);
+		signinWithResourceOwnerPassword(context, username, password, tokenResponseListener, accessTokenString);
+	}
+
+	/**
+	 * @deprecated use {@link #obtainTokensWithROP(Context, String, String, TokenResponseListener)}
+	 */
+	public void obtainTokensWithROP(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener) {
+        signinWithResourceOwnerPassword(context, username, password, tokenResponseListener);
+	}
+
+	/**
+	 * Obtain token using Resource owner Password (RoP).
+	 *
+	 * @param username the resource owner username
+	 * @param password the resource owner password
+	 * @param tokenResponseListener the token response listener
+	 * @param accessTokenString previous access token of some anonymous user
+	 */
+	public void signinWithResourceOwnerPassword(@NotNull Context context, @NotNull String username, @NotNull String password, @NotNull TokenResponseListener tokenResponseListener, String accessTokenString) {
+		if(accessTokenString == null) {
+			signinWithResourceOwnerPassword(context, username, password, tokenResponseListener);
 		} else {
-            oAuthManager.getAuthorizationManager().obtainTokensWithROP(context, username, password, accessTokenString, tokenResponseListener);
+			oAuthManager.getAuthorizationManager().signinWithResourceOwnerPassword(context, username, password, accessTokenString, tokenResponseListener);
 		}
 	}
 
+	/**
+	 * Obtain token using a refresh token
+	 *
+	 * @param refreshToken the refresh token
+	 * @param tokenResponseListener the token response listener
+	 */
+	public void signinWithRefreshToken(@NotNull Context context, @NotNull String refreshToken, @NotNull TokenResponseListener tokenResponseListener) {
+		if (refreshToken == null) {
+			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Missing refresh-token"));
+			return;
+		}
+		oAuthManager.getAuthorizationManager().signinWithRefreshToken(context, refreshToken, tokenResponseListener);
+	}
+
+	/**
+	 * Obtain token using the latest refresh token stored in the SDK
+	 *
+	 * @param tokenResponseListener the token response listener
+	 */
+	public void signinWithRefreshToken(@NotNull Context context, @NotNull TokenResponseListener tokenResponseListener) {
+		String refreshTokenString = null;
+		RefreshToken refreshToken = oAuthManager.getTokenManager().getLatestRefreshToken();
+		if (refreshToken != null) {
+			refreshTokenString = refreshToken.getRaw();
+		}
+		signinWithRefreshToken(context, refreshTokenString, tokenResponseListener);
+	}
 }

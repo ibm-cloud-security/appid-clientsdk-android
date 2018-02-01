@@ -3,10 +3,11 @@
     <string name="help">Help</string>
 
     <string name="use_last">last token</string>
-    <string name="use_anon">anonymous token</string>
+    <string name="use_anon">anon token</string>
     <string name="use_identified">id token</string>
 
     <string name="title_activity_tokens">Tokens</string>
     <string name="closebutton">Close</string>
     <string name="no_tokens">NO\nTOKENS</string>
+    <string name="use_refresh_token">refresh token</string>
 </resources>

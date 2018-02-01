@@ -11,13 +11,20 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.api;
+package com.ibm.bluemix.appid.android.internal.tokens;
 
-import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
-import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 
-public interface TokenResponseListener {
-    void onAuthorizationFailure(AuthorizationException exception);
-    void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken);
+public class RefreshTokenImpl implements RefreshToken {
+
+	private final String raw;
+
+	public RefreshTokenImpl(String raw) {
+		this.raw = raw;
+	}
+
+	@Override
+	public String getRaw() {
+		return raw;
+	}
 }

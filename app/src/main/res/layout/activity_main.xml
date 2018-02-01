@@ -315,6 +315,13 @@
                 android:onClick="onRadioButtonClicked"
                 android:text="@string/use_identified" />
 
+            <RadioButton
+                android:id="@+id/radio_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonClicked"
+                android:text="@string/use_refresh_token" />
+
         </RadioGroup>
 
         <TextView

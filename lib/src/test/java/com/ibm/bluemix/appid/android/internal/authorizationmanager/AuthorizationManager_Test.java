@@ -22,6 +22,7 @@ import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequestFactory;
@@ -32,6 +33,7 @@ import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
+import com.ibm.bluemix.appid.android.testing.helpers.ExceptionMessageMatcher;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
@@ -44,6 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -61,6 +64,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -203,22 +207,22 @@ public class AuthorizationManager_Test {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
                          TokenResponseListener tokenListener = (TokenResponseListener) args[3];
-                         tokenListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken);
+                         tokenListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken, null);
                          return null;
                      }
                  }
-        ).when(tokenManagerMock).obtainTokens(eq(username), eq(password), eq(passedAccessToken), any(TokenResponseListener.class));
+        ).when(tokenManagerMock).obtainTokensRoP(eq(username), eq(password), eq(passedAccessToken), any(TokenResponseListener.class));
 
         doAnswer(new Answer<Void>() {
                      @Override
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
                          AuthorizationListener authListener = (AuthorizationListener) args[1];
-                         authListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken);
+                         authListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken, null);
                          return null;
                      }
                  }
-        ).when(tokenManagerMock).obtainTokens(anyString(), any(AuthorizationListener.class));
+        ).when(tokenManagerMock).obtainTokensAuthCode(anyString(), any(AuthorizationListener.class));
 
         authManager = new AuthorizationManager(oAuthManagerMock, mockContext);
         appidMock.overrideOAuthServerHost = null;
@@ -238,14 +242,14 @@ public class AuthorizationManager_Test {
         }).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
 
-        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
+        authManager.signinWithResourceOwnerPassword(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), RegistrationStatus.NOT_REGISTRED.getDescription());
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -263,14 +267,14 @@ public class AuthorizationManager_Test {
                  }
         ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
-        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
+        authManager.signinWithResourceOwnerPassword(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 fail("should get to onAuthorizationSuccess");
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
                 assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
             }
@@ -301,7 +305,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(mockRequest).send(any(ResponseListener.class));
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationSuccess");
@@ -313,7 +317,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
                 assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
             }
@@ -333,7 +337,7 @@ public class AuthorizationManager_Test {
         ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");
@@ -345,7 +349,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -375,7 +379,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(mockRequest).send(any(ResponseListener.class));
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");
@@ -387,7 +391,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -413,7 +417,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -449,7 +453,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -463,7 +467,6 @@ public class AuthorizationManager_Test {
 
     @Test
     public void launchAuthorizationUI_localeTest(){
-
         final Locale overrideLocale = Locale.FRENCH;
         final AuthorizationManager spyAuthManager = spy(authManager);
         doAnswer(new Answer<Void>() {
@@ -479,25 +482,21 @@ public class AuthorizationManager_Test {
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
 
         spyAuthManager.setPreferredLocale(overrideLocale);
-        spyAuthManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
-            @Override
-            public void onAuthorizationFailure(AuthorizationException exception) {
+
+        AuthorizationListener listener = Mockito.mock(AuthorizationListener.class);
+
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
                 String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid&language="+overrideLocale;
-                assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
-
+                return null;
             }
+        }).when(listener).onAuthorizationFailure(any(AuthorizationException.class));
 
-            @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                fail("should get to onAuthorizationFailure");
-            }
+        spyAuthManager.launchAuthorizationUI(mockActivity, listener);
 
-            @Override
-            public void onAuthorizationCanceled() {
-                fail("should get to onAuthorizationFailure");
-            }
-        });
+        ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>("Could NOT find installed browser that support Chrome tabs on the device.");
+        verify(listener).onAuthorizationFailure(argThat(matcher));
     }
 
 
@@ -521,7 +520,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -556,7 +555,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -579,7 +578,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -603,7 +602,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -635,7 +634,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -664,7 +663,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -687,7 +686,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -711,7 +710,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -754,7 +753,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -793,7 +792,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -835,7 +834,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -879,7 +878,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -922,7 +921,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -950,7 +949,7 @@ public class AuthorizationManager_Test {
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
         spyAuthManager.launchForgotPasswordUI(mockActivity, new AuthorizationListener() {
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 

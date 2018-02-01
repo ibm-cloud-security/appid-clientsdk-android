@@ -20,6 +20,7 @@ import com.ibm.bluemix.appid.android.api.LoginWidget;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private AccessToken anonymousAccessToken;
     private AccessToken identifiedAccessToken;
     private AccessToken useThisToken;
+    private RefreshToken identifiedRefreshToken;
 
     public final static int LOGIN_SUBMITTED = 2;
     public final static int LOGIN_CANCEL = 3;
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     public void onAnonLoginClick(View v) {
         logger.debug("onAnonLoginClick");
         showProgress();
-        appId.loginAnonymously(getApplicationContext(), new AuthorizationListener() {
+        appId.signinAnonymously(getApplicationContext(), new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 logger.error("Anonymous authorization failure");
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 logger.info("Anonymous authorization success");
                 anonymousAccessToken = accessToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
@@ -115,14 +117,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 logger.info("onAuthorizationSuccess");
                 if (accessToken != null && identityToken != null) {
                     logger.info("access_token: " + accessToken.getRaw());
                     logger.info("id_token: " + identityToken.getRaw());
                     logger.info("access_token isExpired: " + accessToken.isExpired());
                     logger.info("id_token isExpired: " + identityToken.isExpired());
+                    if (refreshToken != null) {
+                        logger.info("refresh_token: " + refreshToken.getRaw());
+                    }
                     identifiedAccessToken = accessToken;
+                    identifiedRefreshToken = refreshToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 } else {
                     //in case we are in strict mode
@@ -152,14 +158,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 logger.info("sign up: onAuthorizationSuccess");
                 if (accessToken != null && identityToken != null) {
                     logger.info("access_token: " + accessToken.getRaw());
                     logger.info("id_token: " + identityToken.getRaw());
                     logger.info("access_token isExpired: " + accessToken.isExpired());
                     logger.info("id_token isExpired: " + identityToken.isExpired());
+                    if (refreshToken != null) {
+                        logger.info("refresh_token: " + refreshToken.getRaw());
+                    }
                     identifiedAccessToken = accessToken;
+                    identifiedRefreshToken = refreshToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 } else {
                     //in case we are in strict mode
@@ -190,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 logger.info("Forgot Password:  onAuthorizationSuccess");
                 hideProgress();
             }
@@ -217,13 +227,17 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 logger.info("Change Password: onAuthorizationSuccess");
                 logger.info("access_token: " + accessToken.getRaw());
                 logger.info("id_token: " + identityToken.getRaw());
                 logger.info("access_token isExpired: " + accessToken.isExpired());
                 logger.info("id_token isExpired: " + identityToken.isExpired());
+                if (refreshToken != null) {
+                    logger.info("refresh_token: " + refreshToken.getRaw());
+                }
                 identifiedAccessToken = accessToken;
+                identifiedRefreshToken = refreshToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
         });
@@ -249,13 +263,17 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 logger.info("Change Details: onAuthorizationSuccess");
                 logger.info("access_token: " + accessToken.getRaw());
                 logger.info("id_token: " + identityToken.getRaw());
                 logger.info("access_token isExpired: " + accessToken.isExpired());
                 logger.info("id_token isExpired: " + identityToken.isExpired());
+                if (refreshToken != null) {
+                    logger.info("refresh_token: " + refreshToken.getRaw());
+                }
                 identifiedAccessToken = accessToken;
+                identifiedRefreshToken = refreshToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
         });
@@ -280,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == LOGIN_SUBMITTED && data != null) {
             String username = data.getStringExtra("username");
             String password = data.getStringExtra("password");
-            appId.obtainTokensWithROP(getApplicationContext(), username, password, new TokenResponseListener() {
+            appId.signinWithResourceOwnerPassword(getApplicationContext(), username, password, new TokenResponseListener() {
                 @Override
                 public void onAuthorizationFailure(AuthorizationException exception) {
                     logger.info("onAuthorizationFailure: " + exception.getMessage());
@@ -289,13 +307,17 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+                public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                     logger.info("onAuthorizationSuccess");
                     logger.info("access_token: " + accessToken.getRaw());
                     logger.info("id_token: " + identityToken.getRaw());
                     logger.info("access_token isExpired: " + accessToken.isExpired());
                     logger.info("id_token isExpired: " + identityToken.isExpired());
+                    if (refreshToken != null) {
+                        logger.info("refresh_token: " + refreshToken.getRaw());
+                    }
                     identifiedAccessToken = accessToken;
+                    identifiedRefreshToken = refreshToken;
                     extractAndDisplayDataFromIdentityToken(identityToken);
                 }
             }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
@@ -551,6 +573,9 @@ public class MainActivity extends AppCompatActivity {
                 token = useThisToken != null ?
                         useThisToken.getRaw() : "No token";
                 ((TextView) findViewById(R.id.textViewProtectedResourceResponse)).setText(token);
+                break;
+            case R.id.radio_refresh:
+                ((TextView) findViewById(R.id.textViewProtectedResourceResponse)).setText(identifiedRefreshToken != null ? identifiedRefreshToken.getRaw() : "No token");
                 break;
         }
     }
