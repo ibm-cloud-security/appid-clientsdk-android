@@ -22,6 +22,7 @@ import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequestFactory;
@@ -32,6 +33,7 @@ import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
+import com.ibm.bluemix.appid.android.testing.helpers.ExceptionMessageMatcher;
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
@@ -44,6 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -54,12 +57,14 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -91,6 +96,7 @@ public class AuthorizationManager_Test {
     private Activity mockActivity;
     @Mock
     private IdentityToken mockIdToken;
+    private Locale defaultLocale = Locale.getDefault();
     private AuthorizationManager authManager;
     private String username = "testUser";
     private String password = "testPassword";
@@ -201,22 +207,22 @@ public class AuthorizationManager_Test {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
                          TokenResponseListener tokenListener = (TokenResponseListener) args[3];
-                         tokenListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken);
+                         tokenListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken, null);
                          return null;
                      }
                  }
-        ).when(tokenManagerMock).obtainTokens(eq(username), eq(password), eq(passedAccessToken), any(TokenResponseListener.class));
+        ).when(tokenManagerMock).obtainTokensRoP(eq(username), eq(password), eq(passedAccessToken), any(TokenResponseListener.class));
 
         doAnswer(new Answer<Void>() {
                      @Override
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
                          AuthorizationListener authListener = (AuthorizationListener) args[1];
-                         authListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken);
+                         authListener.onAuthorizationSuccess(expectedAccessToken, expectedIdToken, null);
                          return null;
                      }
                  }
-        ).when(tokenManagerMock).obtainTokens(anyString(), any(AuthorizationListener.class));
+        ).when(tokenManagerMock).obtainTokensAuthCode(anyString(), any(AuthorizationListener.class));
 
         authManager = new AuthorizationManager(oAuthManagerMock, mockContext);
         appidMock.overrideOAuthServerHost = null;
@@ -236,14 +242,14 @@ public class AuthorizationManager_Test {
         }).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
 
-        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
+        authManager.signinWithResourceOwnerPassword(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 assertEquals(exception.getMessage(), RegistrationStatus.NOT_REGISTRED.getDescription());
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -261,14 +267,14 @@ public class AuthorizationManager_Test {
                  }
         ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
-        authManager.obtainTokensWithROP(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
+        authManager.signinWithResourceOwnerPassword(mockContext, username, password, passedAccessToken, new TokenResponseListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
                 fail("should get to onAuthorizationSuccess");
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
                 assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
             }
@@ -299,7 +305,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(mockRequest).send(any(ResponseListener.class));
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationSuccess");
@@ -311,7 +317,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 assertEquals(accessToken.getRaw(), expectedAccessToken.getRaw());
                 assertEquals(identityToken.getRaw(), expectedIdToken.getRaw());
             }
@@ -331,7 +337,7 @@ public class AuthorizationManager_Test {
         ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
 
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");
@@ -343,7 +349,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -373,7 +379,7 @@ public class AuthorizationManager_Test {
                  }
         ).when(mockRequest).send(any(ResponseListener.class));
 
-        authManager.loginAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");
@@ -385,7 +391,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
         });
@@ -411,7 +417,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -440,14 +446,14 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
 
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -457,6 +463,42 @@ public class AuthorizationManager_Test {
             }
         });
     }
+
+
+    @Test
+    public void launchAuthorizationUI_localeTest(){
+        final Locale overrideLocale = Locale.FRENCH;
+        final AuthorizationManager spyAuthManager = spy(authManager);
+        doAnswer(new Answer<Void>() {
+                     public Void answer(InvocationOnMock invocation) {
+                         Object[] args = invocation.getArguments();
+                         RegistrationListener regListener = (RegistrationListener) args[1];
+                         regListener.onRegistrationSuccess();
+                         return null;
+                     }
+                 }
+        ).when(registrationManager).ensureRegistered(eq(mockActivity), any(RegistrationListener.class));
+
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+
+        spyAuthManager.setPreferredLocale(overrideLocale);
+
+        AuthorizationListener listener = Mockito.mock(AuthorizationListener.class);
+
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=code&client_id=null&redirect_uri=null&scope=openid&language="+overrideLocale;
+                verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
+                return null;
+            }
+        }).when(listener).onAuthorizationFailure(any(AuthorizationException.class));
+
+        spyAuthManager.launchAuthorizationUI(mockActivity, listener);
+
+        ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>("Could NOT find installed browser that support Chrome tabs on the device.");
+        verify(listener).onAuthorizationFailure(argThat(matcher));
+    }
+
 
     @Test
     public void launchSignUpAuthorizationUI_failure(){
@@ -478,7 +520,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -507,13 +549,13 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchSignUpAuthorizationUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=sign_up&client_id=null&redirect_uri=null&scope=openid";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/authorization?response_type=sign_up&client_id=null&redirect_uri=null&scope=openid&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -536,7 +578,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -560,7 +602,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -586,13 +628,13 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchChangePasswordUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_password?user_id=1234";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_password?user_id=1234&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -621,7 +663,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -644,7 +686,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -668,7 +710,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -705,13 +747,13 @@ public class AuthorizationManager_Test {
         spyAuthManager.launchChangeDetailsUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_details?code=1234";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/change_details?code=1234&language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -750,7 +792,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -792,7 +834,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -836,7 +878,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -879,7 +921,7 @@ public class AuthorizationManager_Test {
             }
 
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
@@ -907,13 +949,13 @@ public class AuthorizationManager_Test {
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
         spyAuthManager.launchForgotPasswordUI(mockActivity, new AuthorizationListener() {
             @Override
-            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
+            public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
                 fail("should get to onAuthorizationFailure");
             }
 
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
-                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/forgot_password";
+                String expectedAuthUrl = "https://appid-oauth.stubPrefix/oauth/v3/null/cloud_directory/forgot_password?language="+defaultLocale;
                 assertEquals(exception.getMessage(), "Could NOT find installed browser that support Chrome tabs on the device.");
                 verify(spyAuthManager).createAuthorizationUIManager(any(OAuthManager.class), any(AuthorizationListener.class), eq(expectedAuthUrl), anyString());
             }

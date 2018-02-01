@@ -14,7 +14,6 @@
 package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -72,7 +71,7 @@ public class ChromeTabActivity extends Activity {
             CustomTabsIntent customTabsIntent = builder.build();
 
             customTabsIntent.intent.setPackage(AuthorizationUIManager.getPackageNameToUse(this.getApplicationContext()));
-            customTabsIntent.intent.addFlags(PendingIntent.FLAG_ONE_SHOT);
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
@@ -88,7 +87,6 @@ public class ChromeTabActivity extends Activity {
             Uri uri = Uri.parse(serverUrl);
             logger.debug("launching custom tab with url: " + uri.toString());
             customTabsIntent.launchUrl(this, uri);
-
         } else {
             //if we launch after authorization completed
             finish();
@@ -109,7 +107,7 @@ public class ChromeTabActivity extends Activity {
 
         if (url.startsWith(redirectUrl) && code != null) {
             logger.debug("Grant code received from authorization server.");
-            oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
+            oAuthManager.getTokenManager().obtainTokensAuthCode(code, authorizationListener);
             startActivity(clearTopActivityIntent);
         } else if (url.startsWith(redirectUrl) && error != null) {
             if (error.equals("invalid_client")) {
@@ -118,15 +116,15 @@ public class ChromeTabActivity extends Activity {
             } else {
                 String errorCode = uri.getQueryParameter("error_code");
                 String errorDescription = uri.getQueryParameter("error_description");
-                logger.error("error: " + error);
+                logger.error("Failed to obtain access and identity tokens, error: " + error);
                 logger.error("errorCode: " + errorCode);
                 logger.error("errorDescription: " + errorDescription);
-                authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to obtain access and identity tokens"));
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error));
                 startActivity(clearTopActivityIntent);
             }
         } else if (url.startsWith(redirectUrl) && (FORGOT_PASSWORD.equals(flow) || SIGN_UP.equals(flow))) {
             logger.debug("onBroadcastReceived: end of flow: " + flow);
-            authorizationListener.onAuthorizationSuccess(null, null);
+            authorizationListener.onAuthorizationSuccess(null, null, null);
             startActivity(clearTopActivityIntent);
         } else {
             logger.debug("onBroadcastReceived: no match case");

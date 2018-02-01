@@ -20,8 +20,9 @@ import android.os.Build;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
-import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper;
+import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
+import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import com.ibm.mobilefirstplatform.clientsdk.android.security.api.AppIdentity;
@@ -70,7 +71,7 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 
 	/**
      * A response is an OAuth error response only if,
-     * 1. it's status is 401 or 403
+     * 1. Its status is either 401 or 403
      * 2. The value of the "WWW-Authenticate" header contains 'Bearer'
      *
      * @param urlConnection connection to check the authorization conditions for.
@@ -87,6 +88,25 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 	public void obtainAuthorization (final Context context, final ResponseListener listener, Object... params) {
 		logger.debug("obtainAuthorization");
 
+		RefreshToken latestRefreshToken = getRefreshToken();
+		if (latestRefreshToken != null) {
+			oAuthManager.getTokenManager().obtainTokensRefreshToken(latestRefreshToken.getRaw(), new TokenResponseListener() {
+				@Override
+				public void onAuthorizationFailure(AuthorizationException exception) {
+					launchAuthorization(context, listener);
+				}
+
+				@Override
+				public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+					listener.onSuccess(null);
+				}
+			});
+		} else {
+			launchAuthorization(context, listener);
+		}
+	}
+
+	private void launchAuthorization (final Context context, final ResponseListener listener) {
 		oAuthManager.getAuthorizationManager().launchAuthorizationUI((Activity)context, new AuthorizationListener() {
 			@Override
 			public void onAuthorizationFailure (AuthorizationException exception) {
@@ -99,7 +119,7 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 			}
 
 			@Override
-			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken) {
+			public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
 				listener.onSuccess(null);
 			}
 		});
@@ -184,5 +204,9 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 
 	public IdentityToken getIdentityToken () {
 		return oAuthManager.getTokenManager().getLatestIdentityToken();
+	}
+
+	public RefreshToken getRefreshToken() {
+		return oAuthManager.getTokenManager().getLatestRefreshToken();
 	}
 }
