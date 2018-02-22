@@ -18,15 +18,28 @@
         </activity>
         <activity
             android:name=".SignInActivity"
-            android:label="@string/title_activity_login"
+            android:label="@string/title_activity_sign_in"
             android:theme="@android:style/Theme.Holo.Dialog"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
-        </activity>
+            android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity
             android:name=".TokensActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_tokens"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
+        <activity
+            android:name=".SignUpActivity"
+            android:label="@string/title_activity_sign_up"
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+        <activity android:name=".SignUpSuccessActivity" />
+        <activity android:name=".ConfirmationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="cloudland"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

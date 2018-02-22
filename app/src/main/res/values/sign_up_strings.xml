@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="title_activity_sign_up">Sign up</string>
+    <!-- Strings related to sign up -->
+    <string name="prompt_first_name">First Name</string>
+    <string name="prompt_last_name">Last Name</string>
+    <string name="prompt_phone">Phone Number</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_re_password">Re Password</string>
+
+</resources>

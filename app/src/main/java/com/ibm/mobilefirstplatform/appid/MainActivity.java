@@ -1,3 +1,15 @@
+/*
+	Copyright 2017 IBM Corp.
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
 package com.ibm.mobilefirstplatform.appid;
 
 import android.content.Intent;
@@ -17,7 +29,6 @@ import com.ibm.bluemix.appid.android.api.AppIDAuthorizationManager;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
 import com.ibm.bluemix.appid.android.api.LoginWidget;
-import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
@@ -34,9 +45,9 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String tenantId = "AppID_tenantId";
-    private final static String region = AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
-    private final static String protectedUrl = "protected_URL";
+    private final static String tenantId = "379c9bd2-8d02-4b5b-83d3-24ad9440a0e3"; //"8f99fd65-eba4-45bc-aff9-04df80a247c7";//"a7ac2d22-9e7c-42e5-914f-80d8c81beee4";//"379c9bd2-8d02-4b5b-83d3-24ad9440a0e3";//"9f01fffa-3662-4556-9b91-bc8745045814";//"225bb309-7574-4ee9-80cc-30a676e21e99";//;//"AppID_tenantId";
+    private final static String region = ".stage1.eu-gb.bluemix.net";// AppID.REGION_US_SOUTH;;//".stage1.eu-gb.bluemix.net";//".stage1.eu-gb.bluemix.net";//;//AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
+    private final static String protectedUrl = "https://protecteddonotdelete-node-1c2e5712-487b-439e-8087-2f913b0462a7.stage1.mybluemix.net/api/protected";
 
     private final static Logger logger = Logger.getLogger(MainActivity.class.getName());
     private AppID appId;
@@ -45,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private AccessToken identifiedAccessToken;
     private AccessToken useThisToken;
 
-    public final static int LOGIN_SUBMITTED = 2;
-    public final static int LOGIN_CANCEL = 3;
+    public final static int SIGN_IN_SUCCESS = 2;
+    public final static int SIGN_IN_CANCEL = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
         bmsClient.initialize(this, region);
         // Initialize AppID SDK
         appId = AppID.getInstance();
+//        ARMADA url:
+//        appId.overrideOAuthServerHost = "https://appid-prod-dal13.ng.bluemix.net/oauth/v3/";
+//        appId.overrideOAuthServerHost = "http://10.0.2.2:6002/oauth/v3/";
+
         appId.initialize(this, tenantId, region);
         // Add integration with BMSClient. Optional.
         this.appIDAuthorizationManager = new AppIDAuthorizationManager(this.appId);
@@ -86,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
                 logger.info("Anonymous authorization success");
+                logger.info("access token: " + accessToken.getRaw() + " id: " + identityToken.getRaw());
                 anonymousAccessToken = accessToken;
                 extractAndDisplayDataFromIdentityToken(identityToken);
             }
@@ -265,40 +281,30 @@ public class MainActivity extends AppCompatActivity {
         logger.debug("onGetTokenUsingRoP");
         showResponse("");
         showProgress();
-        Intent inent;
-        inent = new Intent(getApplicationContext(), SignInActivity.class);
-        startActivityForResult(inent, LOGIN_SUBMITTED);
+        Intent intent = new Intent(getApplicationContext(), SignInActivity.class);
+        if (anonymousAccessToken != null) {
+            intent.putExtra("anonymousAccessTokenRaw", anonymousAccessToken.getRaw());
+        }
+        startActivityForResult(intent, SIGN_IN_SUCCESS);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == LOGIN_CANCEL) {
+        if(resultCode == SIGN_IN_CANCEL) {
+            logger.info("sign in canceled");
             hideProgress();
-            logger.info("onGetTokenUsingRoP canceled");
             return;
         }
-        if (resultCode == LOGIN_SUBMITTED && data != null) {
-            String username = data.getStringExtra("username");
-            String password = data.getStringExtra("password");
-            appId.obtainTokensWithROP(getApplicationContext(), username, password, new TokenResponseListener() {
-                @Override
-                public void onAuthorizationFailure(AuthorizationException exception) {
-                    logger.info("onAuthorizationFailure: " + exception.getMessage());
-                    showResponse(exception.getMessage());
-                    hideProgress();
-                }
-
-                @Override
-                public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken) {
-                    logger.info("onAuthorizationSuccess");
-                    logger.info("access_token: " + accessToken.getRaw());
-                    logger.info("id_token: " + identityToken.getRaw());
-                    logger.info("access_token isExpired: " + accessToken.isExpired());
-                    logger.info("id_token isExpired: " + identityToken.isExpired());
-                    identifiedAccessToken = accessToken;
-                    extractAndDisplayDataFromIdentityToken(identityToken);
-                }
-            }, anonymousAccessToken != null ? anonymousAccessToken.getRaw() : null);
+        if (resultCode == SIGN_IN_SUCCESS) {
+            logger.info("sign in success");
+            AccessToken accessToken = appIDAuthorizationManager.getAccessToken();
+            IdentityToken identityToken = appIDAuthorizationManager.getIdentityToken();
+            logger.info("access_token: " + accessToken.getRaw());
+            logger.info("id_token: " + identityToken.getRaw());
+            logger.info("access_token isExpired: " + accessToken.isExpired());
+            logger.info("id_token isExpired: " + identityToken.isExpired());
+            identifiedAccessToken = accessToken;
+            extractAndDisplayDataFromIdentityToken(identityToken);
         }
     }
 

@@ -9,4 +9,9 @@
     <string name="title_activity_tokens">Tokens</string>
     <string name="closebutton">Close</string>
     <string name="no_tokens">NO\nTOKENS</string>
+    <string name="hello">Hello</string>
+    <string name="check_your_email_inbox">Check your email inbox</string>
+    <string name="login">login</string>
+    <string name="resend_email">resend email</string>
+    <string name="forgot_password">forgot password</string>
 </resources>
