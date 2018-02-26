@@ -41,6 +41,8 @@ public class SignInActivity extends Activity {
 
     public final static int SIGN_UP_SUCCESS = 2;
     public final static int SIGN_UP_CANCEL = 3;
+    public final static int FORGOT_PASSWORD_SUCCESS = 4;
+    public final static int FORGOR_PASSWORD_CANCEL = 5;
 
     private final static Logger logger = Logger.getLogger(SignInActivity.class.getName());
     private String anonymousAccessTokenRaw = null;
@@ -85,14 +87,12 @@ public class SignInActivity extends Activity {
         logger.debug("selfSignUp clicked");
         Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
         startActivityForResult(intent, SIGN_UP_SUCCESS);
-        setResult(SIGN_UP_SUCCESS, intent);
     }
 
     public void selfForgotPassword(View v) {
         logger.debug("selfForgotPassword clicked");
         Intent intent = new Intent(getApplicationContext(), ForgotPasswordActivity.class);
         startActivityForResult(intent, FORGOT_PASSWORD_SUCCESS);
-        setResult(FORGOT_PASSWORD_SUCCESS, intent);
     }
 
     public void cancelLogin(View v) {
@@ -115,6 +115,19 @@ public class SignInActivity extends Activity {
             Intent intent = new Intent(getApplicationContext(), SignUpSuccessActivity.class);
             intent.putExtra("formattedName", data.getExtras().getString("formattedName"));
             intent.putExtra("email", data.getExtras().getString("email"));
+            intent.putExtra("uuid", data.getExtras().getString("uuid"));
+            startActivity(intent);
+        }
+        if (resultCode == FORGOR_PASSWORD_CANCEL) {
+            logger.debug("forgot password canceled");
+            return;
+        }
+        if (resultCode == FORGOT_PASSWORD_SUCCESS) {
+            logger.debug("Show forgot password success activity");
+            Intent intent = new Intent(getApplicationContext(), ForgotPasswordSuccessActivity.class);
+            intent.putExtra("formattedName", data.getExtras().getString("formattedName"));
+            intent.putExtra("email", data.getExtras().getString("email"));
+            intent.putExtra("uuid", data.getExtras().getString("uuid"));
             startActivity(intent);
         }
     }

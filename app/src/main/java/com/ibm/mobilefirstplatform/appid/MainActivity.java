@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     public final static int SIGN_IN_SUCCESS = 2;
     public final static int SIGN_IN_CANCEL = 3;
 
+    public final static String MY_BACKEND_URL = "http://10.0.2.2:1234";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         logger.setLogLevel(Logger.LEVEL.DEBUG);

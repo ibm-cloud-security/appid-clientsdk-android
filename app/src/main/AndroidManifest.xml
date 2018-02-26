@@ -34,12 +34,28 @@
         <activity android:name=".SignUpSuccessActivity" />
         <activity android:name=".ConfirmationActivity">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="cloudland"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="cloudland.sign.up"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:label="@string/title_activity_forgot_password"
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+        <activity android:name=".ForgotPasswordSuccessActivity" />
+        <activity android:name=".ResetPasswordFormActivity"/>
+        <activity android:name=".ResetPasswordActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="cloudland.reset.password" />
             </intent-filter>
         </activity>
     </application>
+
 
 </manifest>

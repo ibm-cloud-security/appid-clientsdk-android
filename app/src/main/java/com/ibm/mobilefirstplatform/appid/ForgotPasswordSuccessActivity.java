@@ -9,29 +9,30 @@ import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequestFactory;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
-import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
+
 import static com.ibm.mobilefirstplatform.appid.MainActivity.MY_BACKEND_URL;
 
-
-public class SignUpSuccessActivity extends AppCompatActivity {
+public class ForgotPasswordSuccessActivity extends AppCompatActivity {
 
     private String email, uuid;
     private String formattedName;
     private AppIDRequestFactory appIDRequestFactory = new AppIDRequestFactory();
-    private final static Logger logger = Logger.getLogger(SignUpSuccessActivity.class.getName());
+    private final static Logger logger = Logger.getLogger(ForgotPasswordSuccessActivity.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up_success);
+        setContentView(R.layout.activity_forgot_password_success);
 
         formattedName = getIntent().getExtras().getString("formattedName");
         email = getIntent().getExtras().getString("email");
         uuid = getIntent().getExtras().getString("uuid");
+
         TextView nameTextView = (TextView) findViewById(R.id.formattedName);
         nameTextView.setText(formattedName);
     }
@@ -53,7 +54,7 @@ public class SignUpSuccessActivity extends AppCompatActivity {
             showMessage("Failure", "Bad email address");
         }
 
-        AppIDRequest request = appIDRequestFactory.createRequest(MY_BACKEND_URL + "/resend/USER_VERIFICATION", AppIDRequest.POST);
+        AppIDRequest request = appIDRequestFactory.createRequest(MY_BACKEND_URL + "/resend/RESET_PASSWORD", AppIDRequest.POST);
         request.send(body, new ResponseListener() {
             @Override
             public void onSuccess(Response response) {
