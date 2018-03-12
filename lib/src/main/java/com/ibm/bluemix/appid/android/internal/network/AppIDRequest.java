@@ -105,8 +105,30 @@ public class AppIDRequest extends BaseRequest {
 		}
 	}
 
+	public void send(final ResponseListener listener, final RequestBody requestBody, final AccessToken accessToken, final IdentityToken identityToken) {
+
+		if (accessToken != null && identityToken != null) {
+			removeHeaders("Authorization");
+			addHeader("Authorization", "Bearer " + accessToken.getRaw() + " " + identityToken.getRaw());
+		}
+
+		if (requestBody != null) {
+			super.sendRequest(null, listener, requestBody);
+		} else {
+			send(listener);
+		}
+	}
+
 	@Override
 	public void send (JSONObject json, ResponseListener listener) {
+		super.send(json, listener);
+	}
+
+	public void send (JSONObject json, ResponseListener listener, final AccessToken accessToken, final IdentityToken identityToken) {
+		if (accessToken != null && identityToken != null) {
+			removeHeaders("Authorization");
+			addHeader("Authorization", "Bearer " + accessToken.getRaw() + " " + identityToken.getRaw());
+		}
 		super.send(json, listener);
 	}
 
