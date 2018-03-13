@@ -1,3 +1,15 @@
+/*
+	Copyright 2017 IBM Corp.
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
 package com.ibm.bluemix.appid.android.api;
 
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
@@ -32,18 +44,18 @@ public class Config_Test {
 	@Test
 	public void testConfig(){
 		String url = com.ibm.bluemix.appid.android.internal.config.Config.getOAuthServerUrl(appId);
-		assertThat(url).isEqualTo("https://imf-authserver.region.com/oauth/v3/tenant-id");
+		assertThat(url).isEqualTo("https://appid-oauth.region.com/oauth/v3/tenant-id");
 
 		url = com.ibm.bluemix.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
-		assertThat(url).isEqualTo("https://appid-user-profile-service.region.com/api/v1/");
+		assertThat(url).isEqualTo("https://appid-profiles.region.com/api/v1/");
 
 		appId.overrideOAuthServerHost = "oauth-server-host-";
-		appId.overrideUserProfilesHost = "user-profiles-host-";
+		appId.overrideUserProfilesHost = "user-profiles-host";
 
 		url = com.ibm.bluemix.appid.android.internal.config.Config.getOAuthServerUrl(appId);
 		assertThat(url).isEqualTo("oauth-server-host-tenant-id");
 
 		url = com.ibm.bluemix.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
-		assertThat(url).isEqualTo("user-profiles-host-");
+		assertThat(url).isEqualTo("user-profiles-host/api/v1/");
 	}
 }

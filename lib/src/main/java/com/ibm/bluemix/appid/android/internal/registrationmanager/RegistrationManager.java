@@ -55,6 +55,7 @@ public class RegistrationManager {
 	public static final String DEVICE_ID = "device_id";
 	public static final String DEVICE_MODEL = "device_model";
 	public static final String DEVICE_OS = "device_os";
+	public static final String DEVICE_OS_VERSION = "device_os_version";
 	public static final String CLIENT_TYPE = "client_type";
 	public static final String REDIRECT_URIS = "redirect_uris";
 
@@ -179,6 +180,7 @@ public class RegistrationManager {
         params.put(DEVICE_ID, deviceData.getId());
         params.put(DEVICE_MODEL, deviceData.getModel());
         params.put(DEVICE_OS, "android");
+		params.put(DEVICE_OS_VERSION, deviceData.getOSVersion());
         params.put(CLIENT_TYPE, "mobileapp");
         params.put("jwks", jwks);
 		logger.debug("OAuth client registration parameters");

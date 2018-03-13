@@ -14,7 +14,6 @@
 package com.ibm.bluemix.appid.android.internal.authorizationmanager;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +21,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
-
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
@@ -32,113 +31,129 @@ import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 public class ChromeTabActivity extends Activity {
 
-	public static final String EXTRA_REDIRECT_URI = "com.ibm.bluemix.appid.android.EXTRA_REDIRECT_URI";
-	public static final String INTENT_GOT_HTTP_REDIRECT = "com.ibm.bluemix.appid.android.GOT_HTTP_REDIRECT";
-	private static final String INTENT_ALREADY_USED = "com.ibm.bluemix.appid.android.INTENT_ALREADY_USED";
-	private static final String POST_AUTHORIZATION_INTENT = "com.ibm.bluemix.appid.android.POST_AUTHORIZATION_INTENT";
+    public static final String EXTRA_REDIRECT_URI = "com.ibm.bluemix.appid.android.EXTRA_REDIRECT_URI";
+    public static final String INTENT_GOT_HTTP_REDIRECT = "com.ibm.bluemix.appid.android.GOT_HTTP_REDIRECT";
+    private static final String INTENT_ALREADY_USED = "com.ibm.bluemix.appid.android.INTENT_ALREADY_USED";
+    private String postAuthorizationIntent = ".POST_AUTHORIZATION_INTENT";
 
-	private BroadcastReceiver broadcastReceiver;
-	private AuthorizationListener authorizationListener;
-	private OAuthManager oAuthManager;
-	private String redirectUrl;
+    private static String FORGOT_PASSWORD = "forgot_password";
+    private static String SIGN_UP = "sign_up";
 
-	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + ChromeTabActivity.class.getName());
+    private BroadcastReceiver broadcastReceiver;
+    private AuthorizationListener authorizationListener;
+    private OAuthManager oAuthManager;
+    private String redirectUrl;
 
-	@Override
-	public void onCreate (Bundle savedInstanceBundle) {
-		logger.debug("onCreate");
-		super.onCreate(savedInstanceBundle);
-		Intent intent = getIntent();
-		if (!POST_AUTHORIZATION_INTENT.equals(intent.getAction())) {
+    private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + ChromeTabActivity.class.getName());
 
-			String serverUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_URL);
-			this.redirectUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_REDIRECT_URL);
+    @Override
+    public void onCreate(Bundle savedInstanceBundle) {
+        logger.debug("onCreate");
+        super.onCreate(savedInstanceBundle);
+        postAuthorizationIntent = getApplicationContext().getPackageName() + postAuthorizationIntent;
+        Intent intent = getIntent();
+        if (!postAuthorizationIntent.equals(intent.getAction())) {
 
-			String authFlowContextGuid = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_AUTH_FLOW_CONTEXT_GUID);
-			AuthorizationFlowContext ctx = AuthorizationFlowContextStore.remove(authFlowContextGuid);
-			this.oAuthManager = ctx.getOAuthManager();
-			this.authorizationListener = ctx.getAuthorizationListener();
+            String serverUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_URL);
+            this.redirectUrl = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_REDIRECT_URL);
 
-			logger.debug("serverUrl: " + serverUrl);
-			logger.debug("redirectUrl: " + redirectUrl);
+            String authFlowContextGuid = getIntent().getStringExtra(AuthorizationUIManager.EXTRA_AUTH_FLOW_CONTEXT_GUID);
+            AuthorizationFlowContext ctx = AuthorizationFlowContextStore.remove(authFlowContextGuid);
+            this.oAuthManager = ctx.getOAuthManager();
+            this.authorizationListener = ctx.getAuthorizationListener();
+
+            logger.debug("serverUrl: " + serverUrl);
+            logger.debug("redirectUrl: " + redirectUrl);
 
 
-			CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-			builder.enableUrlBarHiding();
-			CustomTabsIntent customTabsIntent = builder.build();
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            builder.enableUrlBarHiding();
+            CustomTabsIntent customTabsIntent = builder.build();
 
-			customTabsIntent.intent.setPackage(AuthorizationUIManager.getPackageNameToUse(this.getApplicationContext()));
-			customTabsIntent.intent.addFlags(PendingIntent.FLAG_ONE_SHOT);
+            customTabsIntent.intent.setPackage(AuthorizationUIManager.getPackageNameToUse(this.getApplicationContext()));
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-			//This will launch the chrome tab
-			Uri uri = Uri.parse(serverUrl);
-			logger.debug("launching custom tab with url: " + uri.toString());
-			customTabsIntent.launchUrl(this, uri);
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    onBroadcastReceived(intent);
+                }
+            };
 
-			broadcastReceiver = new BroadcastReceiver() {
-				@Override
-				public void onReceive (Context context, Intent intent) {
-					onBroadcastReceived(intent);
-				}
-			};
+            IntentFilter intentFilter = new IntentFilter(INTENT_GOT_HTTP_REDIRECT);
+            LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
 
-			IntentFilter intentFilter = new IntentFilter(INTENT_GOT_HTTP_REDIRECT);
-			this.registerReceiver(broadcastReceiver, intentFilter);
+            //This will launch the chrome tab
+            Uri uri = Uri.parse(serverUrl);
+            logger.debug("launching custom tab with url: " + uri.toString());
+            customTabsIntent.launchUrl(this, uri);
+        } else {
+            //if we launch after authorization completed
+            finish();
+        }
+    }
 
-		} else {
-			//if we launch after authorization completed
-			finish();
-		}
-	}
+    private void onBroadcastReceived(Intent intent) {
+        Uri uri = intent.getParcelableExtra(ChromeTabActivity.EXTRA_REDIRECT_URI);
+        String url = uri.toString();
+        String code = uri.getQueryParameter("code");
+        String error = uri.getQueryParameter("error");
+        String flow = uri.getQueryParameter("flow");
 
-	private void onBroadcastReceived (Intent intent){
-		Uri uri = intent.getParcelableExtra(ChromeTabActivity.EXTRA_REDIRECT_URI);
-		String url = uri.toString();
-		String code = uri.getQueryParameter("code");
-		String error = uri.getQueryParameter("error");
+        logger.info("onBroadcastReceived: " + url);
 
-		logger.info("onBroadcastReceived: " + url);
+        Intent clearTopActivityIntent = new Intent(postAuthorizationIntent);
+        clearTopActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-		Intent clearTopActivityIntent = new Intent(POST_AUTHORIZATION_INTENT);
-		clearTopActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (url.startsWith(redirectUrl) && code != null) {
+            logger.debug("Grant code received from authorization server.");
+            oAuthManager.getTokenManager().obtainTokensAuthCode(code, authorizationListener);
+            startActivity(clearTopActivityIntent);
+        } else if (url.startsWith(redirectUrl) && error != null) {
+            if (error.equals("invalid_client")) {
+                oAuthManager.getRegistrationManager().clearRegistrationData();
+                oAuthManager.getAuthorizationManager().launchAuthorizationUI(this, authorizationListener);
+            } else {
+                String errorCode = uri.getQueryParameter("error_code");
+                String errorDescription = uri.getQueryParameter("error_description");
+                logger.error("Failed to obtain access and identity tokens, error: " + error);
+                logger.error("errorCode: " + errorCode);
+                logger.error("errorDescription: " + errorDescription);
+                authorizationListener.onAuthorizationFailure(new AuthorizationException(error));
+                startActivity(clearTopActivityIntent);
+            }
+        } else if (url.startsWith(redirectUrl) && (FORGOT_PASSWORD.equals(flow) || SIGN_UP.equals(flow))) {
+            logger.debug("onBroadcastReceived: end of flow: " + flow);
+            authorizationListener.onAuthorizationSuccess(null, null, null);
+            startActivity(clearTopActivityIntent);
+        } else {
+            logger.debug("onBroadcastReceived: no match case");
+            authorizationListener.onAuthorizationFailure(new AuthorizationException("Bad callback uri"));
+            startActivity(clearTopActivityIntent);
+        }
+    }
 
-		if (url.startsWith(redirectUrl) && code != null) {
-			logger.debug("Grant code received from authorization server.");
-			oAuthManager.getTokenManager().obtainTokens(code, authorizationListener);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        if (!intent.hasExtra(INTENT_ALREADY_USED)) {
+            // First time onResume called we add INTENT_ALREADY_USED=true
+            // to indicate that this intent was already active for the next time,
+            // after the chrome tab closes by user.
+            intent.putExtra(INTENT_ALREADY_USED, true);
+        } else {
+            // User cancelled authentication
+            finish();
+            authorizationListener.onAuthorizationCanceled();
+        }
+    }
 
-			startActivity(clearTopActivityIntent);
-		} else if (url.startsWith(redirectUrl) && error != null){
-			String errorCode = uri.getQueryParameter("error_code");
-			String errorDescription = uri.getQueryParameter("error_description");
-			logger.error("error: " + error);
-			logger.error("errorCode: " + errorCode);
-			logger.error("errorDescription: " + errorDescription);
-			authorizationListener.onAuthorizationFailure(new AuthorizationException("Failed to obtain access and identity tokens"));
-			startActivity(clearTopActivityIntent);
-		}
-	}
-
-	@Override
-	protected void onResume () {
-		super.onResume();
-		Intent intent = getIntent();
-		if (!intent.hasExtra(INTENT_ALREADY_USED)) {
-			// First time onResume called we add INTENT_ALREADY_USED=true
-			// to indicate that this intent was already active for the next time,
-			// after the chrome tab closes by user.
-			intent.putExtra(INTENT_ALREADY_USED, true);
-		} else {
-			// User cancelled authentication
-			finish();
-			authorizationListener.onAuthorizationCanceled();
-		}
-	}
-
-	@Override
-	protected void onDestroy () {
-		if (broadcastReceiver != null) {
-			unregisterReceiver(broadcastReceiver);
-		}
-		super.onDestroy();
-	}
+    @Override
+    protected void onDestroy() {
+        if (broadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        }
+        super.onDestroy();
+    }
 }

@@ -8,14 +8,9 @@
             android:allowBackup="true"
             android:supportsRtl="true">
 
-        <activity
-                android:name="com.ibm.bluemix.appid.android.internal.authorizationmanager.WebViewActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
-        </activity>
-
         <activity android:name="com.ibm.bluemix.appid.android.internal.authorizationmanager.ChromeTabActivity">
             <intent-filter>
-                <action android:name="com.ibm.bluemix.appid.android.POST_AUTHORIZATION_INTENT"/>
+                <action android:name="${appIdRedirectScheme}.POST_AUTHORIZATION_INTENT" />
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
