@@ -85,7 +85,7 @@ loginWidget.launch(this, new AuthorizationListener() {
 
  Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
 
-### Login using Resource Owner Password
+### Sign in using Resource Owner Password
  You can obtain access token, id token and refresh token by supplying the end user's username and password.
 ```java
 AppID.getInstance().signinWithResourceOwnerPassword(getApplicationContext(), username, password, new TokenResponseListener() {
@@ -198,9 +198,31 @@ loginWidget.launchChangePassword(this, new AuthorizationListener() {
 });
 ```
  
-## Anonymous Login
+## Anonymous Sign in
 ```java
 AppID.getInstance().signinAnonymously(getApplicationContext(), new AuthorizationListener() {
+    @Override
+    public void onAuthorizationFailure(AuthorizationException exception) {
+        //Exception occurred
+    }
+
+    @Override
+    public void onAuthorizationCanceled() {
+        //Authentication canceled by the user
+    }
+
+    @Override
+    public void onAuthorizationSuccess(AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
+        //User authenticated
+    }
+});
+```
+
+## Sign in with refresh token
+It is recommended to store the refresh token locally such that it will be possible to sign in with the refresh token without requiring the user to type his credentials again.
+
+```java
+AppID.getInstance().signinWithRefreshToken(getApplicationContext(), refreshTokenString, new AuthorizationListener() {
     @Override
     public void onAuthorizationFailure(AuthorizationException exception) {
         //Exception occurred
