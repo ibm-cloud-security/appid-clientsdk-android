@@ -227,7 +227,10 @@ public class AppID {
 	}
 
 	/**
-	 * Obtain token using a refresh token
+	 * Obtain new access and identity tokens using a refresh token.
+	 * 
+	 * Note that the identity itself (user name/details) will not be refreshed by this operation, 
+	 * it will remain the same identity but in a new token (new expiration time)
 	 *
 	 * @param refreshToken the refresh token
 	 * @param tokenResponseListener the token response listener
