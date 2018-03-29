@@ -328,11 +328,19 @@ public class AuthorizationManager {
         request.send(new ResponseListener() {
                          @Override
                          public void onSuccess(Response response) {
-                             logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
-                             String location = response.getHeaders().get("Location").toString();
-                             String locationUrl = location.substring(1, location.length() - 1); // removing []
-                             String code = Uri.parse(locationUrl).getQueryParameter("code");
-                             oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
+                             String body = response.getResponseText();
+                             int loc = body == null ? -1 : body.indexOf("error=unauthorized_client"); // lite-plan error
+                             if (loc >= 0) {
+                                 String message = body.substring(loc);
+                                 logger.debug("signinAnonymously.Response in onFailure: " + message);
+                                 listener.onAuthorizationFailure(new AuthorizationException(message));
+                             } else {
+                                 logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
+                                 String location = response.getHeaders().get("Location").toString();
+                                 String locationUrl = location.substring(1, location.length() - 1); // removing []
+                                 String code = Uri.parse(locationUrl).getQueryParameter("code");
+                                 oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
+                             }
                          }
 
                          @Override
