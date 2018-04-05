@@ -42,8 +42,8 @@ import org.json.JSONObject;
 import java.util.Locale;
 
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+//import android.app.AlertDialog;
+//import android.content.DialogInterface;
 
 public class AuthorizationManager {
     private final static String OAUTH_AUTHORIZATION_PATH = "/authorization";
@@ -288,7 +288,7 @@ public class AuthorizationManager {
             authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
         }
     }
-
+/*
     public void doAlert(final Context context, String title, String msg)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -301,7 +301,7 @@ public class AuthorizationManager {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
-    }
+    }*/
     public void launchForgotPasswordUI(final Activity activity, final AuthorizationListener authorizationListener) {
         registrationManager.ensureRegistered(activity, new RegistrationListener() {
             @Override
