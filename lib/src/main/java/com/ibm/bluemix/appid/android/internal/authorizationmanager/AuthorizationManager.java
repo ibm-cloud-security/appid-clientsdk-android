@@ -326,7 +326,7 @@ public class AuthorizationManager {
         return new AuthorizationUIManager(oAuthManager, authorizationListener, authUrl, redirectUri);
     }
 
-    private void continueAnonymousLogin(final Context context, String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener) {
+    private void continueAnonymousLogin(/*final Context context, */ String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener) {
         AccessToken accessToken;
         if (accessTokenString == null) {
             accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
@@ -345,6 +345,28 @@ public class AuthorizationManager {
         request.send(new ResponseListener() {
                          @Override
                          public void onSuccess(Response response) {
+                             String location = response.getHeaders().get("Location").toString();
+                             String locationUrl = location.substring(1, location.length() - 1); // removing []
+                             Uri uri = Uri.parse(locationUrl);
+                             String error = uri.getQueryParameter("error");
+                             if (error != null)
+                             {
+                                 String message = "error: " + error;
+                                 String description = uri.getQueryParameter("error_description");
+                                 if (description != null)
+                                     message += ". error_description: " + description;
+                                 logger.debug("signinAnonymously.Response in onFailure: " + message);
+                                 // doAlert(context, "error", message);
+                                 listener.onAuthorizationFailure(new AuthorizationException(message));
+                             }
+                             else
+                             {
+                                 logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
+                                 //  doAlert(context, "ok", "success");
+                                 String code = uri.getQueryParameter("code");
+                                 oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
+                             }
+ /*
                              String body = response.getResponseText();
                              int loc = body == null ? -1 : body.indexOf("error=unauthorized_client"); // lite-plan error
                              if (loc >= 0) {
@@ -359,7 +381,7 @@ public class AuthorizationManager {
                                  String locationUrl = location.substring(1, location.length() - 1); // removing []
                                  String code = Uri.parse(locationUrl).getQueryParameter("code");
                                  oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
-                             }
+                             }*/
                          }
 
                          @Override
@@ -384,7 +406,7 @@ public class AuthorizationManager {
 
             @Override
             public void onRegistrationSuccess() {
-                continueAnonymousLogin(context, accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
+                continueAnonymousLogin(/*context, */ accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
             }
         });
     }
