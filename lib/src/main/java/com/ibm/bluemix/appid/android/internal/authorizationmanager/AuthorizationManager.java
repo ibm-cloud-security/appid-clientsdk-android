@@ -350,11 +350,11 @@ public class AuthorizationManager {
                              if (loc >= 0) {
                                  String message = body.substring(loc);
                                  logger.debug("signinAnonymously.Response in onFailure: " + message);
-                                 doAlert(context, "error", message);
+                                // doAlert(context, "error", message);
                                  listener.onAuthorizationFailure(new AuthorizationException(message));
                              } else {
                                  logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
-                                 doAlert(context, "ok", "success");
+                               //  doAlert(context, "ok", "success");
                                  String location = response.getHeaders().get("Location").toString();
                                  String locationUrl = location.substring(1, location.length() - 1); // removing []
                                  String code = Uri.parse(locationUrl).getQueryParameter("code");
