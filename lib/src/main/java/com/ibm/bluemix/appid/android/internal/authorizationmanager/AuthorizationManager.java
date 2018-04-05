@@ -41,6 +41,10 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 public class AuthorizationManager {
     private final static String OAUTH_AUTHORIZATION_PATH = "/authorization";
     private final static String CHANGE_PASSWORD_PATH = "/cloud_directory/change_password";
@@ -285,6 +289,19 @@ public class AuthorizationManager {
         }
     }
 
+    public void doAlert(final Context context, String title, String msg)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title)
+                .setMessage(msg)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
     public void launchForgotPasswordUI(final Activity activity, final AuthorizationListener authorizationListener) {
         registrationManager.ensureRegistered(activity, new RegistrationListener() {
             @Override
@@ -309,7 +326,7 @@ public class AuthorizationManager {
         return new AuthorizationUIManager(oAuthManager, authorizationListener, authUrl, redirectUri);
     }
 
-    private void continueAnonymousLogin(String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener) {
+    private void continueAnonymousLogin(final Context context, String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener) {
         AccessToken accessToken;
         if (accessTokenString == null) {
             accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
@@ -333,9 +350,11 @@ public class AuthorizationManager {
                              if (loc >= 0) {
                                  String message = body.substring(loc);
                                  logger.debug("signinAnonymously.Response in onFailure: " + message);
+                                 doAlert(context, "error", message);
                                  listener.onAuthorizationFailure(new AuthorizationException(message));
                              } else {
                                  logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
+                                 doAlert(context, "ok", "success");
                                  String location = response.getHeaders().get("Location").toString();
                                  String locationUrl = location.substring(1, location.length() - 1); // removing []
                                  String code = Uri.parse(locationUrl).getQueryParameter("code");
@@ -365,7 +384,7 @@ public class AuthorizationManager {
 
             @Override
             public void onRegistrationSuccess() {
-                continueAnonymousLogin(accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
+                continueAnonymousLogin(context, accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
             }
         });
     }
