@@ -42,8 +42,8 @@ import org.json.JSONObject;
 import java.util.Locale;
 
 
-//import android.app.AlertDialog;
-//import android.content.DialogInterface;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 public class AuthorizationManager {
     private final static String OAUTH_AUTHORIZATION_PATH = "/authorization";
@@ -288,7 +288,7 @@ public class AuthorizationManager {
             authorizationListener.onAuthorizationFailure(new AuthorizationException(e.getMessage()));
         }
     }
-/*
+
     public void doAlert(final Context context, String title, String msg)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -301,7 +301,8 @@ public class AuthorizationManager {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
-    }*/
+    }
+
     public void launchForgotPasswordUI(final Activity activity, final AuthorizationListener authorizationListener) {
         registrationManager.ensureRegistered(activity, new RegistrationListener() {
             @Override
@@ -326,7 +327,7 @@ public class AuthorizationManager {
         return new AuthorizationUIManager(oAuthManager, authorizationListener, authUrl, redirectUri);
     }
 
-    private void continueAnonymousLogin(/*final Context context, */ String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener) {
+    private void continueAnonymousLogin(final Context context, String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener) {
         AccessToken accessToken;
         if (accessTokenString == null) {
             accessToken = oAuthManager.getTokenManager().getLatestAccessToken();
@@ -356,37 +357,22 @@ public class AuthorizationManager {
                                  if (description != null)
                                      message += ". error_description: " + description;
                                  logger.debug("signinAnonymously.Response in onFailure: " + message);
-                                 // doAlert(context, "error", message);
+                                 doAlert(context, "error", message);
                                  listener.onAuthorizationFailure(new AuthorizationException(message));
                              }
                              else
                              {
                                  logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
-                                 //  doAlert(context, "ok", "success");
+                                 doAlert(context, "ok", "success");
                                  String code = uri.getQueryParameter("code");
                                  oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
                              }
- /*
-                             String body = response.getResponseText();
-                             int loc = body == null ? -1 : body.indexOf("error=unauthorized_client"); // lite-plan error
-                             if (loc >= 0) {
-                                 String message = body.substring(loc);
-                                 logger.debug("signinAnonymously.Response in onFailure: " + message);
-                                // doAlert(context, "error", message);
-                                 listener.onAuthorizationFailure(new AuthorizationException(message));
-                             } else {
-                                 logger.debug("signinAnonymously.Response in onSuccess:" + response.getResponseText());
-                               //  doAlert(context, "ok", "success");
-                                 String location = response.getHeaders().get("Location").toString();
-                                 String locationUrl = location.substring(1, location.length() - 1); // removing []
-                                 String code = Uri.parse(locationUrl).getQueryParameter("code");
-                                 oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
-                             }*/
                          }
 
                          @Override
                          public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
                              String message = (response == null) ? "" : response.getResponseText();
+                             doAlert(context, "regular failure", message);
                              logger.debug("signinAnonymously.Response in onFailure:" + message, t);
                              message = (t != null) ? t.getLocalizedMessage() : "Authorization request failed.";
                              message = (extendedInfo != null) ? message + extendedInfo.toString() : message;
@@ -406,7 +392,7 @@ public class AuthorizationManager {
 
             @Override
             public void onRegistrationSuccess() {
-                continueAnonymousLogin(/*context, */ accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
+                continueAnonymousLogin(context,  accessTokenString, allowCreateNewAnonymousUser, authorizationListener);
             }
         });
     }
