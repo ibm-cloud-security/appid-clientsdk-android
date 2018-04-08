@@ -295,10 +295,11 @@ public class AuthorizationManager {
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(title)
+                    .setCancelable(false)
                     .setMessage(msg)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // continue
+                            dialog.cancel();
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
