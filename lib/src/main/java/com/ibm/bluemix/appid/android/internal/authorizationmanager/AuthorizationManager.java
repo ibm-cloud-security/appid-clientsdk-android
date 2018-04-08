@@ -347,7 +347,7 @@ public class AuthorizationManager {
         }
 
         String authorizationUrl = getAuthorizationUrl(AccessTokenImpl.IDP_ANONYMOUS, accessToken, RESPONSE_TYPE_CODE);
-        doAlert(context, "testing", authorizationUrl);
+     //   doAlert(context, "testing", authorizationUrl);
 
         AppIDRequest request = appIDRequestFactory.createRequest(authorizationUrl, AppIDRequest.GET);
         request.send(new ResponseListener() {
