@@ -386,6 +386,11 @@ public class AuthorizationManager {
             };
 
             request.send(responder);
+            while (responder.result == null)
+                try {
+                    Thread.sleep(1000); // just testing
+                }
+                catch (Exception e) { responder.result = ""; }
             return responder;
         }
 
