@@ -334,13 +334,13 @@ public class AuthorizationManager {
 
         Activity activity; String title; String msg;
         AlertDialog alertDialog;
-        AlertDialog.Builder builder;
+    //    AlertDialog.Builder builder;
         AccessToken accessToken;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            builder = new AlertDialog.Builder(context);
+       //     builder = new AlertDialog.Builder(context);
         }
 
         @Override
@@ -397,7 +397,7 @@ public class AuthorizationManager {
                 return;
 
             try {
-            //    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Error")
                         .setCancelable(false)
                         .setMessage(responder.result)
