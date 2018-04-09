@@ -311,7 +311,11 @@ public class AuthorizationManager {
         {}
     }
 
-    private class continueAnonymousWithAlert extends AsyncTask<String, Void, String> {
+    abstract class Responder implements ResponseListener {
+        String result;
+    }
+
+    private class continueAnonymousWithAlert extends AsyncTask<String, Void, Responder> {
         final Context context;
         final AuthorizationListener listener;
         final OAuthManager oAuthManager;
@@ -339,15 +343,10 @@ public class AuthorizationManager {
             builder = new AlertDialog.Builder(context);
         }
 
-
-
         @Override
-        protected String doInBackground(String... params) {
-
-            abstract class ResponseListenerWithResult implements ResponseListener {
-                String result;
-            }
-            ResponseListenerWithResult responser = new ResponseListenerWithResult() {
+        protected Responder doInBackground(String... params)
+        {
+            Responder responder = new Responder() {
 
                 @Override
                 public void onSuccess(Response response) {
@@ -386,22 +385,22 @@ public class AuthorizationManager {
                 }
             };
 
-            request.send(responser);
-            return responser.result;
+            request.send(responder);
+            return responder;
         }
 
 
         @Override
-        protected void onPostExecute(String result) {
-            if (result == null)
+        protected void onPostExecute(Responder responder) {
+            super.onPostExecute(responder);
+            if (responder == null || responder.result == null)
                 return;
-            super.onPostExecute(result);
 
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            //    AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Error")
                         .setCancelable(false)
-                        .setMessage(result)
+                        .setMessage(responder.result)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
