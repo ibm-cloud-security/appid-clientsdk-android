@@ -369,7 +369,7 @@ public class AuthorizationManager {
                         // doAlert(context, "ok", "success");
                         String code = uri.getQueryParameter("code");
                         oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
-                        result = "IT WORKS";
+                        result = "";
                     }
                 }
 
@@ -386,11 +386,13 @@ public class AuthorizationManager {
             };
 
             request.send(responder);
-            while (responder.result == null)
+            while (responder.result == null) {
                 try {
                     Thread.sleep(1000); // just testing
+                } catch (Exception e) {
+                    responder.result = "";
                 }
-                catch (Exception e) { responder.result = ""; }
+            }
             return responder;
         }
 
@@ -398,7 +400,7 @@ public class AuthorizationManager {
         @Override
         protected void onPostExecute(Responder responder) {
             super.onPostExecute(responder);
-            if (responder == null || responder.result == null)
+            if (responder == null || responder.result == null || responder.result.isEmpty())
                 return;
 
             try {
@@ -415,6 +417,7 @@ public class AuthorizationManager {
                         .show();
             } catch (Exception e) {
                 e.printStackTrace();
+                System.out.println(e.toString());
             }
 
             /*
