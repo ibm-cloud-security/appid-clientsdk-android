@@ -414,6 +414,7 @@ public class AuthorizationManager {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             } catch (Exception e) {
+                e.printStackTrace();
             }
 
             /*
@@ -522,7 +523,7 @@ public class AuthorizationManager {
     AuthorizationUIManager createAuthorizationUIManager(OAuthManager oAuthManager, AuthorizationListener authorizationListener, String authUrl, String redirectUri) {
         return new AuthorizationUIManager(oAuthManager, authorizationListener, authUrl, redirectUri);
     }
-
+/*
     private void _continueAnonymousLogin(final Context context, String accessTokenString, boolean allowCreateNewAnonymousUser, final AuthorizationListener listener) {
         AccessToken accessToken;
         if (accessTokenString == null) {
@@ -578,7 +579,7 @@ public class AuthorizationManager {
                      }
         );
     }
-
+*/
     public void signinAnonymously(final Context context, final String accessTokenString, final boolean allowCreateNewAnonymousUser, final AuthorizationListener authorizationListener) {
         registrationManager.ensureRegistered(context, new RegistrationListener() {
             @Override
