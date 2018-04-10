@@ -416,8 +416,8 @@ public class AuthorizationManager {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println(e.toString());
+              //  e.printStackTrace();
+              //  System.out.println(e.toString());
             }
 
             /*
