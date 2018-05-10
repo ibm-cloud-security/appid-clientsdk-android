@@ -81,6 +81,15 @@ loginWidget.launch(this, new AuthorizationListener() {
 * The default configuration use Facebook and Google as authentication options. If you configure only one of them the login widget will *not* launch and the user will be redirected to the configured identity provider authentication screen.
 * When using Cloud Directory, and "Email verification" is configured to *not* allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
+## Refresh Token
+Refresh Token may be used to acquire new access and identity tokens without the need to re-authenticate. Refresh Token is usually configured to have longer expiration than access token. Refresh Token is optional and can be configured in your AppID Dashboard.
+
+After a successful login, in addition to access_token and identity_token, a refresh_token will be retrieved in `onAuthorizationSuccess()`.
+
+You may persist the refresh_token in any method you'd like. By doing so, you can avoid your users login after the close the application and open it later as long as the refresh_token is valid. See android's getting started in your AppID Dashboard for an example of storing a refresh-token and how to use it.
+
+In order to use the persisted refresh_token, you need to call `signinWithRefreshToken(@NotNull Context context, @NotNull String refreshToken, @NotNull TokenResponseListener tokenResponseListener)`. `signinWithRefreshToken()` calls the given tokenResponseListener in the same way as any other signin method in our API works.
+
 ## Managing Cloud Directory with the Android SDK 
 
  Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
