@@ -42,6 +42,7 @@ public class AppID {
 	public static String overrideUserProfilesHost = null;
 
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
+	public final static String REGION_US_EAST = ".us-east.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 	public final static String REGION_GERMANY = ".eu-de.bluemix.net";
