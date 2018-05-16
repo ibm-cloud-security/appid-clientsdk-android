@@ -17,14 +17,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
-import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
-import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
-import com.ibm.bluemix.appid.android.api.userinfo.UserInfoResponseListener;
+import com.ibm.bluemix.appid.android.api.userprofile.UserProfileManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
-import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
-import com.ibm.bluemix.appid.android.internal.userinfomanager.UserInfoManager;
+import com.ibm.bluemix.appid.android.internal.userprofilemanager.UserProfileManagerImpl;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +36,7 @@ public class AppID {
 
 	private LoginWidgetImpl loginWidget;
 	private OAuthManager oAuthManager;
-	private UserAttributeManager userAttributeManager;
-	private UserInfoManager userInfoManager;
+	private UserProfileManager userProfileManager;
 
     public static String overrideOAuthServerHost = null; //when use place the assignment before calling the AppID initialize function
 	public static String overrideUserProfilesHost = null;
@@ -80,8 +76,7 @@ public class AppID {
 		this.bluemixRegionSuffix = bluemixRegion;
 		this.oAuthManager = new OAuthManager(context.getApplicationContext(), this);
 		this.loginWidget = new LoginWidgetImpl(this.oAuthManager);
-		this.userAttributeManager = new UserAttributeManagerImpl(this.oAuthManager.getTokenManager());
-		this.userInfoManager = new UserInfoManager(this.oAuthManager.getTokenManager());
+		this.userProfileManager = new UserProfileManagerImpl(this.oAuthManager.getTokenManager());
 		return instance;
 	}
 
@@ -144,11 +139,11 @@ public class AppID {
 	 * @return the User Attribute Manager
 	 */
 	@NonNull
-	public UserAttributeManager getUserAttributeManager(){
-		if (null == this.userAttributeManager){
+	public UserProfileManager getUserProfileManager(){
+		if (null == this.userProfileManager){
 			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
 		}
-		return this.userAttributeManager;
+		return this.userProfileManager;
 	}
 
 	/**
@@ -263,23 +258,4 @@ public class AppID {
 		signinWithRefreshToken(context, refreshTokenString, tokenResponseListener);
 	}
 
-	/**
-	 * Retrieve user info using the stored tokens
-	 *
-	 * @param listener - callback listener
-	 */
-	public void getUserInfo(UserInfoResponseListener listener) {
-		userInfoManager.getUserInfo(listener);
-	}
-
-	/**
-	 * Retrieve user info using the provided tokens
-	 *
-	 * @param accessToken - the access token used for endpoint authorization
-	 * @param identityToken - optionally provided identity token to be used for response validation
-	 * @param listener - callback listener
-	 */
-	public void getUserInfo(@NotNull AccessToken accessToken, IdentityToken identityToken, UserInfoResponseListener listener) {
-		userInfoManager.getUserInfo(accessToken, identityToken, listener);
-	}
 }

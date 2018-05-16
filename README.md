@@ -240,12 +240,65 @@ AppID.getInstance().signinWithRefreshToken(getApplicationContext(), refreshToken
 });
 ```
 
-## User Info
+## Manage User Profiles
+
+Using the App ID UserProfileManager, you are able to create, delete, and retrieve user profile attributes as well as get additional info about a user.
+
 ```java
 AppID appId = AppID.getInstance();
+String name = "name";
+String value = "value";
+
+appId.getUserProfileManager().setAttribute(name, value, new UserProfileResponseListener() {
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Set attribute "name" to "value" successfully
+    }
+
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
+
+appId.getUserProfileManager().getAttribute(name, new UserProfileResponseListener() {
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Got attribute "name" successfully
+    }
+
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
+
+appId.getUserProfileManager().getAllAttributes(new UserProfileResponseListener() {
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Got all attributes successfully
+    }
+
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
+
+appId.getUserProfileManager().deleteAttribute(name, new UserProfileResponseListener() {
+    @Override
+    public void onSuccess(JSONObject attributes) {
+        // Attribute "name" deleted successfully
+    }
+
+    @Override
+    public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
 
 // Retrieve user info using the latest stores access and identity tokens
-appId.getUserInfo(new UserAttributeResponseListener() {
+appId.getUserProfileManager().getUserInfo(new UserProfileResponseListener() {
     @Override
     public void onSuccess(JSONObject userInfo) {
         // retrieved user info successfully
@@ -258,68 +311,15 @@ appId.getUserInfo(new UserAttributeResponseListener() {
 });
 
 // Retrieve user info using your own accessToken.
-// Optionally, pass an identityToken for response verification
-appId.getUserInfo(accessToken, optionalIdentityToken new UserInfoResponseListener() {
+// Optionally, pass an identityToken for response verification. (recommended)
+appId.getUserProfileManager().getUserInfo(accessToken, identityToken, new UserProfileResponseListener() {
     @Override
     public void onSuccess(JSONObject userInfo) {
-        // Got attribute "name" successfully
+        // retrieved user info successfully
     }
 
     @Override
     public void onFailure(UserInfoException e) {
-        // Exception occurred
-    }
-});
-```
-## User profile attributes
-```java
-AppID appId = AppID.getInstance();
-String name = "name";
-String value = "value";
-appId.getUserAttributeManager().setAttribute(name, value, new UserAttributeResponseListener() {
-    @Override
-    public void onSuccess(JSONObject attributes) {
-        // Set attribute "name" to "value" successfully
-    }
-
-    @Override
-    public void onFailure(UserAttributesException e) {
-        // Exception occurred
-    }
-});
-
-appId.getUserAttributeManager().getAttribute(name, new UserAttributeResponseListener() {
-    @Override
-    public void onSuccess(JSONObject attributes) {
-        // Got attribute "name" successfully
-    }
-
-    @Override
-    public void onFailure(UserAttributesException e) {
-        // Exception occurred
-    }
-});
-
-appId.getUserAttributeManager().getAllAttributes(new UserAttributeResponseListener() {
-    @Override
-    public void onSuccess(JSONObject attributes) {
-        // Got all attributes successfully
-    }
-
-    @Override
-    public void onFailure(UserAttributesException e) {
-        // Exception occurred
-    }
-});
-
-appId.getUserAttributeManager().deleteAttribute(name, new UserAttributeResponseListener() {
-    @Override
-    public void onSuccess(JSONObject attributes) {
-        // Attribute "name" deleted successfully
-    }
-
-    @Override
-    public void onFailure(UserAttributesException e) {
         // Exception occurred
     }
 });
