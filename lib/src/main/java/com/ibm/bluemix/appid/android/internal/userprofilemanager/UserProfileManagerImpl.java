@@ -181,7 +181,7 @@ public class UserProfileManagerImpl implements UserProfileManager {
 			JSONObject userInfo = new JSONObject(responseText);
 
 			// Validate UserInfo response has a subject
-			if (userInfo.getString("sub", null) == null) {
+			if (userInfo.getString("sub") == null) {
 				listener.onFailure(new UserProfileException(UserProfileException.Error.INVALID_USERINFO_RESPONSE));
 				return;
 			}
@@ -222,12 +222,12 @@ public class UserProfileManagerImpl implements UserProfileManager {
 	}
 
 	//for testing purpose
-	/* default */ AppIDRequest createAppIDRequest(String url, String method) {
+	AppIDRequest createAppIDRequest(String url, String method) {
 		return new AppIDRequest(url, method);
 	}
 
 	//for testing purpose
-	/* default */ RequestBody createRequestBody(String value) {
+	RequestBody createRequestBody(String value) {
 		return RequestBody.create(MediaType.parse("application/json"), value);
 	}
 }
