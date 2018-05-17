@@ -222,12 +222,12 @@ public class UserProfileManagerImpl implements UserProfileManager {
 	}
 
 	//for testing purpose
-	AppIDRequest createAppIDRequest(String url, String method) {
+	AppIDRequest createAppIDRequest(String url, String method) { // NOPMD
 		return new AppIDRequest(url, method);
 	}
 
 	//for testing purpose
-	RequestBody createRequestBody(String value) {
+	RequestBody createRequestBody(String value) { // NOPMD
 		return RequestBody.create(MediaType.parse("application/json"), value);
 	}
 }
