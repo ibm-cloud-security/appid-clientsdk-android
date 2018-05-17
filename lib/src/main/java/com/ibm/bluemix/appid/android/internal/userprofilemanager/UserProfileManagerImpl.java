@@ -104,7 +104,7 @@ public class UserProfileManagerImpl implements UserProfileManager {
 	}
 
 	@Override
-	public void getUserInfo (final UserProfileResponseListener listener) {
+	public void getUserInfo (@NonNull final UserProfileResponseListener listener) {
 		AccessToken accessToken = tokenManager.getLatestAccessToken();
 
 		if (accessToken == null) {
@@ -115,7 +115,7 @@ public class UserProfileManagerImpl implements UserProfileManager {
 	}
 
 	@Override
-	public void getUserInfo (@NonNull AccessToken accessToken, IdentityToken identityToken, final UserProfileResponseListener listener) {
+	public void getUserInfo (@NonNull AccessToken accessToken, IdentityToken identityToken, @NonNull final UserProfileResponseListener listener) {
 		sendAndValidateUserInfoRequest(AppIDRequest.GET, accessToken, identityToken, listener);
 	}
 

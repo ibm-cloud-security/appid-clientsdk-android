@@ -31,6 +31,6 @@ public interface UserProfileManager {
 	void getAllAttributes(@NonNull UserProfileResponseListener listener);
 	void getAllAttributes(AccessToken accessToken, @NonNull UserProfileResponseListener listener);
 
-	void getUserInfo(UserProfileResponseListener listener);
-	void getUserInfo(@NonNull AccessToken accessToken, IdentityToken identityToken, UserProfileResponseListener listener);
+	void getUserInfo(@NonNull UserProfileResponseListener listener);
+	void getUserInfo(@NonNull AccessToken accessToken, IdentityToken identityToken, @NonNull UserProfileResponseListener listener);
 }
