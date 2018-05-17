@@ -43,6 +43,8 @@ public class UserProfileManagerImpl implements UserProfileManager {
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + UserProfileManagerImpl.class.getName());
 
+	private String userInfoUrl;
+
 	public UserProfileManagerImpl(TokenManager tokenManager){
 		this.tokenManager = tokenManager;
 	}
@@ -120,9 +122,11 @@ public class UserProfileManagerImpl implements UserProfileManager {
 	}
 
 	private void sendAndValidateUserInfoRequest(String method, AccessToken accessToken, final IdentityToken identityToken, final UserProfileResponseListener listener){
-		String url = Config.getOAuthServerUrl(AppID.getInstance()) + USER_INFO_PATH;
+		if (userInfoUrl == null) {
+			userInfoUrl = Config.getOAuthServerUrl(AppID.getInstance()) + USER_INFO_PATH;
+		}
 
-		AppIDRequest req = createAppIDRequest(url, method);
+		AppIDRequest req = createAppIDRequest(userInfoUrl, method);
 
 		ResponseListener resListener = new ResponseListener() {
 
