@@ -16,7 +16,7 @@ package com.ibm.bluemix.appid.android.api;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationStatus;
-import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
+import com.ibm.bluemix.appid.android.internal.userprofilemanager.UserProfileManagerImpl;
 import com.ibm.bluemix.appid.android.testing.helpers.ClassHelper;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.bluemix.appid.android.testing.helpers.ExceptionMessageMatcher;
@@ -83,7 +83,7 @@ public class AppID_Test {
 		Throwable thrown4 = catchThrowable(new ThrowableAssert.ThrowingCallable() {
 			@Override
 			public void call () throws Throwable {
-				appId.getUserAttributeManager();
+				appId.getUserProfileManager();
 			}
 		});
 
@@ -118,8 +118,8 @@ public class AppID_Test {
 		ClassHelper.assertSame(appId.getLoginWidget(), LoginWidgetImpl.class);
 		assertThat(appId.getOAuthManager()).isNotNull();
 		ClassHelper.assertSame(appId.getOAuthManager(), OAuthManager.class);
-		assertThat(appId.getUserAttributeManager()).isNotNull();
-		ClassHelper.assertSame(appId.getUserAttributeManager(), UserAttributeManagerImpl.class);
+		assertThat(appId.getUserProfileManager()).isNotNull();
+		ClassHelper.assertSame(appId.getUserProfileManager(), UserProfileManagerImpl.class);
 
 		AuthorizationListener listener = mock(AuthorizationListener.class);
 

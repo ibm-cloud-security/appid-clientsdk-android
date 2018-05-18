@@ -18,10 +18,10 @@ import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
-import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
+import com.ibm.bluemix.appid.android.api.userprofile.UserProfileManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
-import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
+import com.ibm.bluemix.appid.android.internal.userprofilemanager.UserProfileManagerImpl;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +36,7 @@ public class AppID {
 
 	private LoginWidgetImpl loginWidget;
 	private OAuthManager oAuthManager;
-	private UserAttributeManager userAttributeManager;
+	private UserProfileManager userProfileManager;
 
     public static String overrideOAuthServerHost = null; //when use place the assignment before calling the AppID initialize function
 	public static String overrideUserProfilesHost = null;
@@ -76,7 +76,7 @@ public class AppID {
 		this.bluemixRegionSuffix = bluemixRegion;
 		this.oAuthManager = new OAuthManager(context.getApplicationContext(), this);
 		this.loginWidget = new LoginWidgetImpl(this.oAuthManager);
-		this.userAttributeManager = new UserAttributeManagerImpl(this.oAuthManager.getTokenManager());
+		this.userProfileManager = new UserProfileManagerImpl(this.oAuthManager.getTokenManager());
 		return instance;
 	}
 
@@ -139,11 +139,11 @@ public class AppID {
 	 * @return the User Attribute Manager
 	 */
 	@NonNull
-	public UserAttributeManager getUserAttributeManager(){
-		if (null == this.userAttributeManager){
+	public UserProfileManager getUserProfileManager(){
+		if (null == this.userProfileManager){
 			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
 		}
-		return this.userAttributeManager;
+		return this.userProfileManager;
 	}
 
 	/**
@@ -257,4 +257,5 @@ public class AppID {
 		}
 		signinWithRefreshToken(context, refreshTokenString, tokenResponseListener);
 	}
+
 }
