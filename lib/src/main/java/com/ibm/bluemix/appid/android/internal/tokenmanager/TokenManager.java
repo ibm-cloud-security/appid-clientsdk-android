@@ -109,16 +109,22 @@ public class TokenManager {
 			@Override
 			public void onFailure (Response response, Throwable t, JSONObject extendedInfo) {
 				logger.error("Failed to retrieve tokens from authorization server", t);
-				String errorDescription = "";
+
 				try {
 					if (response.getStatus() == 400) {
-                        JSONObject responseJSON = new JSONObject(response.getResponseText());
-                        if (INVALID_GRANT.equals(responseJSON.getString(ERROR_CODE))) {
-                            errorDescription = responseJSON.getString(ERROR_DESCRIPTION);
-                            listener.onAuthorizationFailure(new AuthorizationException(errorDescription));
-                            return;
-                        }
-                    }
+						JSONObject responseJSON = new JSONObject(response.getResponseText());
+						if (INVALID_GRANT.equals(responseJSON.getString(ERROR_CODE))) {
+							String errorDescription = responseJSON.getString(ERROR_DESCRIPTION);
+							listener.onAuthorizationFailure(new AuthorizationException(errorDescription));
+							return;
+						}
+					} else if (response.getStatus() == 403) {
+						JSONObject responseJSON = new JSONObject(response.getResponseText());
+						String errorDescription = responseJSON.getString(ERROR_DESCRIPTION);
+						listener.onAuthorizationFailure(new AuthorizationException(errorDescription));
+						return;
+					}
+
                     listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve tokens"));
 				} catch (Exception e) {
 					logger.error("Failed to retrieve tokens from authorization server", t);
