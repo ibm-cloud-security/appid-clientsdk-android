@@ -219,9 +219,7 @@ public class TokenManager_Test {
     }
 
     @Test
-    public void obtainTokensRop_failure_400() {
-        final String testDescription = "test description error123";
-        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription + "\" }", 400);
+    public void obtainTokensRop_failure() {
 
         doAnswer(new Answer() {
             @Override
@@ -233,29 +231,15 @@ public class TokenManager_Test {
             }
         }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
 
-        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription));
+        // test 400
+        final String testDescription400 = "test description error123";
+        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription400 + "\" }", 400);
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription400));
 
-        //test the exception parsing
-        testReponse = null;
-        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener("Failed to retrieve tokens"));
-    }
-
-    @Test
-    public void obtainTokensRop_failure_403() {
-        final String testDescription = "Pending User Verification";
-        testReponse = createResponse("{\"error_code\": \"FORBIDDEN\" , \"error_description\": \"" + testDescription + "\" }", 403);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[1];
-                responseListener.onFailure(testReponse, null, null);
-                return null;
-            }
-        }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
-
-        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription));
+        // test 403
+        final String testDescription403 = "Pending User Verification";
+        testReponse = createResponse("{\"error_code\": \"FORBIDDEN\" , \"error_description\": \"" + testDescription403 + "\" }", 403);
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription403));
 
         //test the exception parsing
         testReponse = null;
