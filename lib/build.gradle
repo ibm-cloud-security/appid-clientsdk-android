@@ -40,6 +40,14 @@ android {
     lintOptions{
         warning 'InvalidPackage'
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
 
 
@@ -51,6 +59,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp-urlconnection:3.9.0'
     compile 'com.ibm.mobilefirstplatform.clientsdk.android:analyticsapi:[1.0.0,)'
     compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:3.1.3'
+    compile 'io.jsonwebtoken:jjwt:0.9.0'
 
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:customtabs:25.1.0'

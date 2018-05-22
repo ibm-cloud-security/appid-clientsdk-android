@@ -20,6 +20,7 @@ public class Config {
 	private final static String ATTRIBUTES_ENDPOINT = "/api/v1/";
 	private static final String serverUrlPrefix = "https://appid-oauth";
 	private static final String userProfilesPrefix = "https://appid-profiles";
+	private static final String PUBLIC_KEYS_ENDPOINT = "/publickeys";
 
 	private Config(){}
 
@@ -39,5 +40,13 @@ public class Config {
 		}
 		serverUrl += ATTRIBUTES_ENDPOINT;
 		return serverUrl;
+	}
+
+	public static String getPublicKeysEndpoint (AppID appId) {
+		return Config.getOAuthServerUrl(appId)+PUBLIC_KEYS_ENDPOINT;
+	}
+
+	public static String getIssuer(AppID appId) {
+		return Config.getOAuthServerUrl(appId).split("/")[2];
 	}
 }
