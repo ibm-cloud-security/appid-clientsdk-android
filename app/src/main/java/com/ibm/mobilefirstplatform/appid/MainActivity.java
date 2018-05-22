@@ -21,8 +21,8 @@ import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
-import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeResponseListener;
-import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException;
+import com.ibm.bluemix.appid.android.api.userprofile.UserProfileResponseListener;
+import com.ibm.bluemix.appid.android.api.userprofile.UserProfileException;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Request;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -358,14 +358,14 @@ public class MainActivity extends AppCompatActivity {
     public void onPutAttributeClick(View v) {
         String name = ((EditText) findViewById(R.id.editAttrName)).getText().toString();
         String value = ((EditText) findViewById(R.id.editAttrValue)).getText().toString();
-        appId.getUserAttributeManager().setAttribute(name, value, useThisToken, new UserAttributeResponseListener() {
+        appId.getUserProfileManager().setAttribute(name, value, useThisToken, new UserProfileResponseListener() {
             @Override
             public void onSuccess(JSONObject attributes) {
                 showResponse(attributes.toString());
             }
 
             @Override
-            public void onFailure(UserAttributesException e) {
+            public void onFailure(UserProfileException e) {
                 showResponse(e.getError() + " : " + e.getMessage());
             }
         });
@@ -373,14 +373,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void onGetAttributeClick(View v) {
         String name = ((EditText) findViewById(R.id.editAttrName)).getText().toString();
-        appId.getUserAttributeManager().getAttribute(name, useThisToken, new UserAttributeResponseListener() {
+        appId.getUserProfileManager().getAttribute(name, useThisToken, new UserProfileResponseListener() {
             @Override
             public void onSuccess(JSONObject attributes) {
                 showResponse(attributes.toString());
             }
 
             @Override
-            public void onFailure(UserAttributesException e) {
+            public void onFailure(UserProfileException e) {
                 showResponse(e.getError() + " : " + e.getMessage());
             }
         });
@@ -388,14 +388,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void onGetAllAttributesClick(View v) {
         String name = ((EditText) findViewById(R.id.editAttrName)).getText().toString();
-        appId.getUserAttributeManager().getAllAttributes(useThisToken, new UserAttributeResponseListener() {
+        appId.getUserProfileManager().getAllAttributes(useThisToken, new UserProfileResponseListener() {
             @Override
             public void onSuccess(JSONObject attributes) {
                 showResponse(attributes.toString());
             }
 
             @Override
-            public void onFailure(UserAttributesException e) {
+            public void onFailure(UserProfileException e) {
                 showResponse(e.getError() + " : " + e.getMessage());
             }
         });
@@ -403,14 +403,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void onDeleteAttributeClick(View v) {
         String name = ((EditText) findViewById(R.id.editAttrName)).getText().toString();
-        appId.getUserAttributeManager().deleteAttribute(name, useThisToken, new UserAttributeResponseListener() {
+        appId.getUserProfileManager().deleteAttribute(name, useThisToken, new UserProfileResponseListener() {
             @Override
             public void onSuccess(JSONObject attributes) {
                 showResponse(attributes.toString());
             }
 
             @Override
-            public void onFailure(UserAttributesException e) {
+            public void onFailure(UserProfileException e) {
                 showResponse(e.getError() + " : " + e.getMessage());
             }
         });
