@@ -33,25 +33,34 @@ import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigInteger;
+import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.HashMap;
+import java.util.Map;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.IncorrectClaimException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
 
 public class TokenManager {
 
 	private final AppID appId;
 	private final RegistrationManager registrationManager;
 	private AccessToken latestAccessToken;
-
 	private IdentityToken latestIdentityToken;
 	private RefreshToken latestRefreshToken;
+	private Map<String,RSAPublicKey> publicKeys;
 	private static final Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + TokenManager.class.getName());
-
 	private static final String OAUTH_TOKEN_PATH = "/token";
-
 	private final static String CLIENT_ID = "client_id";
 	private final static String GRANT_TYPE = "grant_type";
 	private final static String GRANT_TYPE_AUTH_CODE = "authorization_code";
@@ -61,6 +70,8 @@ public class TokenManager {
 	private final static String USERNAME = "username";
 	private final static String PASSWORD = "password";
 	private final static String GRANT_TYPE_PASSWORD = "password";
+	private static final String ACCESS_TOKEN = "access_token";
+	private static final String ID_TOKEN = "id_token";
 	private static final String REFRESH_TOKEN = "refresh_token";
 	private static final String GRANT_TYPE_REFRESH = "refresh_token";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
@@ -71,6 +82,7 @@ public class TokenManager {
 	public TokenManager (OAuthManager oAuthManager) {
 		this.appId = oAuthManager.getAppId();
 		this.registrationManager = oAuthManager.getRegistrationManager();
+		this.publicKeys = new HashMap<>();
 	}
 
 	public void obtainTokensAuthCode(String code, final AuthorizationListener listener) {
@@ -175,55 +187,167 @@ public class TokenManager {
 	 *
 	 * @param response response that contain the token
 	 */
-	private void extractTokens (Response response, TokenResponseListener tokenResponseListener) {
-		String accessTokenString;
-		String idTokenString;
-		AccessToken accessToken;
-		IdentityToken identityToken;
-		RefreshToken refreshToken = null;
-
+	protected void extractTokens (Response response, TokenResponseListener tokenResponseListener) {
 		logger.debug("Extracting tokens from server response");
 
 		JSONObject responseJSON;
 		try {
 			responseJSON = new JSONObject(response.getResponseText());
-			accessTokenString = responseJSON.getString("access_token");
-			idTokenString = responseJSON.getString("id_token");
 		} catch (Exception e){
 			logger.error("Failed to parse server response", e);
 			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Failed to parse server response"));
 			return;
 		}
+		extractTokens(responseJSON,tokenResponseListener,0);
+	}
 
-		try {
-			accessToken = new AccessTokenImpl(accessTokenString);
-		} catch (RuntimeException e){
-			logger.error("Failed to parse access_token", e);
-			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Failed to parse access_token"));
-			return;
+	protected void extractTokens(JSONObject responseJSON, TokenResponseListener listener,int flowStep) {
+		if (flowStep==0){
+			logger.debug("Extracting and verifying access token from server response");
+			String accessTokenString;
+			AccessToken accessToken;
+			try {
+				accessTokenString = responseJSON.getString(ACCESS_TOKEN);
+				accessToken = new AccessTokenImpl(accessTokenString);
+				String kid=accessToken.getHeader().getString("kid");
+				RSAPublicKey accessTokenPublicKey = getPublicKeyByKid(kid);
+				flowStep++;
+				if(accessTokenPublicKey == null){
+					lookUpPublicKey(kid,responseJSON,listener,ACCESS_TOKEN,flowStep);
+				}else {
+					saveToken(kid,responseJSON,accessTokenPublicKey,listener,ACCESS_TOKEN,flowStep);
+				}
+			} catch (RuntimeException|AuthorizationException|JSONException e){
+				logger.error("Failed to parse access_token", e);
+				listener.onAuthorizationFailure(new AuthorizationException("Failed to parse access_token, error :"+e.getMessage()));
+			}
+		}else if (flowStep==1){
+			logger.debug("Extracting and verifying id token from server response");
+			String identityTokenString;
+			IdentityToken identityToken;
+			try {
+				identityTokenString = responseJSON.getString(ID_TOKEN);
+				identityToken = new IdentityTokenImpl(identityTokenString);
+				String kid=identityToken.getHeader().getString("kid");
+				RSAPublicKey identityTokenPublicKey = getPublicKeyByKid(kid);
+				flowStep++;
+				if(identityTokenPublicKey == null){
+					lookUpPublicKey(kid,responseJSON,listener,ID_TOKEN,flowStep);
+				}else {
+					saveToken(kid,responseJSON,identityTokenPublicKey,listener,ID_TOKEN,flowStep);
+				}
+			} catch (RuntimeException|AuthorizationException|JSONException e){
+				logger.error("Failed to parse id_token", e);
+				listener.onAuthorizationFailure(new AuthorizationException("Failed to parse id_token, error :"+e.getMessage()));
+			}
+		}else {
+			RefreshToken refreshToken = null;
+			try {
+				logger.debug("responseJSON.has");
+				logger.debug(""+responseJSON.has(REFRESH_TOKEN));
+				if(responseJSON.has(REFRESH_TOKEN)){
+					String refreshTokenString = responseJSON.getString(REFRESH_TOKEN);
+					refreshToken = new RefreshTokenImpl(refreshTokenString);
+				}
+			} catch (RuntimeException|JSONException e){
+				logger.error("Failed to parse refresh_token", e);
+			}
+			latestRefreshToken = refreshToken;
+			listener.onAuthorizationSuccess(latestAccessToken,latestIdentityToken,latestRefreshToken);
 		}
+	}
 
+	protected void lookUpPublicKey(final String tokenKid, final JSONObject responseJSON, final TokenResponseListener listener, final String tokenType, final int flowStep){
+		AppIDRequest request = new AppIDRequest(Config.getPublicKeysEndpoint(appId),AppIDRequest.GET);
+		request.send(new ResponseListener() {
+			@Override
+			public void onSuccess(Response response) {
+				try {
+					RSAPublicKey publicKey = getPublickey(response,tokenKid);
+					if(publicKey==null){
+						listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve public keys for Kid from server"));
+					}else{
+						saveToken(tokenKid,responseJSON,publicKey,listener,tokenType,flowStep);
+					}
+				} catch (AuthorizationException exception) {
+					logger.error("Failed to parse public keys from server");
+					listener.onAuthorizationFailure(exception);
+				}
+			}
+
+			@Override
+			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+				logger.error("Failed to retrieve public keys from server", t);
+				listener.onAuthorizationFailure(new AuthorizationException("Failed to retrieve public keys from server"));
+			}
+		});
+	}
+
+	protected void saveToken(String tokenKid, JSONObject responseJSON, RSAPublicKey publicKey, TokenResponseListener listener, String tokenType, int flowStep) {
+		String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
 		try {
-			identityToken = new IdentityTokenImpl(idTokenString);
-		} catch (RuntimeException e){
+			String tokenString = responseJSON.getString(tokenType);
+			Boolean verify = verifyToken(publicKey,tokenString,Config.getIssuer(appId),clientId,appId.getTenantId());
+			if(verify){
+				if(tokenType.equals(ACCESS_TOKEN)){
+					AccessToken accessToken = new AccessTokenImpl(tokenString);
+					latestAccessToken = accessToken;
+				}else if(tokenType.equals(ID_TOKEN)){
+					IdentityToken identityToken = new IdentityTokenImpl(tokenString);
+					latestIdentityToken= identityToken;
+				}
+				extractTokens(responseJSON,listener,flowStep);
+			}else{
+				listener.onAuthorizationFailure(new AuthorizationException("Failed to verify "+tokenType));
+			}
+		} catch (Exception exception) {
 			clearStoredTokens();
-			logger.error("Failed to parse id_token", e);
-			tokenResponseListener.onAuthorizationFailure(new AuthorizationException("Failed to parse id_token"));
-			return;
+			listener.onAuthorizationFailure(new AuthorizationException("Failed to parse "+ tokenType + ",error : "+ exception.getMessage()));
 		}
+	}
 
+	protected RSAPublicKey getPublicKeyByKid(String tokenKid) throws AuthorizationException {
+		if(tokenKid == null || tokenKid.equals("")){
+			throw new AuthorizationException("Invalid Kid");
+		}
+		if(publicKeys.containsKey(tokenKid)){
+			return publicKeys.get(tokenKid);
+		}
+		return null;
+	}
+
+	protected RSAPublicKey getPublickey(Response response,String tokenKid) throws AuthorizationException {
+		JSONObject responseJSON;
 		try {
-			String refershTokenString = responseJSON.getString("refresh_token");
-			refreshToken = new RefreshTokenImpl(refershTokenString);
-		} catch (RuntimeException|JSONException e){
-			logger.error("Failed to parse refresh_token", e);
+			responseJSON = new JSONObject(response.getResponseText());
+			JSONArray jwkArray = responseJSON.getJSONArray("keys");
+			for(int i = 0; i < jwkArray.length(); i++)
+			{
+				JSONObject jwkJSONObject = jwkArray.getJSONObject(i);
+				BigInteger modulus = new BigInteger(1, Base64.decode(jwkJSONObject.getString("n"),Base64.URL_SAFE));
+				BigInteger exponent = new BigInteger(1, Base64.decode(jwkJSONObject.getString("e"),Base64.URL_SAFE));
+				RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, exponent));
+				publicKeys.put(jwkJSONObject.getString("kid"),publicKey);
+			}
+		} catch (Exception e){
+			logger.error("Failed to parse server response", e);
+			throw new AuthorizationException("Failed to parse public keys from server");
 		}
+		return publicKeys.get(tokenKid);
+	}
 
-		latestAccessToken = accessToken;
-		latestIdentityToken = identityToken;
-		latestRefreshToken = refreshToken;
-
-		tokenResponseListener.onAuthorizationSuccess(accessToken, identityToken, refreshToken);
+	protected boolean verifyToken(RSAPublicKey rsaPublicKey,String token,String issuer,String audience,String tenant) throws SignatureException,IncorrectClaimException {
+		if(rsaPublicKey==null){
+			return false;
+		}
+		try {
+			Jwts.parser().requireIssuer(issuer).requireAudience(audience)
+					.require("tenant", tenant).setSigningKey(rsaPublicKey)
+					.parseClaimsJws(token).getBody();
+			return true;
+		} catch (SignatureException|IncorrectClaimException exception) { // Invalid signature/claims
+			throw exception;
+		}
 	}
 
 	public AccessToken getLatestAccessToken () {
