@@ -223,8 +223,6 @@ public class TokenManager_Test {
 
     @Test
     public void obtainTokensRop_failure() {
-        final String testDescription = "test description error123";
-        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription + "\" }", 400);
 
         doAnswer(new Answer() {
             @Override
@@ -235,7 +233,15 @@ public class TokenManager_Test {
             }
         }).when(spyTokenManager).extractTokens(any(Response.class), any(TokenResponseListener.class));
 
-        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription));
+        // test 400
+        final String testDescription400 = "test description error123";
+        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription400 + "\" }", 400);
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription400));
+
+        // test 403
+        final String testDescription403 = "Pending User Verification";
+        testReponse = createResponse("{\"error_code\": \"FORBIDDEN\" , \"error_description\": \"" + testDescription403 + "\" }", 403);
+        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription403));
 
         //test the exception parsing
         testReponse = null;
