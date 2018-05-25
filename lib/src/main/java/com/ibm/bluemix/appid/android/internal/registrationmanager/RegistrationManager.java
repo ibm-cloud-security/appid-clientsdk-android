@@ -155,6 +155,9 @@ public class RegistrationManager {
         JSONObject params = new JSONObject();
         DeviceIdentity deviceData = new BaseDeviceIdentity(context);
         AppIdentity applicationData = new BaseAppIdentity(context);
+        if (applicationData.getId().contains("_")) {
+        	throw new Exception("applicationId can NOT contain underscores");
+		}
         JSONArray redirectUris = new JSONArray();
         JSONArray responseTypes = new JSONArray();
         JSONArray grantTypes = new JSONArray();
