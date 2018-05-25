@@ -11,11 +11,11 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.api.userprofile;
+package com.ibm.bluemix.appid.android.api.userattributes;
 
 import org.json.JSONObject;
 
-public interface UserProfileResponseListener {
-	void onSuccess(JSONObject response);
-	void onFailure(UserProfileException e);
+public interface UserAttributeResponseListener {
+	void onSuccess(JSONObject attributes);
+	void onFailure(UserAttributesException e);
 }

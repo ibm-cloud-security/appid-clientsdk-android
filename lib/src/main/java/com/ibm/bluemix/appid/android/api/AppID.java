@@ -18,10 +18,10 @@ import android.support.annotation.NonNull;
 
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
-import com.ibm.bluemix.appid.android.api.userprofile.UserProfileManager;
+import com.ibm.bluemix.appid.android.api.userattributes.UserAttributeManager;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.loginwidget.LoginWidgetImpl;
-import com.ibm.bluemix.appid.android.internal.userprofilemanager.UserProfileManagerImpl;
+import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,13 +36,12 @@ public class AppID {
 
 	private LoginWidgetImpl loginWidget;
 	private OAuthManager oAuthManager;
-	private UserProfileManager userProfileManager;
+	private UserAttributeManager userAttributeManager;
 
     public static String overrideOAuthServerHost = null; //when use place the assignment before calling the AppID initialize function
 	public static String overrideUserProfilesHost = null;
 
     public final static String REGION_US_SOUTH = ".ng.bluemix.net";
-    public final static String REGION_US_EAST = ".us-east.bluemix.net";
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 	public final static String REGION_GERMANY = ".eu-de.bluemix.net";
@@ -76,7 +75,7 @@ public class AppID {
 		this.bluemixRegionSuffix = bluemixRegion;
 		this.oAuthManager = new OAuthManager(context.getApplicationContext(), this);
 		this.loginWidget = new LoginWidgetImpl(this.oAuthManager);
-		this.userProfileManager = new UserProfileManagerImpl(this.oAuthManager.getTokenManager());
+		this.userAttributeManager = new UserAttributeManagerImpl(this.oAuthManager.getTokenManager());
 		return instance;
 	}
 
@@ -139,11 +138,11 @@ public class AppID {
 	 * @return the User Attribute Manager
 	 */
 	@NonNull
-	public UserProfileManager getUserProfileManager(){
-		if (null == this.userProfileManager){
+	public UserAttributeManager getUserAttributeManager(){
+		if (null == this.userAttributeManager){
 			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
 		}
-		return this.userProfileManager;
+		return this.userAttributeManager;
 	}
 
 	/**
@@ -257,5 +256,4 @@ public class AppID {
 		}
 		signinWithRefreshToken(context, refreshTokenString, tokenResponseListener);
 	}
-
 }
