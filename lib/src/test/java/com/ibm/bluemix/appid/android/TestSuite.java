@@ -20,7 +20,7 @@ import com.ibm.bluemix.appid.android.api.Config_Test;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken_Test;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken_Test;
 import com.ibm.bluemix.appid.android.api.tokens.OAuthClient_Test;
-import com.ibm.bluemix.appid.android.api.userprofile.UserProfileException_Test;
+import com.ibm.bluemix.appid.android.api.userattributes.UserAttributesException_Test;
 import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationManager_Test;
 import com.ibm.bluemix.appid.android.internal.authorizationmanager.AuthorizationUIManager_Test;
 import com.ibm.bluemix.appid.android.internal.helpers.AuthorizationHeaderHelper_Test;
@@ -31,7 +31,7 @@ import com.ibm.bluemix.appid.android.internal.preferences.JSONPreference_Test;
 import com.ibm.bluemix.appid.android.internal.preferences.StringPreference_Test;
 import com.ibm.bluemix.appid.android.internal.tokenmanager.TokenManager_Test;
 import com.ibm.bluemix.appid.android.internal.tokens.AbstractToken_Test;
-import com.ibm.bluemix.appid.android.internal.userprofilemanager.UserProfileManagerImpl_Test;
+import com.ibm.bluemix.appid.android.internal.userattributesmanager.UserAttributeManagerImpl_Test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -45,7 +45,7 @@ import org.junit.runners.Suite;
 		AccessToken_Test.class,
 		IdentityToken_Test.class,
 		OAuthClient_Test.class,
-		UserProfileException_Test.class,
+		UserAttributesException_Test.class,
 		AppIDAuthorizationManager_Test.class,
 
 		// Internal
@@ -57,7 +57,7 @@ import org.junit.runners.Suite;
 		AuthorizationManager_Test.class,
         TokenManager_Test.class,
 		AuthorizationUIManager_Test.class,
-		UserProfileManagerImpl_Test.class,
+		UserAttributeManagerImpl_Test.class,
 		AppIDRequest_Test.class,
 		AppIDRequestFactory_Test.class,
 		LoginWidgetImpl_Test.class

@@ -68,6 +68,7 @@ public class TokenManager {
 	private final static String ERROR= "error";
 	private final static String INVALID_GRANT= "invalid_grant";
 
+
 	public TokenManager (OAuthManager oAuthManager) {
 		this.appId = oAuthManager.getAppId();
 		this.registrationManager = oAuthManager.getRegistrationManager();
