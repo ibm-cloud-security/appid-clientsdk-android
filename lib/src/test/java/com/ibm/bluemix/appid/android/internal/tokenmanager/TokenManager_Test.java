@@ -21,7 +21,6 @@ import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
-import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
@@ -77,8 +76,6 @@ import static org.mockito.Mockito.when;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TokenManager_Test {
 
-    @Mock
-    private PreferenceManager pmMock;
     @Mock
     private OAuthManager oAuthManagerMock;
     @Mock
