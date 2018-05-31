@@ -11,26 +11,11 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.api.userprofile;
+package com.ibm.bluemix.appid.android.api.userattributes;
 
-public class UserProfileException extends Exception {
+public class UserAttributesException extends Exception {
 
 	public enum Error {
-		INVALID_USERINFO_RESPONSE {
-			public String getDescription(){
-				return "User info response is invalid. Must be valid JSON and contain the required subject field";
-			}
-		},
-		CONFLICTING_SUBJECTS {
-			public String getDescription(){
-				return "Conflicting subjects. UserInfoResponse.sub must match idToken.sub";
-			}
-		},
-		MISSING_ACCESS_TOKEN {
-			public String getDescription(){
-				return "Access Token missing. Userinfo request requires an access token";
-			}
-		},
 		FAILED_TO_CONNECT {
 			public String getDescription(){
 				return "Failed to connect to the server";
@@ -57,7 +42,7 @@ public class UserProfileException extends Exception {
 
 	private Error error;
 
-	public UserProfileException(Error error){
+	public UserAttributesException(Error error){
 		super(error.getDescription());
 		this.error = error;
 	}
