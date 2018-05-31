@@ -64,9 +64,10 @@ public class TokenManager {
 	private static final String REFRESH_TOKEN = "refresh_token";
 	private static final String GRANT_TYPE_REFRESH = "refresh_token";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
-	private final static String ERROR_DESCRIPTION = "error_description";
-	private final static String ERROR = "error";
-	private final static String INVALID_GRANT = "invalid_grant";
+	private final static String ERROR_DESCRIPTION= "error_description";
+	private final static String ERROR= "error";
+	private final static String INVALID_GRANT= "invalid_grant";
+
 
 	public TokenManager (OAuthManager oAuthManager) {
 		this.appId = oAuthManager.getAppId();
