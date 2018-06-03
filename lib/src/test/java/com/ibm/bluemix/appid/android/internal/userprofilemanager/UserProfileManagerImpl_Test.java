@@ -1167,6 +1167,22 @@ public class UserProfileManagerImpl_Test {
     }
 
     @Test
+    public void getUserInfo_no_access_token_supplied() {
+        userProfileManagerSpy.getUserInfo(null, null, new UserProfileResponseListener() {
+            @Override
+            public void onSuccess(JSONObject userInfo) {
+                fail("should get to onFailure");
+
+            }
+
+            @Override
+            public void onFailure(UserProfileException e) {
+                assertEquals(e.getError(), UserProfileException.Error.MISSING_ACCESS_TOKEN);
+            }
+        });
+    }
+
+    @Test
     public void getUserInfo_request_failure_401() {
         final Response testResponse = new Response() {
             @Override

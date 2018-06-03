@@ -28,7 +28,7 @@ public class UserProfileException extends Exception {
 		},
 		MISSING_ACCESS_TOKEN {
 			public String getDescription(){
-				return "Access Token missing. User info request requires an access token";
+				return "Access Token missing. Please log in or pass in a valid access token.";
 			}
 		},
 		FAILED_TO_CONNECT {
