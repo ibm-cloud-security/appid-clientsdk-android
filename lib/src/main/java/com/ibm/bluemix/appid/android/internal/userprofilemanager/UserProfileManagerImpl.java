@@ -111,6 +111,7 @@ public class UserProfileManagerImpl implements UserProfileManager {
 
 		if (accessToken == null) {
 			listener.onFailure(new UserProfileException(UserProfileException.Error.MISSING_ACCESS_TOKEN));
+			return;
 		}
 
 		getUserInfo(accessToken, tokenManager.getLatestIdentityToken(), listener);
