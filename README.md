@@ -37,7 +37,7 @@ dependencies {
 }
 ```
 
-3. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
+3. Within your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
 ```
 defaultConfig {
     ...
@@ -45,9 +45,9 @@ defaultConfig {
 }
 ```
 
-## Initializing the App ID client SDK
+## Initializing the App ID Client SDK
 
-Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the onCreate method of the main activity in your Android application.
+Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the `onCreate` method of the main activity in your Android application.
 ```java
 AppID.getInstance().initialize(getApplicationContext(), <tenantId>, AppID.REGION_UK);
 ```
@@ -55,7 +55,7 @@ AppID.getInstance().initialize(getApplicationContext(), <tenantId>, AppID.REGION
 * Replace the AppID.REGION_UK with your App ID region (AppID.REGION_US_SOUTH, AppID.REGION_SYDNEY).
 
 ## Using the Login Widget
-Use the LoginWidget class to start the authorization flow.   
+Use the `LoginWidget` class to start the authorization flow.   
 
 ```java
 LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
