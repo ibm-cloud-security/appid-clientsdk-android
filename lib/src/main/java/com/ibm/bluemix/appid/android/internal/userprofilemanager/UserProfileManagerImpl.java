@@ -118,9 +118,9 @@ public class UserProfileManagerImpl implements UserProfileManager {
 	private void sendAndValidateUserInfoRequest(String method, AccessToken accessToken, final IdentityToken identityToken, final UserProfileResponseListener listener){
 
 	    if (accessToken == null) {
-            listener.onFailure(new UserProfileException(UserProfileException.Error.MISSING_ACCESS_TOKEN));
-            return;
-        }
+			listener.onFailure(new UserProfileException(UserProfileException.Error.MISSING_ACCESS_TOKEN));
+			return;
+		}
 
 	    if (userInfoUrl == null) {
 			userInfoUrl = Config.getOAuthServerUrl(AppID.getInstance()) + USER_INFO_PATH;
