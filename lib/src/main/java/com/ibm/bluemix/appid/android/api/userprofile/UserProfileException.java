@@ -28,7 +28,7 @@ public class UserProfileException extends Exception {
 		},
 		MISSING_ACCESS_TOKEN {
 			public String getDescription(){
-				return "Access Token missing. Userinfo request requires an access token";
+				return "Access Token missing. User info request requires an access token";
 			}
 		},
 		FAILED_TO_CONNECT {
@@ -43,7 +43,7 @@ public class UserProfileException extends Exception {
 		},
 		UNAUTHORIZED {
 			public String getDescription(){
-				return "Access to attribute is unauthorized";
+				return "Access to profile is unauthorized";
 			}
 		},
 		JSON_PARSE_ERROR {
