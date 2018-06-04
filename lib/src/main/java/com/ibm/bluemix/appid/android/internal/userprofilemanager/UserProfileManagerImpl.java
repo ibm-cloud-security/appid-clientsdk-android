@@ -107,13 +107,7 @@ public class UserProfileManagerImpl implements UserProfileManager {
 
 	@Override
 	public void getUserInfo (@NonNull final UserProfileResponseListener listener) {
-		AccessToken accessToken = tokenManager.getLatestAccessToken();
-
-		if (accessToken == null) {
-			listener.onFailure(new UserProfileException(UserProfileException.Error.MISSING_ACCESS_TOKEN));
-		}
-
-		getUserInfo(accessToken, tokenManager.getLatestIdentityToken(), listener);
+		getUserInfo(tokenManager.getLatestAccessToken(), tokenManager.getLatestIdentityToken(), listener);
 	}
 
 	@Override
@@ -122,7 +116,13 @@ public class UserProfileManagerImpl implements UserProfileManager {
 	}
 
 	private void sendAndValidateUserInfoRequest(String method, AccessToken accessToken, final IdentityToken identityToken, final UserProfileResponseListener listener){
-		if (userInfoUrl == null) {
+
+	    if (accessToken == null) {
+			listener.onFailure(new UserProfileException(UserProfileException.Error.MISSING_ACCESS_TOKEN));
+			return;
+		}
+
+	    if (userInfoUrl == null) {
 			userInfoUrl = Config.getOAuthServerUrl(AppID.getInstance()) + USER_INFO_PATH;
 		}
 
