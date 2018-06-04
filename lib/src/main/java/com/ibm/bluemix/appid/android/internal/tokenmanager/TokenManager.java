@@ -72,9 +72,9 @@ public class TokenManager {
 	private final static String GRANT_TYPE_PASSWORD = "password";
 	private static final String GRANT_TYPE_REFRESH = "refresh_token";
 	private final static String APPID_ACCESS_TOKEN = "appid_access_token";
-	private final static String ERROR_DESCRIPTION= "error_description";
-	private final static String ERROR= "error";
-	private final static String INVALID_GRANT= "invalid_grant";
+	private final static String ERROR_DESCRIPTION = "error_description";
+	private final static String ERROR = "error";
+	private final static String INVALID_GRANT = "invalid_grant";
 	protected enum TOKENS {
 		ACCESS_TOKEN("access_token"),
 		ID_TOKEN("id_token"),
