@@ -11,7 +11,7 @@
 	limitations under the License.
 */
 
-package com.ibm.bluemix.appid.android.api.userprofile;
+package com.ibm.bluemix.appid.android.api.userattributes;
 
 import com.ibm.mobilefirstplatform.appid_clientsdk_android.BuildConfig;
 
@@ -27,17 +27,17 @@ import static org.assertj.core.api.Java6Assertions.*;
 @RunWith (RobolectricTestRunner.class)
 @FixMethodOrder (MethodSorters.NAME_ASCENDING)
 @Config (constants = BuildConfig.class)
-public class UserProfileException_Test {
+public class UserAttributesException_Test {
 
 	@Test
-	public void testUserProfileException (){
-		UserProfileException uae1 = new UserProfileException(UserProfileException.Error.FAILED_TO_CONNECT);
-		assertThat(uae1.getError()).isEqualTo(UserProfileException.Error.FAILED_TO_CONNECT);
+	public void testUserAttributesException (){
+		UserAttributesException uae1 = new UserAttributesException(UserAttributesException.Error.FAILED_TO_CONNECT);
+		assertThat(uae1.getError()).isEqualTo(UserAttributesException.Error.FAILED_TO_CONNECT);
 
-		UserProfileException uae2 = new UserProfileException(UserProfileException.Error.NOT_FOUND);
-		assertThat(uae2.getError()).isEqualTo(UserProfileException.Error.NOT_FOUND);
+		UserAttributesException uae2 = new UserAttributesException(UserAttributesException.Error.NOT_FOUND);
+		assertThat(uae2.getError()).isEqualTo(UserAttributesException.Error.NOT_FOUND);
 
-		UserProfileException uae3 = new UserProfileException(UserProfileException.Error.UNAUTHORIZED);
-		assertThat(uae3.getError()).isEqualTo(UserProfileException.Error.UNAUTHORIZED);
+		UserAttributesException uae3 = new UserAttributesException(UserAttributesException.Error.UNAUTHORIZED);
+		assertThat(uae3.getError()).isEqualTo(UserAttributesException.Error.UNAUTHORIZED);
 	}
 }
