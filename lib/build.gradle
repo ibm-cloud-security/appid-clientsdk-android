@@ -3,18 +3,14 @@ apply plugin: "com.github.kt3k.coveralls"
 apply from: "jacoco.gradle"
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "org.robolectric.RobolectricTestRunner"
-        android.buildTypes.debug.manifestPlaceholders = [
-            'appIdRedirectScheme': 'com.ibm.mobilefirstplatform.appid_clientsdk_android_test'
-        ];
     }
 
     buildTypes {
@@ -28,6 +24,9 @@ android {
     }
 
     testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
         unitTests.returnDefaultValues = true
         unitTests.all {
             jacoco {
@@ -44,22 +43,20 @@ android {
 
 
 dependencies {
-    compile fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
 
-    compile 'com.android.support:multidex:1.0.0'
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
-    compile 'com.squareup.okhttp3:okhttp-urlconnection:3.9.0'
-    compile 'com.ibm.mobilefirstplatform.clientsdk.android:analyticsapi:[1.0.0,)'
-    compile 'com.ibm.mobilefirstplatform.clientsdk.android:core:3.1.3'
-    compile 'io.jsonwebtoken:jjwt:0.9.0'
+    api 'com.android.support:multidex:1.0.3'
+    api 'com.squareup.okhttp3:okhttp:3.9.0'
+    api 'com.squareup.okhttp3:okhttp-urlconnection:3.9.0'
+    api 'com.ibm.mobilefirstplatform.clientsdk.android:analyticsapi:[1.0.0,)'
+    api 'com.ibm.mobilefirstplatform.clientsdk.android:core:3.1.3'
 
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:customtabs:25.1.0'
-    compile 'org.jetbrains:annotations-java5:15.0'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.2.2'
-    testCompile 'org.robolectric:shadows-httpclient:3.2.2'
-    testCompile 'org.assertj:assertj-core:3.6.2'
-    testCompile 'org.powermock:powermock-api-mockito:1.6.6'
-    testCompile 'commons-io:commons-io:2.4'
+    api 'com.android.support:appcompat-v7:27.1.1'
+    api 'com.android.support:customtabs:27.1.1'
+    api 'org.jetbrains:annotations-java5:15.0'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:3.8'
+    testImplementation 'org.assertj:assertj-core:3.6.2'
+    testImplementation 'org.powermock:powermock-api-mockito:1.6.6'
+    testImplementation 'commons-io:commons-io:2.5'
 }
