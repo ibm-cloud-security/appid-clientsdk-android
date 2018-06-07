@@ -12,11 +12,11 @@
 [![GithubForks][img-github-forks]][url-github-forks]
 
 ## Requirements
-* API 25 or above
+* API 27 or above
 * Java 8.x
-* Android SDK tools 25.2.5 or above
-* Android SDK Platform Tools 25.0.3 or above
-* Android Build Tools version 25.0.2
+* Android SDK Tools 26.1.1+
+* Android SDK Platform Tools 27.0.1+
+* Android Build Tools version 27.0.0+
 
 ## Installing the SDK:
 1.  Add the JitPack repository to the your root `build.gradle` file at the end of the repository.
