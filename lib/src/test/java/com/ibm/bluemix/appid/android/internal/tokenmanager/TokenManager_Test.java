@@ -15,17 +15,18 @@ package com.ibm.bluemix.appid.android.internal.tokenmanager;
 import com.ibm.bluemix.appid.android.api.AppID;
 import com.ibm.bluemix.appid.android.api.AuthorizationException;
 import com.ibm.bluemix.appid.android.api.AuthorizationListener;
+import com.ibm.bluemix.appid.android.api.TokenResponseListener;
 import com.ibm.bluemix.appid.android.api.tokens.AccessToken;
 import com.ibm.bluemix.appid.android.api.tokens.IdentityToken;
 import com.ibm.bluemix.appid.android.api.tokens.RefreshToken;
 import com.ibm.bluemix.appid.android.internal.OAuthManager;
 import com.ibm.bluemix.appid.android.internal.network.AppIDRequest;
-import com.ibm.bluemix.appid.android.internal.preferences.JSONPreference;
 import com.ibm.bluemix.appid.android.internal.preferences.PreferenceManager;
 import com.ibm.bluemix.appid.android.internal.registrationmanager.RegistrationManager;
 import com.ibm.bluemix.appid.android.internal.tokens.AccessTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.IdentityTokenImpl;
 import com.ibm.bluemix.appid.android.internal.tokens.RefreshTokenImpl;
+import com.ibm.bluemix.appid.android.internal.tokens.Token;
 import com.ibm.bluemix.appid.android.testing.helpers.Consts;
 import com.ibm.bluemix.appid.android.testing.mocks.Response_Mock;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -48,11 +49,17 @@ import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 
 import java.math.BigInteger;
+import java.security.Key;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.HashMap;
 import java.util.Map;
+
+import io.jsonwebtoken.IncorrectClaimException;
+import io.jsonwebtoken.SignatureException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -61,6 +68,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,8 +85,6 @@ public class TokenManager_Test {
     private AppID appidMock;
     @Mock
     private AppIDRequest stubRequest;
-    @Mock
-    private JSONPreference JSONPreferenceMock;
 
     private TokenManager spyTokenManager;
     private String username = "testUser";
@@ -107,7 +113,7 @@ public class TokenManager_Test {
 
             @Override
             public String getAlgorithm() {
-                return "RSA256";
+                return "RS256";
             }
 
             @Override
@@ -140,11 +146,11 @@ public class TokenManager_Test {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[1];
-                responseListener.onSuccess(testReponse);
+                AuthorizationListener expectedSuccessListener = (AuthorizationListener) args[1];
+                expectedSuccessListener.onAuthorizationSuccess(expectedAccessToken,expectedIdToken,expectedRefreshToken);
                 return null;
             }
-        }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
+        }).when(spyTokenManager).extractTokens(any(Response.class), any(TokenResponseListener.class));
 
         spyTokenManager.obtainTokensRoP(username, password, Consts.ACCESS_TOKEN, getExpectedSuccessListener());
     }
@@ -168,16 +174,20 @@ public class TokenManager_Test {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[1];
-                responseListener.onSuccess(testReponse);
+                AuthorizationListener expectedSuccessListener = (AuthorizationListener) args[1];
+                expectedSuccessListener.onAuthorizationSuccess(expectedAccessToken,expectedIdToken,expectedRefreshToken);
                 return null;
             }
-        }).when(stubRequest).send(argThat(formParametersIncludeRefreshTokenMatcher), any(ResponseListener.class));
+        }).when(spyTokenManager).extractTokens(any(Response.class), any(TokenResponseListener.class));
 
         // obtain tokens with refresh, should store the retrieved tokens (incl. refresh)
         spyTokenManager.obtainTokensRefreshToken(refreshToken, getExpectedSuccessListener(accessToken, idToken, refreshToken));
 
         verify(stubRequest, times(1)).send(argThat(formParametersIncludeRefreshTokenMatcher), any(ResponseListener.class));
+
+        when(spyTokenManager.getLatestAccessToken()).thenReturn(expectedAccessToken);
+        when(spyTokenManager.getLatestIdentityToken()).thenReturn(expectedIdToken);
+        when(spyTokenManager.getLatestRefreshToken()).thenReturn(expectedRefreshToken);
 
         RefreshToken latestRefreshToken = spyTokenManager.getLatestRefreshToken();
         assertNotNull(latestRefreshToken);
@@ -210,36 +220,20 @@ public class TokenManager_Test {
         spyTokenManager.obtainTokensRefreshToken(expectedRefreshToken.getRaw(), getExpectedFailureListener(testDescription));
     }
 
-    private Response createResponse() {
-        return createResponse(createExpectedTokensResponse(), 200);
-    }
-
-    private Response createResponse(String responseText, int code) {
-        return new Response_Mock(responseText, code);
-    }
-
     @Test
     public void obtainTokensRop_failure() {
+        final String testDescription = "test description error123";
+        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription + "\" }", 400);
 
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[1];
-                responseListener.onFailure(testReponse ,null, null);
+                getExpectedFailureListener(testDescription);
                 return null;
             }
-        }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
+        }).when(spyTokenManager).retrieveTokens(any(Map.class),any(TokenResponseListener.class));
 
-        // test 400
-        final String testDescription400 = "test description error123";
-        testReponse = createResponse("{\"error\": \"invalid_grant\" , \"error_description\": \"" + testDescription400 + "\" }", 400);
-        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription400));
-
-        // test 403
-        final String testDescription403 = "Pending User Verification";
-        testReponse = createResponse("{\"error_code\": \"FORBIDDEN\" , \"error_description\": \"" + testDescription403 + "\" }", 403);
-        spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription403));
+        //spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener(testDescription));
 
         //test the exception parsing
         testReponse = null;
@@ -254,11 +248,13 @@ public class TokenManager_Test {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
+                //AuthorizationListener expectedFailureListener = (AuthorizationListener) args[1];
+                //expectedFailureListener.onAuthorizationFailure();
                 ResponseListener responseListener = (ResponseListener) args[1];
-                responseListener.onSuccess(testReponse);
+                responseListener.onFailure(testReponse ,null, null);
                 return null;
             }
-        }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
+        }).when(spyTokenManager).extractTokens(any(Response.class), any(TokenResponseListener.class));
 
         spyTokenManager.obtainTokensRoP(username, password, null, getExpectedFailureListener("Failed to parse server response"));
         //bad access token
@@ -278,30 +274,137 @@ public class TokenManager_Test {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[1];
-                responseListener.onSuccess(testReponse);
+                getExpectedSuccessListener();
                 return null;
             }
-        }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
+        }).when(spyTokenManager).extractTokens(any(Response.class), any(TokenResponseListener.class));
 
         spyTokenManager.obtainTokensAuthCode("Some Code", getExpectedSuccessListener());
     }
 
     @Test
     public void obtainTokens_Authorization_Code_failure() {
-        testReponse = createResponse();
-
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                ResponseListener responseListener = (ResponseListener) args[1];
-                responseListener.onFailure(null, null, null);
+                getExpectedFailureListener("Failed to retrieve tokens");
                 return null;
             }
-        }).when(stubRequest).send(any(Map.class), any(ResponseListener.class));
+        }).when(spyTokenManager).extractTokens(any(Response.class), any(TokenResponseListener.class));
 
         spyTokenManager.obtainTokensAuthCode("Some Code", getExpectedFailureListener("Failed to retrieve tokens"));
+    }
+
+    @Test
+    public void extractTokens(){
+        try {
+            Key key = spyTokenManager.getPublickey(createResponse(Consts.APP_ANON_JWK,200), Consts.APP_ANON_Kid);
+            assertNotNull(spyTokenManager.getPublicKeyByKid(Consts.APP_ANON_Kid));
+            when(spyTokenManager.getPublicKeyByKid(Consts.APP_ANON_Kid)).thenReturn(key);
+            when(spyTokenManager.verifyToken(any(Key.class), anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+        } catch (AuthorizationException e) {
+            e.printStackTrace();
+        }
+        JSONObject params = new JSONObject();
+        try {
+            params.put("access_token", "access");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Response response = createResponse(createTokensResponseText(Consts.APP_ANON_ACCESS_TOKEN, Consts.APP_ANON_ACCESS_TOKEN, Consts.REFRESH_TOKEN),200);
+        spyTokenManager.extractTokens(response, getExpectedSuccessListener(Consts.APP_ANON_ACCESS_TOKEN, Consts.APP_ANON_ACCESS_TOKEN, Consts.REFRESH_TOKEN));
+        response = createResponse(params.toString(),200);
+        spyTokenManager.extractTokens(response, getExpectedFailureListener("Failed to parse server response, error : Invalid response : Missing access_token/id_token"));
+    }
+
+    @Test
+    public void lookUpPublicKey(){
+        Map<String, Token> map = new HashMap<>();
+        map.put("token",expectedIdToken);
+        TokenManager.RetrievedTokens retrievedTokens = new TokenManager.RetrievedTokens(map, "refresh", TokenManager.TOKENS.ACCESS_TOKEN);
+        spyTokenManager.lookUpPublicKey("kid", retrievedTokens, getExpectedFailureListener("Failed to retrieve public keys for Kid from server"), "access_token");
+        spyTokenManager.lookUpPublicKey("kid", retrievedTokens, getExpectedFailureListener("Failed to retrieve public keys from server"), "access_token");
+    }
+
+    @Test
+    public void getPublicKeyByKid() {
+        try {
+            Key key=spyTokenManager.getPublicKeyByKid(null);
+            assertNull(key);
+            doThrow(AuthorizationException.class).when(spyTokenManager).getPublicKeyByKid(null);
+        } catch (AuthorizationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void verifyToken() {
+        boolean result = spyTokenManager.verifyToken(null,"token","issuer","aud","tenant");
+        assertEquals(result,false);
+        Key key=null;
+        try {
+            key = spyTokenManager.getPublickey(createResponse(Consts.JWK,200), Consts.Kid);
+        } catch (AuthorizationException e) {
+            e.printStackTrace();
+        }
+        result = spyTokenManager.verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER, Consts.AUDIENCE, Consts.TENANT);
+        assertEquals(result,true);
+        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK,"issuer", Consts.AUDIENCE, Consts.TENANT);
+        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER,"aud", Consts.TENANT);
+        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER, Consts.AUDIENCE,"tenant");
+    }
+
+    @Test
+    public void getPublicKey(){
+        try {
+            spyTokenManager.getPublickey(createResponse(Consts.JWK,200), Consts.Kid);
+            assertNotNull(spyTokenManager.getPublicKeyByKid(Consts.Kid));
+            assertNull(spyTokenManager.getPublicKeyByKid("key"));
+            doThrow(AuthorizationException.class).when(spyTokenManager).getPublickey(createResponse("",200), Consts.Kid);
+        } catch (AuthorizationException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void clearStoredTokens(){
+        spyTokenManager.clearStoredTokens();
+        assertNull(spyTokenManager.getLatestAccessToken());
+        assertNull(spyTokenManager.getLatestIdentityToken());
+        assertNull(spyTokenManager.getLatestRefreshToken());
+    }
+
+    @Test
+    public void saveTokenFailed(){
+        when(spyTokenManager.verifyToken(any(Key.class),anyString(),anyString(),anyString(),anyString())).thenReturn(false);
+        Key key=null;
+        try {
+            key = spyTokenManager.getPublickey(createResponse(Consts.JWK,200),Consts.Kid);
+        } catch (AuthorizationException e) {
+            e.printStackTrace();
+        }
+        Map<String, Token> map = new HashMap<>();
+        map.put("token",expectedIdToken);
+        TokenManager.RetrievedTokens retrievedTokens = new TokenManager.RetrievedTokens(map, "refresh", TokenManager.TOKENS.ACCESS_TOKEN);
+        spyTokenManager.saveToken(retrievedTokens, key, getExpectedFailureListener("Failed to verify token"),"token");
+        map.put("access_token",expectedIdToken);
+        // spyTokenManager.saveToken(retrievedTokens, key, getExpectedFailureListener("Failed to parse token,error : null"),"token");
+    }
+
+    @Test
+    public void saveTokenFailedException(){
+        when(spyTokenManager.verifyToken(any(Key.class),anyString(),anyString(),anyString(),anyString())).thenThrow(new SignatureException("signature verification"));
+        Key key=null;
+        try {
+            key = spyTokenManager.getPublickey(createResponse(Consts.JWK,200),Consts.Kid);
+        } catch (AuthorizationException e) {
+            e.printStackTrace();
+        }
+        Map<String, Token> map = new HashMap<>();
+        map.put("access_token",expectedIdToken);
+        TokenManager.RetrievedTokens retrievedTokens = new TokenManager.RetrievedTokens(map, "refresh", TokenManager.TOKENS.ACCESS_TOKEN);
+        spyTokenManager.saveToken(retrievedTokens, key, getExpectedFailureListener("Failed to parse access_token,error : signature verification"),"access_token");
     }
 
     private AuthorizationListener getExpectedFailureListener(final String expectedErrorMessage) {
@@ -324,8 +427,16 @@ public class TokenManager_Test {
         };
     }
 
+    private Response createResponse() {
+        return createResponse(createExpectedTokensResponse(), 200);
+    }
+
+    private Response createResponse(String responseText, int code) {
+        return new Response_Mock(responseText, code);
+    }
+
     private AuthorizationListener getExpectedSuccessListener() {
-        return getExpectedSuccessListener(expectedAccessToken.getRaw(), expectedIdToken.getRaw(), null);
+        return getExpectedSuccessListener(expectedAccessToken.getRaw(), expectedIdToken.getRaw(),  expectedRefreshToken.getRaw());
     }
 
     private AuthorizationListener getExpectedSuccessListener(final String expAccessToken, final String expIdToken, final String expRefreshToken) {
