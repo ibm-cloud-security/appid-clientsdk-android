@@ -46,9 +46,9 @@ class AuthorizationUIManager {
     private static final String DEV_PACKAGE = "com.chrome.dev";
     private static final String LOCAL_PACKAGE = "com.google.android.apps.chrome";
     private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
-    static final String EXTRA_URL = "com.ibm.cloud.appid.android.URL";
-    static final String EXTRA_AUTH_FLOW_CONTEXT_GUID = "com.ibm.cloud.appid.android.AUTH_FLOW_CONTEXT_GUID";
-    static final String EXTRA_REDIRECT_URL = "com.ibm.cloud.appid.android.REDIRECT_URL";
+    protected static final String EXTRA_URL = "com.ibm.cloud.appid.android.URL";
+    protected static final String EXTRA_AUTH_FLOW_CONTEXT_GUID = "com.ibm.cloud.appid.android.AUTH_FLOW_CONTEXT_GUID";
+    protected static final String EXTRA_REDIRECT_URL = "com.ibm.cloud.appid.android.REDIRECT_URL";
 
     private static CustomTabsClient mClient;
     private static  CustomTabsSession mCustomTabsSession;
