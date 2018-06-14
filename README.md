@@ -1,6 +1,6 @@
 # IBM Cloud App ID Android SDK
 
-[![Bluemix powered][img-bluemix-powered]][url-bluemix]
+[![IBM Cloud powered][img-ibmcloud-powered]][url-ibmcloud]
 [![Travis][img-travis-master]][url-travis-master]
 [![Coverage Status][img-coveralls-master]][url-coveralls-master]
 [![Codacy Badge][img-codacy]][url-codacy]
@@ -357,8 +357,8 @@ public void onFailure (Response response, Throwable t, JSONObject extendedInfo) 
 ## License
 This package contains code licensed under the Apache License, Version 2.0 (the "License"). You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 and may also view the License in the LICENSE file within this package.
 
-[img-bluemix-powered]: https://img.shields.io/badge/bluemix-powered-blue.svg
-[url-bluemix]: http://bluemix.net
+[img-ibmcloud-powered]: https://img.shields.io/badge/ibm%20cloud-powered-blue.svg
+[url-ibmcloud]: https://www.ibm.com/cloud/
 [url-bintray]: https://bintray.com/ibmcloudsecurity/appid-clientsdk-android
 [img-license]: https://img.shields.io/github/license/ibm-cloud-security/appid-clientsdk-android.svg
 [img-version]: https://img.shields.io/bintray/v/ibmcloudsecurity/maven/appid-clientsdk-android.svg
