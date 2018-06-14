@@ -8,14 +8,14 @@
             android:allowBackup="true"
             android:supportsRtl="true">
 
-        <activity android:name="com.ibm.bluemix.appid.android.internal.authorizationmanager.ChromeTabActivity">
+        <activity android:name="com.ibm.cloud.appid.android.internal.authorizationmanager.ChromeTabActivity">
             <intent-filter>
                 <action android:name="${appIdRedirectScheme}.POST_AUTHORIZATION_INTENT" />
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
-        <activity android:name="com.ibm.bluemix.appid.android.internal.authorizationmanager.RedirectUriReceiverActivity">
+        <activity android:name="com.ibm.cloud.appid.android.internal.authorizationmanager.RedirectUriReceiverActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
