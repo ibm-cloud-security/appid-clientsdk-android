@@ -253,6 +253,7 @@ public class TokenManager {
 				listener.onAuthorizationFailure(new AuthorizationException("Failed to parse " + flowStep.toString() + ", error : " + e.getMessage()));
 			}
 		} else {
+			latestRefreshToken = null;
 			if (retrievedTokens.getRefreshToken() != null){
 				latestRefreshToken = new RefreshTokenImpl(retrievedTokens.getRefreshToken());
 			}
