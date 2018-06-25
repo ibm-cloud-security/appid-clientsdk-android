@@ -39,6 +39,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
 
 public class RegistrationManager {
 
@@ -58,6 +61,7 @@ public class RegistrationManager {
 	public static final String DEVICE_OS_VERSION = "device_os_version";
 	public static final String CLIENT_TYPE = "client_type";
 	public static final String REDIRECT_URIS = "redirect_uris";
+	public static final String STATE_PARAMETER = "state_parameter";
 
 	private AppID appId;
 	private PreferenceManager preferenceManager;
@@ -251,6 +255,15 @@ public class RegistrationManager {
 	public void clearRegistrationData(){
 		preferenceManager.getStringPreference(TENANT_ID_PREF).clear();
 		preferenceManager.getJSONPreference(OAUTH_CLIENT_REGISTRATION_DATA_PREF).clear();
+		preferenceManager.getJSONPreference(STATE_PARAMETER).clear();
+	}
+
+	public void generateStateParameter(){
+		preferenceManager.getStringPreference(STATE_PARAMETER).set(new BigInteger(160,new SecureRandom()).toString(16));
+	}
+
+	public String getStateParameter() {
+		return preferenceManager.getStringPreference(STATE_PARAMETER).get();
 	}
 
     // TODO: Remove?

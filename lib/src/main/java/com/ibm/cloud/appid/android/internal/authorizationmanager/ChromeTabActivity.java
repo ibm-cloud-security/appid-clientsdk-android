@@ -99,13 +99,14 @@ public class ChromeTabActivity extends Activity {
         String code = uri.getQueryParameter("code");
         String error = uri.getQueryParameter("error");
         String flow = uri.getQueryParameter("flow");
-
+        String state = uri.getQueryParameter("state");
+        String savedState =  oAuthManager.getRegistrationManager().getStateParameter();
         logger.info("onBroadcastReceived: " + url);
 
         Intent clearTopActivityIntent = new Intent(postAuthorizationIntent);
         clearTopActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        if (url.startsWith(redirectUrl) && code != null) {
+        if (url.startsWith(redirectUrl) && code != null && state.equals(savedState)) {
             logger.debug("Grant code received from authorization server.");
             oAuthManager.getTokenManager().obtainTokensAuthCode(code, authorizationListener);
             startActivity(clearTopActivityIntent);
