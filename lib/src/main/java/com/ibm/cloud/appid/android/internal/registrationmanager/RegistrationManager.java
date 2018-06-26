@@ -41,7 +41,6 @@ import java.security.PrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Random;
 
 public class RegistrationManager {
 
