@@ -100,7 +100,7 @@ public class ChromeTabActivity extends Activity {
         String error = uri.getQueryParameter("error");
         String flow = uri.getQueryParameter("flow");
         String state = uri.getQueryParameter("state");
-        String savedState =  oAuthManager.getRegistrationManager().getStateParameter();
+        String savedState =  oAuthManager.getAuthorizationManager().getStateParameter();
         logger.info("onBroadcastReceived: " + url);
 
         Intent clearTopActivityIntent = new Intent(postAuthorizationIntent);

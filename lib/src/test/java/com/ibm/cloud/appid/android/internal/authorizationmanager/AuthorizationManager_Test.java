@@ -200,7 +200,6 @@ public class AuthorizationManager_Test {
         when(oAuthManagerMock.getRegistrationManager()).thenReturn(registrationManager);
         when(appidMock.getBluemixRegionSuffix()).thenReturn(".stubPrefix");
         when(mockContext.getPackageManager()).thenReturn(pmMock);
-        when(registrationManager.getStateParameter()).thenReturn("state");
         when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
         doAnswer(new Answer<Void>() {
                      @Override
@@ -462,6 +461,7 @@ public class AuthorizationManager_Test {
         ).when(registrationManager).ensureRegistered(eq(mockActivity), any(RegistrationListener.class));
 
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        when(spyAuthManager.generateStateParameter()).thenReturn("state");
         spyAuthManager.launchAuthorizationUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
@@ -501,7 +501,7 @@ public class AuthorizationManager_Test {
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
 
         spyAuthManager.setPreferredLocale(overrideLocale);
-
+        when(spyAuthManager.generateStateParameter()).thenReturn("state");
         AuthorizationListener listener = Mockito.mock(AuthorizationListener.class);
 
         doAnswer(new Answer<Void>() {
@@ -565,6 +565,7 @@ public class AuthorizationManager_Test {
         ).when(registrationManager).ensureRegistered(eq(mockActivity), any(RegistrationListener.class));
 
         when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        when(spyAuthManager.generateStateParameter()).thenReturn("state");
         spyAuthManager.launchSignUpAuthorizationUI(mockActivity, new AuthorizationListener() {
             @Override
             public void onAuthorizationFailure(AuthorizationException exception) {
