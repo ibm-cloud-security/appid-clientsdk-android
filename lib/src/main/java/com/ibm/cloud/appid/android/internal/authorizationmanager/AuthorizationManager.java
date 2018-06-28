@@ -410,7 +410,7 @@ public class AuthorizationManager {
     }
 
     public String generateStateParameter(){
-        state =  Base64.encodeToString(new BigInteger(160,new SecureRandom()).toByteArray(),Base64.URL_SAFE);
+        state =  Base64.encodeToString(new BigInteger(160, new SecureRandom()).toByteArray(), Base64.URL_SAFE);
         return state;
     }
 

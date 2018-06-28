@@ -22,15 +22,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Base64;
 
 import com.ibm.cloud.appid.android.api.AuthorizationException;
 import com.ibm.cloud.appid.android.api.AuthorizationListener;
 import com.ibm.cloud.appid.android.internal.OAuthManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
-
-import java.math.BigInteger;
-
 
 public class ChromeTabActivity extends Activity {
 
