@@ -41,6 +41,7 @@ import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import android.util.Base64;
 import java.util.Locale;
 
 public class AuthorizationManager {
@@ -409,8 +410,8 @@ public class AuthorizationManager {
     }
 
     public String generateStateParameter(){
-        state = new BigInteger(160,new SecureRandom()).toString(16);
-        return state;
+        state = new String(new BigInteger(160,new SecureRandom()).toByteArray());
+        return Base64.encodeToString(state.getBytes(),Base64.URL_SAFE);
     }
 
     public String getStateParameter() {
