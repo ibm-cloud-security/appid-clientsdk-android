@@ -103,9 +103,6 @@ public class ChromeTabActivity extends Activity {
         String error = uri.getQueryParameter("error");
         String flow = uri.getQueryParameter("flow");
         String state = uri.getQueryParameter("state");
-        if (state != null){
-            state = new String(Base64.decode(state, Base64.URL_SAFE));
-        }
         String savedState = oAuthManager.getAuthorizationManager().getStateParameter();
         logger.info("onBroadcastReceived: " + url);
 
