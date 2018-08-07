@@ -282,6 +282,7 @@ public class AuthorizationManager_Test {
 
     @Test
     public void loginAnonymously_success() {
+        final AuthorizationManager spyAuthManager = spy(authManager);
         doAnswer(new Answer<Void>() {
                      public Void answer(InvocationOnMock invocation) {
                          Object[] args = invocation.getArguments();
@@ -290,9 +291,10 @@ public class AuthorizationManager_Test {
                          return null;
                      }
                  }
-        ).when(registrationManager).ensureRegistered(eq(mockContext), any(RegistrationListener.class));
-
-        authManager.setAppIDRequestFactory(appIDRequestFactoryMock);
+        ).when(registrationManager).ensureRegistered(eq(mockActivity), any(RegistrationListener.class));
+        when(mockActivity.getApplicationContext()).thenReturn(mockContext);
+        when(spyAuthManager.generateStateParameter()).thenReturn("state");
+        spyAuthManager.setAppIDRequestFactory(appIDRequestFactoryMock);
         when(appIDRequestFactoryMock.createRequest(anyString(), anyString())).thenReturn(mockRequest);
         doAnswer(new Answer<Void>() {
                      public Void answer(InvocationOnMock invocation) {
@@ -305,7 +307,7 @@ public class AuthorizationManager_Test {
         ).when(mockRequest).send(any(ResponseListener.class));
 
         when(registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0)).thenReturn("redirect");
-        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        spyAuthManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationFailure");
@@ -323,7 +325,7 @@ public class AuthorizationManager_Test {
         });
 
         when(registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0)).thenReturn("");
-        authManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
+        spyAuthManager.signinAnonymously(mockContext, expectedAccessToken.getRaw(), true, new AuthorizationListener() {
             @Override
             public void onAuthorizationCanceled() {
                 fail("should get to onAuthorizationSuccess");
