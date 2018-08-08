@@ -337,7 +337,8 @@ public class AuthorizationManager {
                              String location = response.getHeaders().get("Location").toString();
                              String locationUrl = location.substring(1, location.length() - 1); // removing []
                              String code = Uri.parse(locationUrl).getQueryParameter("code");
-                             if (locationUrl.startsWith(registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0))) {
+                             String state = Uri.parse(locationUrl).getQueryParameter("state");
+                             if (locationUrl.startsWith(registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0)) && state.equals(getStateParameter())) {
                                  oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
                              } else {
                                  listener.onAuthorizationFailure(new AuthorizationException("Authorization request failed - Invalid redirect url"));
