@@ -1,6 +1,6 @@
 # IBM Cloud App ID Android SDK
 
-[![Bluemix powered][img-bluemix-powered]][url-bluemix]
+[![IBM Cloud powered][img-ibmcloud-powered]][url-ibmcloud]
 [![Travis][img-travis-master]][url-travis-master]
 [![Coverage Status][img-coveralls-master]][url-coveralls-master]
 [![Codacy Badge][img-codacy]][url-codacy]
@@ -12,11 +12,11 @@
 [![GithubForks][img-github-forks]][url-github-forks]
 
 ## Requirements
-* API 25 or above
+* API 27 or above
 * Java 8.x
-* Android SDK tools 25.2.5 or above
-* Android SDK Platform Tools 25.0.3 or above
-* Android Build Tools version 25.0.2
+* Android SDK Tools 26.1.1+
+* Android SDK Platform Tools 27.0.1+
+* Android Build Tools version 27.0.0+
 
 ## Installing the SDK:
 1.  Add the JitPack repository to the your root `build.gradle` file at the end of the repository.
@@ -33,11 +33,11 @@ allprojects {
 2. Add the dependency for the App ID client SDK:
 ```gradle
 dependencies {
-        compile 'com.github.ibm-cloud-security:appid-clientsdk-android:3.+'
+        compile 'com.github.ibm-cloud-security:appid-clientsdk-android:4.+'
 }
 ```
-    
-3. In your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
+
+3. Within your Android project in Android Studio, open the build.gradle file of your app module (not the project build.gradle), and add the following line to the defaultConfig:
 ```
 defaultConfig {
     ...
@@ -45,9 +45,9 @@ defaultConfig {
 }
 ```
 
-## Initializing the App ID client SDK
+## Initializing the App ID Client SDK
 
-Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the onCreate method of the main activity in your Android application.
+Initialize the client SDK by passing the context, tenantId and region parameters to the initialize method. A common, though not mandatory, place to put the initialization code is in the `onCreate` method of the main activity in your Android application.
 ```java
 AppID.getInstance().initialize(getApplicationContext(), <tenantId>, AppID.REGION_UK);
 ```
@@ -55,7 +55,7 @@ AppID.getInstance().initialize(getApplicationContext(), <tenantId>, AppID.REGION
 * Replace the AppID.REGION_UK with your App ID region (AppID.REGION_US_SOUTH, AppID.REGION_SYDNEY).
 
 ## Using the Login Widget
-Use the LoginWidget class to start the authorization flow.   
+Use the `LoginWidget` class to start the authorization flow.   
 
 ```java
 LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
@@ -76,12 +76,12 @@ loginWidget.launch(this, new AuthorizationListener() {
     }
 });
 ```
-**Note**: 
+**Note**:
 
 * The default configuration use Facebook and Google as authentication options. If you configure only one of them the login widget will *not* launch and the user will be redirected to the configured identity provider authentication screen.
 * When using Cloud Directory, and "Email verification" is configured to *not* allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
-## Managing Cloud Directory with the Android SDK 
+## Managing Cloud Directory with the Android SDK
 
  Make sure to set Cloud Directory identity provider to ON in AppID dashboard, when using the following APIs.
 
@@ -93,7 +93,7 @@ AppID.getInstance().signinWithResourceOwnerPassword(getApplicationContext(), use
     public void onAuthorizationFailure (AuthorizationException exception) {
         //Exception occurred
     }
-                                                                                          
+
     @Override
     public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
         //User authenticated
@@ -112,12 +112,12 @@ loginWidget.launchSignUp(this, new AuthorizationListener() {
     public void onAuthorizationFailure (AuthorizationException exception) {
         //Exception occurred
     }
-    
+
     @Override
     public void onAuthorizationCanceled () {
         //Sign up canceled by the user
     }
-    
+
     @Override
     public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
         if (accessToken != null && identityToken != null) {
@@ -130,8 +130,8 @@ loginWidget.launchSignUp(this, new AuthorizationListener() {
 ```
 ### Forgot Password
   Make sure to set **Allow users to sign up and reset their password** and **Forgot password email** to **ON**, in the settings for Cloud Directory
-  
- Use LoginWidget class to start the forgot password flow. 
+
+ Use LoginWidget class to start the forgot password flow.
 ```java
 LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
 loginWidget.launchForgotPassword(this, new AuthorizationListener() {
@@ -144,7 +144,7 @@ loginWidget.launchForgotPassword(this, new AuthorizationListener() {
     public void onAuthorizationCanceled () {
         // Forogt password canceled by the user
     }
-    
+
     @Override
     public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
         // Forgot password finished, in this case accessToken and identityToken will be null.
@@ -153,7 +153,7 @@ loginWidget.launchForgotPassword(this, new AuthorizationListener() {
 ```
 ### Change Details
   Make sure to set **Allow users to sign up and reset their password** to **ON**, in Cloud Directory settings that are in AppID dashboard. Use LoginWidget class to start the change details flow. This API can be used only when the user is logged in using Cloud Directory identity provider.
-  
+
 ```java
 LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
 loginWidget.launchChangeDetails(this, new AuthorizationListener() {
@@ -169,15 +169,15 @@ loginWidget.launchChangeDetails(this, new AuthorizationListener() {
 
     @Override
     public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
-        // User authenticated, and fresh tokens received 
+        // User authenticated, and fresh tokens received
     }
 });
 ```
 ### Change Password
    Make sure to set **Allow users to sign up and reset their password** to **ON**, in the settings for Cloud Directory.
-   
+
    Use LoginWidget class to start the change password flow. This API can be used only when the user logged in by using Cloud Directory as their identity provider.
-   
+
 ```java
 LoginWidget loginWidget = AppID.getInstance().getLoginWidget();
 loginWidget.launchChangePassword(this, new AuthorizationListener() {
@@ -185,19 +185,19 @@ loginWidget.launchChangePassword(this, new AuthorizationListener() {
     public void onAuthorizationFailure (AuthorizationException exception) {
         // Exception occurred
     }
-    
+
     @Override
     public void onAuthorizationCanceled () {
         // Change password canceled by the user
     }
-    
+
     @Override
     public void onAuthorizationSuccess (AccessToken accessToken, IdentityToken identityToken, RefreshToken refreshToken) {
-        // User authenticated, and fresh tokens received 
+        // User authenticated, and fresh tokens received
     }
 });
 ```
- 
+
 ## Anonymous Sign in
 ```java
 AppID.getInstance().signinAnonymously(getApplicationContext(), new AuthorizationListener() {
@@ -240,55 +240,86 @@ AppID.getInstance().signinWithRefreshToken(getApplicationContext(), refreshToken
 });
 ```
 
-## User profile attributes
+## Manage User Profiles
+
+Using the App ID UserProfileManager, you are able to create, delete, and retrieve user profile attributes as well as get additional info about a user.
+
 ```java
 AppID appId = AppID.getInstance();
 String name = "name";
 String value = "value";
-appId.getUserAttributeManager().setAttribute(name, value, new UserAttributeResponseListener() {
+
+appId.getUserProfileManager().setAttribute(name, value, new UserProfileResponseListener() {
     @Override
     public void onSuccess(JSONObject attributes) {
-        // Set attribute "name" to "value" successfully 
+        // Set attribute "name" to "value" successfully
     }
-    
+
     @Override
     public void onFailure(UserAttributesException e) {
         // Exception occurred
     }
 });
-		
-appId.getUserAttributeManager().getAttribute(name, new UserAttributeResponseListener() {
+
+appId.getUserProfileManager().getAttribute(name, new UserProfileResponseListener() {
     @Override
     public void onSuccess(JSONObject attributes) {
-        // Got attribute "name" successfully 
+        // Got attribute "name" successfully
     }
-    
+
     @Override
     public void onFailure(UserAttributesException e) {
         // Exception occurred
     }
 });
-		
-appId.getUserAttributeManager().getAllAttributes(new UserAttributeResponseListener() {
+
+appId.getUserProfileManager().getAllAttributes(new UserProfileResponseListener() {
     @Override
     public void onSuccess(JSONObject attributes) {
         // Got all attributes successfully
     }
-    
+
     @Override
     public void onFailure(UserAttributesException e) {
         // Exception occurred
     }
 });
-		
-appId.getUserAttributeManager().deleteAttribute(name, new UserAttributeResponseListener() {
+
+appId.getUserProfileManager().deleteAttribute(name, new UserProfileResponseListener() {
     @Override
     public void onSuccess(JSONObject attributes) {
         // Attribute "name" deleted successfully
     }
-    
+
     @Override
     public void onFailure(UserAttributesException e) {
+        // Exception occurred
+    }
+});
+
+// Retrieve user info using the latest stores access and identity tokens
+appId.getUserProfileManager().getUserInfo(new UserProfileResponseListener() {
+    @Override
+    public void onSuccess(JSONObject userInfo) {
+        // retrieved user info successfully
+    }
+
+    @Override
+    public void onFailure(UserInfoException e) {
+        // Exception occurred
+    }
+});
+
+// Retrieve user info using your own accessToken.
+// Optionally, pass an identityToken for response verification. (recommended)
+appId.getUserProfileManager().getUserInfo(accessToken, identityToken, new UserProfileResponseListener() {
+    @Override
+    public void onSuccess(JSONObject userInfo) {
+        // retrieved user info successfully
+    }
+
+    @Override
+    public void onFailure(UserInfoException e) {
         // Exception occurred
     }
 });
@@ -326,8 +357,8 @@ public void onFailure (Response response, Throwable t, JSONObject extendedInfo) 
 ## License
 This package contains code licensed under the Apache License, Version 2.0 (the "License"). You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 and may also view the License in the LICENSE file within this package.
 
-[img-bluemix-powered]: https://img.shields.io/badge/bluemix-powered-blue.svg
-[url-bluemix]: http://bluemix.net
+[img-ibmcloud-powered]: https://img.shields.io/badge/ibm%20cloud-powered-blue.svg
+[url-ibmcloud]: https://www.ibm.com/cloud/
 [url-bintray]: https://bintray.com/ibmcloudsecurity/appid-clientsdk-android
 [img-license]: https://img.shields.io/github/license/ibm-cloud-security/appid-clientsdk-android.svg
 [img-version]: https://img.shields.io/bintray/v/ibmcloudsecurity/maven/appid-clientsdk-android.svg
