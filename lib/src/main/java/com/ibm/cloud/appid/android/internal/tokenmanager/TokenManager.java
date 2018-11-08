@@ -50,6 +50,8 @@ import java.util.Map;
 import io.jsonwebtoken.IncorrectClaimException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 public class TokenManager {
 
@@ -75,6 +77,12 @@ public class TokenManager {
 	private final static String ERROR_DESCRIPTION = "error_description";
 	private final static String ERROR = "error";
 	private final static String INVALID_GRANT = "invalid_grant";
+
+	private static final String OAUTH_ACTIVITY_LOGGING_PATH = "/activity_logging";
+	private static final String ID_KEY = "id_token";
+	private static final String ACTIVITY_KEY = "eventName";
+	private static final String LOGOUT_ACTIVITY = "logout";
+
 	protected enum TOKENS {
 		ACCESS_TOKEN("access_token"),
 		ID_TOKEN("id_token"),
@@ -350,6 +358,45 @@ public class TokenManager {
 		} catch (SignatureException|IncorrectClaimException exception) { // Invalid signature/claims
 			throw exception;
 		}
+	}
+
+	private void sendLoggingRequest(AccessToken accessToken, IdentityToken idToken, String activity)
+	{
+		if (accessToken == null || idToken == null) {
+			logger.debug("No tokens found for sending logging request");
+			return;
+		}
+
+		RequestBody requestBody;
+		try {
+			JSONObject json = new JSONObject();
+			json.put(ACTIVITY_KEY, activity);
+			json.put(ID_KEY, idToken.getRaw());
+			requestBody = RequestBody.create(MediaType.parse("application/json"), json.toString());
+		}
+		catch (JSONException err) { // shouldn't happen
+			logger.debug("Failed to create logging request");
+			return;
+		}
+
+		String url = Config.getOAuthServerUrl(appId) + OAUTH_ACTIVITY_LOGGING_PATH;
+
+		AppIDRequest request = new AppIDRequest(url, "POST");
+
+		ResponseListener resListener = new ResponseListener() {
+			@Override
+			public void onSuccess(Response response) {
+			}
+			@Override
+			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
+				logger.debug("Failed to submit logging request");
+			}
+		};
+		request.send (resListener, requestBody, accessToken);
+	}
+
+	public void notifyLogout(/*ResponseListener listener*/) {
+		sendLoggingRequest(latestAccessToken, latestIdentityToken, LOGOUT_ACTIVITY);
 	}
 
 	public AccessToken getLatestAccessToken () {
