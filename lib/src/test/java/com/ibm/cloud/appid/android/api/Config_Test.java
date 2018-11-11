@@ -44,7 +44,7 @@ public class Config_Test {
 	@Test
 	public void testConfig(){
 		String url = com.ibm.cloud.appid.android.internal.config.Config.getOAuthServerUrl(appId);
-		assertThat(url).isEqualTo("http://appid-oauth.region.com/oauth/v3/tenant-id");
+		assertThat(url).isEqualTo("https://appid-oauth.region.com/oauth/v3/tenant-id");
 
 		url = com.ibm.cloud.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
 		assertThat(url).isEqualTo("https://appid-profiles.region.com/api/v1/");
