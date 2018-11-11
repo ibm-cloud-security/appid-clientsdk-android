@@ -25,8 +25,7 @@ public class Config {
 	private Config(){}
 
 	public static String getOAuthServerUrl (AppID appId) {
-//		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + OAUTH_ENDPOINT;
-		String serverUrl = "http://localhost:6002" + OAUTH_ENDPOINT;
+		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + OAUTH_ENDPOINT;
 		if (null != appId.overrideOAuthServerHost) {
 			serverUrl = appId.overrideOAuthServerHost;
 		}
