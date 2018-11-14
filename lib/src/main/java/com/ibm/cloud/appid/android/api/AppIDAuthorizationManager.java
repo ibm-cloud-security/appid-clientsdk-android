@@ -193,7 +193,7 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 	@Override
 	public void logout (Context context, ResponseListener listener) {
 		logger.debug("logout");
-		oAuthManager.getTokenManager().notifyLogout(/*listener*/);
+		oAuthManager.getTokenManager().notifyLogout();
 		clearAuthorizationData();
 	}
 

@@ -386,6 +386,7 @@ public class TokenManager {
 		ResponseListener resListener = new ResponseListener() {
 			@Override
 			public void onSuccess(Response response) {
+				logger.debug("logging request submitted OK");
 			}
 			@Override
 			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
