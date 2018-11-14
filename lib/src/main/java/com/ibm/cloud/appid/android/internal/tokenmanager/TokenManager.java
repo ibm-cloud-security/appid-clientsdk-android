@@ -79,8 +79,8 @@ public class TokenManager {
 	private final static String INVALID_GRANT = "invalid_grant";
 
 	private static final String OAUTH_ACTIVITY_LOGGING_PATH = "/activity_logging";
-	private static final String ID_KEY = "id_token";
-	private static final String ACTIVITY_KEY = "eventName";
+	private static final String EVENT_NAME_KEY = "eventName";
+    private static final String ID_TOKEN_KEY = "id_token";
 	private static final String LOGOUT_ACTIVITY = "logout";
 
 	protected enum TOKENS {
@@ -370,8 +370,8 @@ public class TokenManager {
 		RequestBody requestBody;
 		try {
 			JSONObject json = new JSONObject();
-			json.put(ACTIVITY_KEY, activity);
-			json.put(ID_KEY, idToken.getRaw());
+			json.put(EVENT_NAME_KEY, activity);
+			json.put(ID_TOKEN_KEY, idToken.getRaw());
 			requestBody = RequestBody.create(MediaType.parse("application/json"), json.toString());
 		}
 		catch (JSONException err) { // shouldn't happen
