@@ -390,7 +390,7 @@ public class TokenManager {
 			}
 			@Override
 			public void onFailure(Response response, Throwable t, JSONObject extendedInfo) {
-				logger.debug("Failed to submit logging request");
+				logger.error("Failed to submit logging request");
 			}
 		};
 		request.send (resListener, requestBody, accessToken);
