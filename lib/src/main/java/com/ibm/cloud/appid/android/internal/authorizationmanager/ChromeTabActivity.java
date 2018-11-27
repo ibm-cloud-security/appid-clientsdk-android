@@ -28,7 +28,6 @@ import com.ibm.cloud.appid.android.api.AuthorizationListener;
 import com.ibm.cloud.appid.android.internal.OAuthManager;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
-
 public class ChromeTabActivity extends Activity {
 
     public static final String EXTRA_REDIRECT_URI = "com.ibm.cloud.appid.android.EXTRA_REDIRECT_URI";
@@ -99,13 +98,14 @@ public class ChromeTabActivity extends Activity {
         String code = uri.getQueryParameter("code");
         String error = uri.getQueryParameter("error");
         String flow = uri.getQueryParameter("flow");
-
+        String state = uri.getQueryParameter("state");
+        String savedState = oAuthManager.getAuthorizationManager().getStateParameter();
         logger.info("onBroadcastReceived: " + url);
 
         Intent clearTopActivityIntent = new Intent(postAuthorizationIntent);
         clearTopActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        if (url.startsWith(redirectUrl) && code != null) {
+        if (url.startsWith(redirectUrl) && code != null && state.equals(savedState)) {
             logger.debug("Grant code received from authorization server.");
             oAuthManager.getTokenManager().obtainTokensAuthCode(code, authorizationListener);
             startActivity(clearTopActivityIntent);

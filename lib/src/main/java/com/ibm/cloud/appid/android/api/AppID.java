@@ -46,6 +46,7 @@ public class AppID {
     public final static String REGION_UK = ".eu-gb.bluemix.net";
     public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
 	public final static String REGION_GERMANY = ".eu-de.bluemix.net";
+	public final static String REGION_TOKYO = ".jp-tok.bluemix.net";
 
 	/**
 	 * @return The AppID instance.

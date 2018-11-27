@@ -39,6 +39,9 @@ import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import android.util.Base64;
 import java.util.Locale;
 
 public class AuthorizationManager {
@@ -63,6 +66,7 @@ public class AuthorizationManager {
 
     private final static String SCOPE = "scope";
     private final static String SCOPE_OPENID = "openid";
+    private final static String STATE = "state";
 
     private final static String REDIRECT_URI = "redirect_uri";
     private final static String IDP = "idp";
@@ -74,6 +78,7 @@ public class AuthorizationManager {
 
     private String serverUrl;
     private Locale locale;
+    private String state;
 
     private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AuthorizationManager.class.getName());
 
@@ -96,12 +101,12 @@ public class AuthorizationManager {
     private String getAuthorizationUrl(String idpName, AccessToken accessToken, String responseType) {
         String clientId = registrationManager.getRegistrationDataString(RegistrationManager.CLIENT_ID);
         String redirectUri = registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0);
-
         Uri.Builder builder = Uri.parse(serverUrl).buildUpon()
                 .appendQueryParameter(RESPONSE_TYPE, responseType)
                 .appendQueryParameter(CLIENT_ID, clientId)
                 .appendQueryParameter(REDIRECT_URI, redirectUri)
-                .appendQueryParameter(SCOPE, SCOPE_OPENID);
+                .appendQueryParameter(SCOPE, SCOPE_OPENID)
+                .appendQueryParameter(STATE, generateStateParameter());
 
         if (idpName != null) {
             builder.appendQueryParameter(IDP, idpName);
@@ -332,7 +337,12 @@ public class AuthorizationManager {
                              String location = response.getHeaders().get("Location").toString();
                              String locationUrl = location.substring(1, location.length() - 1); // removing []
                              String code = Uri.parse(locationUrl).getQueryParameter("code");
-                             oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
+                             String state = Uri.parse(locationUrl).getQueryParameter("state");
+                             if (locationUrl.startsWith(registrationManager.getRegistrationDataString(RegistrationManager.REDIRECT_URIS, 0)) && state.equals(getStateParameter())) {
+                                 oAuthManager.getTokenManager().obtainTokensAuthCode(code, listener);
+                             } else {
+                                 listener.onAuthorizationFailure(new AuthorizationException("Authorization request failed - Invalid redirect url"));
+                             }
                          }
 
                          @Override
@@ -399,4 +409,14 @@ public class AuthorizationManager {
             }
         });
     }
+
+    public String generateStateParameter(){
+        state =  Base64.encodeToString(new BigInteger(160, new SecureRandom()).toByteArray(), Base64.URL_SAFE);
+        return state;
+    }
+
+    public String getStateParameter() {
+        return state;
+    }
+
 }
