@@ -41,12 +41,15 @@ public class AppID {
     public static String overrideOAuthServerHost = null; //when use place the assignment before calling the AppID initialize function
 	public static String overrideUserProfilesHost = null;
 
-    public final static String REGION_US_SOUTH = ".ng.bluemix.net";
-    public final static String REGION_US_EAST = ".us-east.bluemix.net";
-    public final static String REGION_UK = ".eu-gb.bluemix.net";
-    public final static String REGION_SYDNEY = ".au-syd.bluemix.net";
-	public final static String REGION_GERMANY = ".eu-de.bluemix.net";
-	public final static String REGION_TOKYO = ".jp-tok.bluemix.net";
+	public final static String REGION_US_SOUTH_STAGE1 = "https://us-south.appid.test.cloud.ibm.com";
+	public final static String REGION_UK_STAGE1 = "https://eu-gb.appid.test.cloud.ibm.com";
+
+    public final static String REGION_US_SOUTH = "https://us-south.appid.cloud.ibm.com";
+    public final static String REGION_US_EAST = "https://us-east.appid.cloud.ibm.com";
+    public final static String REGION_UK = "https://eu-gb.appid.cloud.ibm.com";
+    public final static String REGION_SYDNEY = "https://au-syd.appid.cloud.ibm.com";
+	public final static String REGION_GERMANY = "https://eu-de.appid.cloud.ibm.com";
+	public final static String REGION_TOKYO = "https://jp-tok.appid.cloud.ibm.com";
 
 	/**
 	 * @return The AppID instance.

@@ -54,12 +54,15 @@ public class LicenseCheck {
     private List<File> getListFiles(File parentDir) {
         ArrayList<File> inFiles = new ArrayList<File>();
         File[] files = parentDir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                inFiles.addAll(getListFiles(file));
-            } else {
-                if(file.getName().endsWith(".java")){
-                    inFiles.add(file);
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    inFiles.addAll(getListFiles(file));
+                } else {
+                    if (file.getName().endsWith(".java")) {
+                        inFiles.add(file);
+                    }
                 }
             }
         }

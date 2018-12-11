@@ -37,17 +37,17 @@ public class Config_Test {
 	@Before
 	public void before() {
 		MockitoAnnotations.initMocks(this);
-		when(appId.getBluemixRegionSuffix()).thenReturn(".region.com");
+		when(appId.getBluemixRegionSuffix()).thenReturn("https://us-south.appid.cloud.ibm.com");
 		when(appId.getTenantId()).thenReturn("tenant-id");
 	}
 
 	@Test
 	public void testConfig(){
 		String url = com.ibm.cloud.appid.android.internal.config.Config.getOAuthServerUrl(appId);
-		assertThat(url).isEqualTo("https://appid-oauth.region.com/oauth/v3/tenant-id");
+		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/oauth/v3/tenant-id");
 
 		url = com.ibm.cloud.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
-		assertThat(url).isEqualTo("https://appid-profiles.region.com/api/v1/");
+		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/api/v1/");
 
 		appId.overrideOAuthServerHost = "oauth-server-host-";
 		appId.overrideUserProfilesHost = "user-profiles-host";

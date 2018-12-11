@@ -25,7 +25,7 @@ public class Config {
 	private Config(){}
 
 	public static String getOAuthServerUrl (AppID appId) {
-		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + OAUTH_ENDPOINT;
+		String serverUrl = appId.getBluemixRegionSuffix() + OAUTH_ENDPOINT;
 		if (null != appId.overrideOAuthServerHost) {
 			serverUrl = appId.overrideOAuthServerHost;
 		}
@@ -34,7 +34,7 @@ public class Config {
 	}
 
 	public static String getUserProfilesServerUrl (AppID appId) {
-		String serverUrl = userProfilesPrefix + appId.getBluemixRegionSuffix();
+		String serverUrl = appId.getBluemixRegionSuffix();
 		if (null != appId.overrideUserProfilesHost) {
 			serverUrl = appId.overrideUserProfilesHost;
 		}
