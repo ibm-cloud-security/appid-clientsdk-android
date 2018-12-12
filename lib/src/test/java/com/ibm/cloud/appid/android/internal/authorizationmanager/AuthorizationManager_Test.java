@@ -198,7 +198,8 @@ public class AuthorizationManager_Test {
         MockitoAnnotations.initMocks(this);
         when(oAuthManagerMock.getAppId()).thenReturn(appidMock);
         when(oAuthManagerMock.getRegistrationManager()).thenReturn(registrationManager);
-        when(appidMock.getBluemixRegionSuffix()).thenReturn("https://region");
+        when(appidMock.getBluemixRegionSuffix()).thenReturn(".region");
+        when(appidMock.getBluemixRegion()).thenReturn("https://region");
         when(mockContext.getPackageManager()).thenReturn(pmMock);
         when(oAuthManagerMock.getTokenManager()).thenReturn(tokenManagerMock);
         doAnswer(new Answer<Void>() {

@@ -62,7 +62,7 @@ public class AppID_Test {
 		Throwable thrown1 = catchThrowable(new ThrowableAssert.ThrowingCallable() {
 			@Override
 			public void call () throws Throwable {
-				appId.getBluemixRegionSuffix();
+				appId.getBluemixRegion();
 			}
 		});
 
@@ -114,6 +114,7 @@ public class AppID_Test {
 		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
 		assertThat(appId.getTenantId()).isEqualTo(testTenantId);
 		assertThat(appId.getBluemixRegionSuffix()).isEqualTo(testRegion);
+		assertThat(appId.getBluemixRegion()).isEqualTo(testRegion);
 		assertThat(appId.getLoginWidget()).isNotNull();
 		ClassHelper.assertSame(appId.getLoginWidget(), LoginWidgetImpl.class);
 		assertThat(appId.getOAuthManager()).isNotNull();

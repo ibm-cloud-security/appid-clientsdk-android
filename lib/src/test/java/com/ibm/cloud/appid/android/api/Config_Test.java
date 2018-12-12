@@ -37,7 +37,7 @@ public class Config_Test {
 	@Before
 	public void before() {
 		MockitoAnnotations.initMocks(this);
-		when(appId.getBluemixRegionSuffix()).thenReturn("https://us-south.appid.cloud.ibm.com");
+		when(appId.getBluemixRegion()).thenReturn("https://us-south.appid.cloud.ibm.com");
 		when(appId.getTenantId()).thenReturn("tenant-id");
 	}
 
@@ -57,5 +57,9 @@ public class Config_Test {
 
 		url = com.ibm.cloud.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
 		assertThat(url).isEqualTo("user-profiles-host/api/v1/");
+
+		// need to reset server hosts, because they are global variables that can impact other tests
+        appId.overrideOAuthServerHost = null;
+        appId.overrideUserProfilesHost = null;
 	}
 }

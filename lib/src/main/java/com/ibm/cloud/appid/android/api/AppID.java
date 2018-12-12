@@ -32,7 +32,7 @@ public class AppID {
 	private static AppID instance;
 
     private String tenantId;
-    private String bluemixRegionSuffix;
+    private String bluemixRegion;
 
 	private LoginWidgetImpl loginWidget;
 	private OAuthManager oAuthManager;
@@ -77,7 +77,7 @@ public class AppID {
 	@NonNull
 	public AppID initialize (@NonNull Context context, @NonNull String tenantId, @NonNull String bluemixRegion) {
 		this.tenantId = tenantId;
-		this.bluemixRegionSuffix = bluemixRegion;
+		this.bluemixRegion = bluemixRegion;
 		this.oAuthManager = new OAuthManager(context.getApplicationContext(), this);
 		this.loginWidget = new LoginWidgetImpl(this.oAuthManager);
 		this.userProfileManager = new UserProfileManagerImpl(this.oAuthManager.getTokenManager());
@@ -96,15 +96,27 @@ public class AppID {
     }
 
     /**
-     * @return Bluemix region suffix ,use to build URLs
-     */
+	 * @deprecated
+	 * @return Bluemix region suffix ,use to build URLs
+	 */
 	@NonNull
-    public String getBluemixRegionSuffix() {
-		if (null == this.bluemixRegionSuffix){
+	public String getBluemixRegionSuffix() {
+		if (null == this.bluemixRegion){
 			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
 		}
-        return this.bluemixRegionSuffix;
-    }
+		return this.bluemixRegion;
+	}
+
+	/**
+	 * @return Bluemix region ,use to build URLs
+	 */
+	@NonNull
+	public String getBluemixRegion() {
+		if (null == this.bluemixRegion){
+			throw new RuntimeException("AppID is not initialized. Use .initialize() first.");
+		}
+		return this.bluemixRegion;
+	}
 
 	/**
 	 * @return the login widget
