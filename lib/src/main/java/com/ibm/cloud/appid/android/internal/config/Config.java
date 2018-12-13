@@ -21,11 +21,16 @@ public class Config {
 	private static final String serverUrlPrefix = "https://appid-oauth";
 	private static final String userProfilesPrefix = "https://appid-profiles";
 	private static final String PUBLIC_KEYS_ENDPOINT = "/publickeys";
+	private static final String PROTOCOL = "http";
 
 	private Config(){}
 
 	public static String getOAuthServerUrl (AppID appId) {
-		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + OAUTH_ENDPOINT;
+		String region = appId.getBluemixRegion();
+
+		String serverUrl = (region != null && region.startsWith(PROTOCOL)) ? region : serverUrlPrefix + region;
+		serverUrl += OAUTH_ENDPOINT;
+
 		if (null != appId.overrideOAuthServerHost) {
 			serverUrl = appId.overrideOAuthServerHost;
 		}
@@ -34,7 +39,9 @@ public class Config {
 	}
 
 	public static String getUserProfilesServerUrl (AppID appId) {
-		String serverUrl = userProfilesPrefix + appId.getBluemixRegionSuffix();
+		String region = appId.getBluemixRegion();
+		String serverUrl = (region != null && region.startsWith(PROTOCOL)) ? region : userProfilesPrefix + region;
+
 		if (null != appId.overrideUserProfilesHost) {
 			serverUrl = appId.overrideUserProfilesHost;
 		}
