@@ -49,6 +49,9 @@ public class Config_Test {
 		url = com.ibm.cloud.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
 		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/api/v1/");
 
+		url = com.ibm.cloud.appid.android.internal.config.Config.getIssuer(appId);
+		assertThat(url).isEqualTo("appid-oauth.ng.bluemix.net");
+
 		appId.overrideOAuthServerHost = "oauth-server-host-";
 		appId.overrideUserProfilesHost = "user-profiles-host";
 
