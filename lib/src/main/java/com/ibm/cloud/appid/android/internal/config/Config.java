@@ -54,7 +54,25 @@ public class Config {
 	}
 
 	public static String getIssuer(AppID appId) {
-		return Config.getOAuthServerUrl(appId).split("/")[2];
+		String serverUrl = Config.getOAuthServerUrl(appId).split("/")[2];
+		String issuer = serverUrl;
+		if (serverUrl.contains(".cloud.ibm.com")) {
+			issuer = "appid-oauth";
+			String[] splittedServerUrl = serverUrl.split(".");
+
+			if ("test".equals(splittedServerUrl[2])) {
+				issuer += ".stage1";
+
+			}
+			if ("us-south".equals(splittedServerUrl[0])) {
+				issuer += ".ng";
+			} else {
+				issuer += "." + splittedServerUrl[0];
+			}
+
+			issuer += ".bluemix.net";
+		}
+		return issuer;
 	}
 
 }
