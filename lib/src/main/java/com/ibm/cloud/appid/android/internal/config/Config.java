@@ -62,6 +62,10 @@ public class Config {
 
 	public static String getIssuer(AppID appId) {
 		String region = appId.getBluemixRegion();
+		if (region == null) {
+			return serverUrlPrefix;
+		}
+
 		String issuer = region.contains("cloud.ibm.com") ? serverUrlPrefix + suffixFromRegion(region) :
 				Config.getOAuthServerUrl(appId);
 
@@ -88,7 +92,7 @@ public class Config {
 				return REGION_TOKYO_OLD;
 		}
 
-		return null;
+		return "";
 	}
 
 }
