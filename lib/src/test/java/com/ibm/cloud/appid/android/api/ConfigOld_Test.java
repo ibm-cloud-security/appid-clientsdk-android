@@ -49,5 +49,8 @@ public class ConfigOld_Test {
 
         url = com.ibm.cloud.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
         assertThat(url).isEqualTo("https://appid-profiles.region/api/v1/");
+
+        url = com.ibm.cloud.appid.android.internal.config.Config.getIssuer(appId);
+        assertThat(url).isEqualTo("appid-oauth.region");
     }
 }
