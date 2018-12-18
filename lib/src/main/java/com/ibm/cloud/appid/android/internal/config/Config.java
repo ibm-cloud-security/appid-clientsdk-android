@@ -61,6 +61,11 @@ public class Config {
 	}
 
 	public static String getIssuer(AppID appId) {
+
+		if (null != appId.overrideOAuthServerHost) {
+			return appId.overrideOAuthServerHost.split("/")[2];
+		}
+
 		String region = appId.getBluemixRegion();
 		if (region == null) {
 			return serverUrlPrefix;
@@ -92,7 +97,7 @@ public class Config {
 				return REGION_TOKYO_OLD;
 		}
 
-		return "";
+		return region;
 	}
 
 }
