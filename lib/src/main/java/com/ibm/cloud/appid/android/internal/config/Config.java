@@ -16,16 +16,28 @@ package com.ibm.cloud.appid.android.internal.config;
 import com.ibm.cloud.appid.android.api.AppID;
 
 public class Config {
+	public final static String REGION_US_SOUTH_OLD = ".ng.bluemix.net";
+	public final static String REGION_US_EAST_OLD = ".us-east.bluemix.net";
+	public final static String REGION_UK_OLD = ".eu-gb.bluemix.net";
+	public final static String REGION_SYDNEY_OLD = ".au-syd.bluemix.net";
+	public final static String REGION_GERMANY_OLD = ".eu-de.bluemix.net";
+	public final static String REGION_TOKYO_OLD = ".jp-tok.bluemix.net";
+
 	private final static String OAUTH_ENDPOINT = "/oauth/v3/";
 	private final static String ATTRIBUTES_ENDPOINT = "/api/v1/";
 	private static final String serverUrlPrefix = "https://appid-oauth";
 	private static final String userProfilesPrefix = "https://appid-profiles";
 	private static final String PUBLIC_KEYS_ENDPOINT = "/publickeys";
+	private static final String PROTOCOL = "http";
 
 	private Config(){}
 
 	public static String getOAuthServerUrl (AppID appId) {
-		String serverUrl = serverUrlPrefix + appId.getBluemixRegionSuffix() + OAUTH_ENDPOINT;
+		String region = appId.getBluemixRegion();
+
+		String serverUrl = (region != null && region.startsWith(PROTOCOL)) ? region : serverUrlPrefix + region;
+		serverUrl += OAUTH_ENDPOINT;
+
 		if (null != appId.overrideOAuthServerHost) {
 			serverUrl = appId.overrideOAuthServerHost;
 		}
@@ -34,7 +46,9 @@ public class Config {
 	}
 
 	public static String getUserProfilesServerUrl (AppID appId) {
-		String serverUrl = userProfilesPrefix + appId.getBluemixRegionSuffix();
+		String region = appId.getBluemixRegion();
+		String serverUrl = (region != null && region.startsWith(PROTOCOL)) ? region : userProfilesPrefix + region;
+
 		if (null != appId.overrideUserProfilesHost) {
 			serverUrl = appId.overrideUserProfilesHost;
 		}
@@ -47,7 +61,43 @@ public class Config {
 	}
 
 	public static String getIssuer(AppID appId) {
-		return Config.getOAuthServerUrl(appId).split("/")[2];
+
+		if (null != appId.overrideOAuthServerHost) {
+			return appId.overrideOAuthServerHost.split("/")[2];
+		}
+
+		String region = appId.getBluemixRegion();
+		if (region == null) {
+			return serverUrlPrefix;
+		}
+
+		String issuer = region.contains("cloud.ibm.com") ? serverUrlPrefix + suffixFromRegion(region) :
+				Config.getOAuthServerUrl(appId);
+
+		return issuer.split("/")[2];
+	}
+
+	private static String suffixFromRegion(String region) {
+		switch (region) {
+			case AppID.REGION_UK_STAGE1:
+				return ".stage1" + REGION_UK_OLD;
+			case AppID.REGION_US_SOUTH_STAGE1:
+				return ".stage1" + REGION_US_SOUTH_OLD;
+			case AppID.REGION_US_SOUTH:
+				return REGION_US_SOUTH_OLD;
+			case AppID.REGION_UK:
+				return REGION_UK_OLD;
+			case AppID.REGION_SYDNEY:
+				return REGION_SYDNEY_OLD;
+			case AppID.REGION_GERMANY:
+				return REGION_GERMANY_OLD;
+			case AppID.REGION_US_EAST:
+				return REGION_US_EAST_OLD;
+			case AppID.REGION_TOKYO:
+				return REGION_TOKYO_OLD;
+		}
+
+		return region;
 	}
 
 }
