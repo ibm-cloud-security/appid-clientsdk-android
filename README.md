@@ -78,7 +78,7 @@ loginWidget.launch(this, new AuthorizationListener() {
 ```
 **Note**:
 
-* The default configuration use Facebook and Google as authentication options. If you configure only one of them the login widget will *not* launch and the user will be redirected to the configured identity provider authentication screen.
+* By default, App ID is configured to use Facebook, Google, and Cloud Directory as identity providers. If you change your identity provider settings to provide only one option, then the Login Widget is not needed and will not display. The user is directed to your chosen identity provider's authentication screen.
 * When using Cloud Directory, and "Email verification" is configured to *not* allow users to sign-in without email verification, then the "onAuthorizationSuccess" of the "AuthorizationListener" will be invoked without tokens.
 
 ## Managing Cloud Directory with the Android SDK
