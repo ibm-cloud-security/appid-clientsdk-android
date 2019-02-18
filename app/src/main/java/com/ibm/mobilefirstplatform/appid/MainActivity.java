@@ -35,7 +35,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String tenantId = "AppID_tenantId";;
+    private final static String tenantId = "AppID_tenantId";
     private final static String region = AppID.REGION_US_SOUTH; //AppID.REGION_UK ,AppID.REGION_SYDNEY
     private final static String protectedUrl = "protected_URL";
 
