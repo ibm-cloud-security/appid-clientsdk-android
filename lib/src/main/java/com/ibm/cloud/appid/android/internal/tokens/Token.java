@@ -26,7 +26,7 @@ public interface Token {
 
 	String getIssuer();
 	String getSubject();
-	String getAudience();
+	List<String> getAudience();
 	Date getExpiration();
 	Date getIssuedAt();
 	String getTenant();

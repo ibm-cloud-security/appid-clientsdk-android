@@ -31,33 +31,10 @@ import static org.assertj.core.api.Java6Assertions.*;
 @Config (constants = BuildConfig.class)
 public class OAuthClient_Test {
 
-	@Test ()
-	public void testWithValidIdToken ()  {
-		IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);
-		OAuthClient oAuthClient = new OAuthClientImpl(idToken);
-		assertThat(oAuthClient).isNotNull();
-		assertThat(oAuthClient.getType()).isEqualTo("mobileapp");
-		assertThat(oAuthClient.getName()).isEqualTo("appid");
-		assertThat(oAuthClient.getSoftwareId()).isEqualTo("com.ibm.mobilefirstplatform.appid");
-		assertThat(oAuthClient.getSoftwareVersion()).isEqualTo("1.0");
-		assertThat(oAuthClient.getDeviceId()).isEqualTo("eee2c78d-0f12-3808-91eb-c63475dbbf95");
-		assertThat(oAuthClient.getDeviceModel()).isEqualTo("GT-I9500");
-		assertThat(oAuthClient.getDeviceOS()).isEqualTo("android");
-
-	}
-
 	@Test (expected = RuntimeException.class)
 	public void testWithNoOAuthClientInIdToken(){
 		IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);
 		idToken.getPayload().remove("oauth_client");
 		new OAuthClientImpl(idToken);
-	}
-
-	@Test ()
-	public void testWithMissingOAuthClientProperties() throws JSONException{
-		IdentityToken idToken = new IdentityTokenImpl(Consts.ID_TOKEN);
-		idToken.getPayload().getJSONObject("oauth_client").remove("type");
-		OAuthClient oAuthClient = new OAuthClientImpl(idToken);
-		assertThat(oAuthClient.getType()).isNull();
 	}
 }

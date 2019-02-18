@@ -44,13 +44,13 @@ public class Config_Test {
 	@Test
 	public void testConfig() {
 		String url = com.ibm.cloud.appid.android.internal.config.Config.getOAuthServerUrl(appId);
-		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/oauth/v3/tenant-id");
+		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/oauth/v4/tenant-id");
 
 		url = com.ibm.cloud.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
 		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/api/v1/");
 
 		url = com.ibm.cloud.appid.android.internal.config.Config.getIssuer(appId);
-		assertThat(url).isEqualTo("appid-oauth.ng.bluemix.net");
+		assertThat(url).isEqualTo("https://appid-oauth.ng.bluemix.net");
 
 		appId.overrideOAuthServerHost = "https://oauth-server-host-";
 		appId.overrideUserProfilesHost = "https://user-profiles-host";
@@ -62,7 +62,7 @@ public class Config_Test {
 		assertThat(url).isEqualTo("https://user-profiles-host/api/v1/");
 
 		url = com.ibm.cloud.appid.android.internal.config.Config.getIssuer(appId);
-		assertThat(url).isEqualTo("oauth-server-host-");
+		assertThat(url).isEqualTo("https://oauth-server-host-");
 
 		// need to reset server hosts, because they are global variables that can impact other tests
         appId.overrideOAuthServerHost = null;

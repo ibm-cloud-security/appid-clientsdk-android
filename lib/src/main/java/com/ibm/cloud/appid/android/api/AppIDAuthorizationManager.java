@@ -158,31 +158,18 @@ public class AppIDAuthorizationManager implements AuthorizationManager {
 
 	@Override
 	public DeviceIdentity getDeviceIdentity () {
+		//Not getting rid of this function because, this class implements an interface from another SDK and the interface expects this method.
+		//returning null here because we no longer have oauth_client in our tokens.
 		logger.debug("getDeviceIdentity");
-		IdentityToken identityToken = getIdentityToken();
-		if (identityToken == null) {
-			return null;
-		}
-		Map map = new HashMap();
-		map.put(DeviceIdentity.ID, identityToken.getOAuthClient().getDeviceId());
-		map.put(DeviceIdentity.OS, identityToken.getOAuthClient().getDeviceOS());
-		map.put(DeviceIdentity.MODEL, identityToken.getOAuthClient().getDeviceModel());
-		map.put(DeviceIdentity.BRAND, Build.BRAND);
-		map.put(DeviceIdentity.OS_VERSION, Build.VERSION.RELEASE);
-		return new BaseDeviceIdentity(map);
+		return null;
 	}
 
 	@Override
 	public AppIdentity getAppIdentity () {
+		//Not getting rid of this function because, this class implements an interface from another SDK and the interface expects this method.
+		//returning null here because we no longer have oauth_client in our tokens.
 		logger.debug("getAppIdentity");
-		IdentityToken identityToken = getIdentityToken();
-		if (identityToken == null) {
-			return null;
-		}
-		Map map = new HashMap();
-		map.put(AppIdentity.ID, identityToken.getOAuthClient().getSoftwareId());
-		map.put(AppIdentity.VERSION, identityToken.getOAuthClient().getSoftwareVersion());
-		return new BaseAppIdentity(map);
+		return null;
 	}
 
 	/**

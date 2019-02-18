@@ -23,7 +23,7 @@ public class Config {
 	public final static String REGION_GERMANY_OLD = ".eu-de.bluemix.net";
 	public final static String REGION_TOKYO_OLD = ".jp-tok.bluemix.net";
 
-	private final static String OAUTH_ENDPOINT = "/oauth/v3/";
+	private final static String OAUTH_ENDPOINT = "/oauth/v4/";
 	private final static String ATTRIBUTES_ENDPOINT = "/api/v1/";
 	private static final String serverUrlPrefix = "https://appid-oauth";
 	private static final String userProfilesPrefix = "https://appid-profiles";
@@ -63,7 +63,8 @@ public class Config {
 	public static String getIssuer(AppID appId) {
 
 		if (null != appId.overrideOAuthServerHost) {
-			return appId.overrideOAuthServerHost.split("/")[2];
+			String[] overrideServerUrlSplit =  appId.overrideOAuthServerHost.split("/");
+			return overrideServerUrlSplit[0] + "//" + overrideServerUrlSplit[2];
 		}
 
 		String region = appId.getBluemixRegion();
@@ -74,7 +75,9 @@ public class Config {
 		String issuer = region.contains("cloud.ibm.com") ? serverUrlPrefix + suffixFromRegion(region) :
 				Config.getOAuthServerUrl(appId);
 
-		return issuer.split("/")[2];
+
+		String[] issuerSplit = issuer.split("/");
+		return issuerSplit[0] + "//" + issuerSplit[2];
 	}
 
 	private static String suffixFromRegion(String region) {

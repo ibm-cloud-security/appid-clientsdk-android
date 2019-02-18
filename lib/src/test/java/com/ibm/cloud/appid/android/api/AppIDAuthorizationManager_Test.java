@@ -164,12 +164,7 @@ public class AppIDAuthorizationManager_Test {
 
 		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(idToken);
 		DeviceIdentity deviceIdentity = appIdAuthManager.getDeviceIdentity();
-		assertThat(deviceIdentity).isNotNull();
-		assertThat(deviceIdentity.getId()).isEqualTo(idToken.getOAuthClient().getDeviceId());
-		assertThat(deviceIdentity.getModel()).isEqualTo(idToken.getOAuthClient().getDeviceModel());
-		assertThat(deviceIdentity.getBrand()).isEqualTo(Build.BRAND);
-		assertThat(deviceIdentity.getOS()).isEqualTo(idToken.getOAuthClient().getDeviceOS());
-		assertThat(deviceIdentity.getOSVersion()).isEqualTo(Build.VERSION.RELEASE);
+		assertThat(deviceIdentity).isNull(); //v4 tokens do no have oauth_client
 	}
 
 	@Test
@@ -179,9 +174,7 @@ public class AppIDAuthorizationManager_Test {
 
 		when(tokenManagerMock.getLatestIdentityToken()).thenReturn(idToken);
 		AppIdentity appIdentity = appIdAuthManager.getAppIdentity();
-		assertThat(appIdentity).isNotNull();
-		assertThat(appIdentity.getId()).isEqualTo(idToken.getOAuthClient().getSoftwareId());
-		assertThat(appIdentity.getVersion()).isEqualTo(idToken.getOAuthClient().getSoftwareVersion());
+		assertThat(appIdentity).isNull(); //v4 tokens do no have oauth_client
 	}
 
 	@Test

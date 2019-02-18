@@ -96,8 +96,8 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public String getAudience () {
-		return (String) getValue(AUDIENCE);
+	public List<String> getAudience () {
+		return convertJsonArrayToList(AUDIENCE);
 	}
 
 	@Override
@@ -119,15 +119,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public List<String> getAuthenticationMethods(){
-		List<String> list = new ArrayList<>();
-		JSONArray array = (JSONArray) getValue(AUTHENTICATION_METHODS);
-		for (int i=0; i<array.length(); i++){
-			try {
-				list.add(array.getString(i));
-			} catch (JSONException e){}
-		}
-
-		return list;
+		return convertJsonArrayToList(AUTHENTICATION_METHODS);
 	}
 
 	protected Object getValue (String name){
@@ -137,6 +129,18 @@ public abstract class AbstractToken implements Token {
 			logger.error("Failed to retrieve " + name, e);
 			return null;
 		}
+	}
+
+	protected List<String> convertJsonArrayToList(String name) {
+		List<String> list = new ArrayList<>();
+		JSONArray array = (JSONArray) getValue(name);
+		for (int i=0; i<array.length(); i++){
+			try {
+				list.add(array.getString(i));
+			} catch (JSONException e){}
+		}
+
+		return list;
 	}
 
 	public boolean isExpired(){
