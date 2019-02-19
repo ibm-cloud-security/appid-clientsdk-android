@@ -24,5 +24,4 @@ public interface IdentityToken extends Token {
 	String getLocale();
 	String getPicture();
 	JSONArray getIdentities();
-	OAuthClient getOAuthClient();
 }

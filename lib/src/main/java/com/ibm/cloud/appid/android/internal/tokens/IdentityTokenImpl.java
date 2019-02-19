@@ -14,7 +14,6 @@
 package com.ibm.cloud.appid.android.internal.tokens;
 
 import com.ibm.cloud.appid.android.api.tokens.IdentityToken;
-import com.ibm.cloud.appid.android.api.tokens.OAuthClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.logger.api.Logger;
 
 import org.json.JSONArray;
@@ -67,10 +66,5 @@ public class IdentityTokenImpl extends AbstractToken implements IdentityToken {
 			logger.warn("Failed to retrieve " + IDENTITIES + ", possibly anonymous user");
 			return new JSONArray();
 		}
-	}
-
-	@Override
-	public OAuthClient getOAuthClient () {
-		return new OAuthClientImpl(this);
 	}
 }

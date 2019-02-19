@@ -30,6 +30,7 @@ public interface Token {
 	Date getExpiration();
 	Date getIssuedAt();
 	String getTenant();
+	int getVersion();
 	List<String> getAuthenticationMethods();
 	boolean isExpired();
 	boolean isAnonymous();
