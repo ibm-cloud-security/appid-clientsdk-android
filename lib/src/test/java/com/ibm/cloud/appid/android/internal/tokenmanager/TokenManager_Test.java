@@ -347,14 +347,14 @@ public class TokenManager_Test {
         } catch (AuthorizationException e) {
             e.printStackTrace();
         }
-        result = spyTokenManager.verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER, Consts.AUDIENCE, Consts.TENANT);
+        result = spyTokenManager.verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER, Consts.CLIENT_ID, Consts.TENANT);
         assertEquals(result,true);
-        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK,"issuer", Consts.AUDIENCE, Consts.TENANT);
+        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK,"issuer", Consts.CLIENT_ID, Consts.TENANT);
         doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER,"aud", Consts.TENANT);
-        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER, Consts.AUDIENCE,"tenant");
+        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER, Consts.CLIENT_ID,"tenant");
 
         //verify v3 token should fail
-        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.V3_ID_TOKEN,Consts.ISSUER, Consts.AUDIENCE, Consts.TENANT);
+        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.V3_ID_TOKEN,Consts.ISSUER, Consts.CLIENT_ID, Consts.TENANT);
     }
 
 

@@ -54,7 +54,7 @@ public class AbstractToken_Test {
 	public void withValidToken(){
 
 		List<String> expectedAud = new ArrayList<>();
-		expectedAud.add(Consts.AUDIENCE);
+		expectedAud.add(Consts.CLIENT_ID);
 
 		AccessToken token = new AccessTokenImpl(Consts.ACCESS_TOKEN);
 		assertThat(token).isNotNull();
@@ -70,7 +70,7 @@ public class AbstractToken_Test {
 		assertThat(token.getTenant()).isEqualTo(Consts.TENANT);
 		assertThat(token.getAuthenticationMethods().get(0)).isEqualTo("facebook");
 		assertThat(token.getVersion()).isEqualTo(Consts.VERSION);
-		assertThat(token.getAzp()).isEqualTo(Consts.AUDIENCE);
+		assertThat(token.getAzp()).isEqualTo(Consts.CLIENT_ID);
 
 
 
