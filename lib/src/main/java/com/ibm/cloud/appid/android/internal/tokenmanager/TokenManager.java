@@ -348,7 +348,7 @@ public class TokenManager {
 		}
 	}
 
-	protected boolean verifyToken(Key rsaPublicKey, String token, String issuer, String audience, String tenant) throws SignatureException,IncorrectClaimException {
+	protected boolean verifyToken(Key rsaPublicKey, String token, String issuer, String clientId, String tenant) throws SignatureException,IncorrectClaimException {
 		if (rsaPublicKey == null){
 			return false;
 		}
@@ -359,14 +359,20 @@ public class TokenManager {
 					.parseClaimsJws(token).getBody();
 
 			try {
-				//since the library does not support audience as an array yet, we do the validation manually.
+				//since the jwt library does not support audience as an array yet, we do the validation manually.
 				ArrayList<String> aud = claims.get("aud", ArrayList.class);
 
-				if(aud == null || !aud.contains(audience)) {
+				if(aud == null || !aud.contains(clientId)) {
 					throw new IncorrectClaimException(null, claims, "Invalid audience");
 				}
 			} catch (ClassCastException ce) {
 				throw new IncorrectClaimException(null, claims, "Invalid audience");
+			}
+
+			//verify azp
+			String azp = claims.get("azp", String.class);
+			if(azp == null || !azp.equals(clientId)) {
+				throw new IncorrectClaimException(null, claims, "Invalid azp");
 			}
 
 

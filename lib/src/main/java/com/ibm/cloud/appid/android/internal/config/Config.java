@@ -64,43 +64,10 @@ public class Config {
 
 		if (null != appId.overrideOAuthServerHost) {
 			String[] overrideServerUrlSplit =  appId.overrideOAuthServerHost.split("/");
-			return overrideServerUrlSplit[0] + "//" + overrideServerUrlSplit[2];
+			return overrideServerUrlSplit[0] + "//" + overrideServerUrlSplit[2] + OAUTH_ENDPOINT + appId.getTenantId();
 		}
 
-		String region = appId.getBluemixRegion();
-		if (region == null) {
-			return serverUrlPrefix;
-		}
-
-		String issuer = region.contains("cloud.ibm.com") ? serverUrlPrefix + suffixFromRegion(region) :
-				Config.getOAuthServerUrl(appId);
-
-
-		String[] issuerSplit = issuer.split("/");
-		return issuerSplit[0] + "//" + issuerSplit[2];
-	}
-
-	private static String suffixFromRegion(String region) {
-		switch (region) {
-			case AppID.REGION_UK_STAGE1:
-				return ".stage1" + REGION_UK_OLD;
-			case AppID.REGION_US_SOUTH_STAGE1:
-				return ".stage1" + REGION_US_SOUTH_OLD;
-			case AppID.REGION_US_SOUTH:
-				return REGION_US_SOUTH_OLD;
-			case AppID.REGION_UK:
-				return REGION_UK_OLD;
-			case AppID.REGION_SYDNEY:
-				return REGION_SYDNEY_OLD;
-			case AppID.REGION_GERMANY:
-				return REGION_GERMANY_OLD;
-			case AppID.REGION_US_EAST:
-				return REGION_US_EAST_OLD;
-			case AppID.REGION_TOKYO:
-				return REGION_TOKYO_OLD;
-		}
-
-		return region;
+		return Config.getOAuthServerUrl(appId);
 	}
 
 }

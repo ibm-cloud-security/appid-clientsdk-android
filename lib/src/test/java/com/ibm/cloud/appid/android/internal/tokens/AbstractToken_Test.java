@@ -69,6 +69,10 @@ public class AbstractToken_Test {
 		assertThat(token.getIssuedAt()).isEqualTo(new Date(1550507962L*1000));
 		assertThat(token.getTenant()).isEqualTo(Consts.TENANT);
 		assertThat(token.getAuthenticationMethods().get(0)).isEqualTo("facebook");
+		assertThat(token.getVersion()).isEqualTo(Consts.VERSION);
+		assertThat(token.getAzp()).isEqualTo(Consts.AUDIENCE);
+
+
 
 		Object nonExistingValue = ((AbstractToken)token).getValue("do-not-exist");
 		assertThat(nonExistingValue).isNull();

@@ -51,6 +51,6 @@ public class ConfigOld_Test {
         assertThat(url).isEqualTo("https://appid-profiles.region/api/v1/");
 
         url = com.ibm.cloud.appid.android.internal.config.Config.getIssuer(appId);
-        assertThat(url).isEqualTo("https://appid-oauth.region");
+        assertThat(url).isEqualTo("https://appid-oauth.region/oauth/v4/tenant-id");
     }
 }
