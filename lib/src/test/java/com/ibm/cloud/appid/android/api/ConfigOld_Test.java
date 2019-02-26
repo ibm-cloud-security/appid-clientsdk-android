@@ -38,19 +38,19 @@ public class ConfigOld_Test {
     @Before
     public void before() {
         MockitoAnnotations.initMocks(this);
-        when(appId.getBluemixRegion()).thenReturn(".region");
+        when(appId.getBluemixRegion()).thenReturn(".ng.bluemix.net");
         when(appId.getTenantId()).thenReturn("tenant-id");
     }
 
     @Test
     public void testConfigOld(){
         String url = com.ibm.cloud.appid.android.internal.config.Config.getOAuthServerUrl(appId);
-        assertThat(url).isEqualTo("https://appid-oauth.region/oauth/v4/tenant-id");
+        assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/oauth/v4/tenant-id");
 
         url = com.ibm.cloud.appid.android.internal.config.Config.getUserProfilesServerUrl(appId);
-        assertThat(url).isEqualTo("https://appid-profiles.region/api/v1/");
+        assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/api/v1/");
 
         url = com.ibm.cloud.appid.android.internal.config.Config.getIssuer(appId);
-        assertThat(url).isEqualTo("https://appid-oauth.region/oauth/v4/tenant-id");
+        assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/oauth/v4/tenant-id");
     }
 }

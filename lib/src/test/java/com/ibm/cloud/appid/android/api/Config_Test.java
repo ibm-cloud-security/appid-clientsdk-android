@@ -67,5 +67,15 @@ public class Config_Test {
 		// need to reset server hosts, because they are global variables that can impact other tests
         appId.overrideOAuthServerHost = null;
         appId.overrideUserProfilesHost = null;
+
+
+        //verify old endpoints are converted to new cloud.ibm.com
+		when(appId.getBluemixRegion()).thenReturn(".ng.bluemix.net");
+		url = com.ibm.cloud.appid.android.internal.config.Config.getOAuthServerUrl(appId);
+		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/oauth/v4/tenant-id");
+
+		url = com.ibm.cloud.appid.android.internal.config.Config.getIssuer(appId);
+		assertThat(url).isEqualTo("https://us-south.appid.cloud.ibm.com/oauth/v4/tenant-id");
+
 	}
 }

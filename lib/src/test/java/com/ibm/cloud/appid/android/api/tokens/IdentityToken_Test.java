@@ -37,7 +37,6 @@ public class IdentityToken_Test {
 		assertThat(idToken).isNotNull();
 		assertThat(idToken.getName()).isEqualTo("Don Lon");
 		assertThat(idToken.getEmail()).isEqualTo("donlonqwerty@gmail.com");
-		assertThat(idToken.getGender()).isNotNull();
 		assertThat(idToken.getLocale()).isNotNull();
 		assertThat(idToken.getPicture()).isEqualTo("https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=377440159275659&height=50&width=50&ext=1553099960&hash=AeSAHsu0pCqC9oXm");
 

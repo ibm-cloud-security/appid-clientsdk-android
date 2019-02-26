@@ -20,7 +20,6 @@ import org.json.JSONArray;
 public interface IdentityToken extends Token {
 	String getName();
 	String getEmail();
-	String getGender();
 	String getLocale();
 	String getPicture();
 	JSONArray getIdentities();
