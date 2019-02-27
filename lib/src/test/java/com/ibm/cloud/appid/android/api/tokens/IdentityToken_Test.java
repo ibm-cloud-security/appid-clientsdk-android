@@ -37,9 +37,8 @@ public class IdentityToken_Test {
 		assertThat(idToken).isNotNull();
 		assertThat(idToken.getName()).isEqualTo("Don Lon");
 		assertThat(idToken.getEmail()).isEqualTo("donlonqwerty@gmail.com");
-		assertThat(idToken.getGender()).isNull();
-		assertThat(idToken.getLocale()).isNull();
-		assertThat(idToken.getPicture()).isEqualTo("https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/13501551_286407838378892_1785766211766730697_n.jpg?oh=148d2eee64bb14afcd891b2d5c1d6f86&oe=592F3EBC");
+		assertThat(idToken.getLocale()).isNotNull();
+		assertThat(idToken.getPicture()).isEqualTo("https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=377440159275659&height=50&width=50&ext=1553099960&hash=AeSAHsu0pCqC9oXm");
 
 		JSONArray identities = idToken.getIdentities();
 		assertThat(identities).isNotNull();

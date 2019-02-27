@@ -20,7 +20,6 @@ import com.ibm.cloud.appid.android.api.Config_Test;
 import com.ibm.cloud.appid.android.api.ConfigOld_Test;
 import com.ibm.cloud.appid.android.api.tokens.AccessToken_Test;
 import com.ibm.cloud.appid.android.api.tokens.IdentityToken_Test;
-import com.ibm.cloud.appid.android.api.tokens.OAuthClient_Test;
 import com.ibm.cloud.appid.android.api.userprofile.UserProfileException_Test;
 import com.ibm.cloud.appid.android.internal.authorizationmanager.AuthorizationManager_Test;
 import com.ibm.cloud.appid.android.internal.authorizationmanager.AuthorizationUIManager_Test;
@@ -45,7 +44,6 @@ import org.junit.runners.Suite;
 		AuthorizationException_Test.class,
 		AccessToken_Test.class,
 		IdentityToken_Test.class,
-		OAuthClient_Test.class,
 		UserProfileException_Test.class,
 		AppIDAuthorizationManager_Test.class,
 

@@ -33,6 +33,6 @@ public class AccessToken_Test {
 	public void testWithValidAccessToken ()  {
 		AccessToken accessToken = new AccessTokenImpl(Consts.ACCESS_TOKEN);
 		assertThat(accessToken).isNotNull();
-		assertThat(accessToken.getScope()).isEqualTo("appid_default appid_readprofile appid_readuserattr appid_writeuserattr");
+		assertThat(accessToken.getScope()).isEqualTo("openid appid_default appid_readprofile appid_readuserattr appid_writeuserattr appid_authenticated");
 	}
 }
