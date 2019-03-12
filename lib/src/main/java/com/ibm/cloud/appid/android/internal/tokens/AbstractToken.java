@@ -41,7 +41,6 @@ public abstract class AbstractToken implements Token {
 	private final static String TENANT = "tenant";
 	private final static String AUTHENTICATION_METHODS = "amr";
 	private final static String VERSION = "version";
-	private final static String AZP = "azp";
 
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AbstractToken.class.getName());
@@ -162,10 +161,5 @@ public abstract class AbstractToken implements Token {
 			logger.error("Failed to retrieve " + VERSION, e);
 			return null;
 		}
-	}
-
-	@Override
-	public String getAzp() {
-		return (String) getValue(AZP);
 	}
 }
