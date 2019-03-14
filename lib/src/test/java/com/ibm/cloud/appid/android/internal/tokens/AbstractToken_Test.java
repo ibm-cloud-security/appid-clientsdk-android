@@ -63,12 +63,12 @@ public class AbstractToken_Test {
 		assertThat(token.getPayload()).isNotNull();
 		assertThat(token.getSignature()).isNotNull();
 		assertThat(token.getIssuer()).isEqualTo(Consts.ISSUER);
-		assertThat(token.getSubject()).isEqualTo("311a9f74-439d-4741-9347-ae565a0eb137");
+		assertThat(token.getSubject()).isEqualTo(Consts.SUB);
 		assertThat(token.getAudience()).isEqualTo(expectedAud);
-		assertThat(token.getExpiration()).isEqualTo(new Date(1550511572L*1000));
-		assertThat(token.getIssuedAt()).isEqualTo(new Date(1550507962L*1000));
+		assertThat(token.getExpiration()).isEqualTo(new Date(1552502424L*1000));
+		assertThat(token.getIssuedAt()).isEqualTo(new Date(1552502422L*1000));
 		assertThat(token.getTenant()).isEqualTo(Consts.TENANT);
-		assertThat(token.getAuthenticationMethods().get(0)).isEqualTo("facebook");
+		assertThat(token.getAuthenticationMethods().get(0)).isEqualTo("google");
 		assertThat(token.getVersion()).isEqualTo(Consts.VERSION);
 
 		Object nonExistingValue = ((AbstractToken)token).getValue("do-not-exist");

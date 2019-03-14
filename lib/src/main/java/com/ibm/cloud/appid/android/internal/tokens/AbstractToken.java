@@ -40,7 +40,7 @@ public abstract class AbstractToken implements Token {
 	private final static String ISSUED_AT = "iat";
 	private final static String TENANT = "tenant";
 	private final static String AUTHENTICATION_METHODS = "amr";
-	private final static String VERSION = "version";
+	private final static String VERSION = "ver";
 
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AbstractToken.class.getName());

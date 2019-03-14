@@ -38,7 +38,7 @@ public class AppID {
 	private OAuthManager oAuthManager;
 	private UserProfileManager userProfileManager;
 
-    public static String overrideOAuthServerHost = null; //when use place the assignment before calling the AppID initialize function
+    public static String overrideOAuthServerHost = "http://localhost:6002/oauth/v4/"; //when use place the assignment before calling the AppID initialize function
 	public static String overrideUserProfilesHost = null;
 
 	public final static String REGION_US_SOUTH_STAGE1 = "https://us-south.appid.test.cloud.ibm.com";
