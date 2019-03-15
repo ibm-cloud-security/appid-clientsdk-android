@@ -1334,7 +1334,7 @@ public class UserProfileManagerImpl_Test {
 
             @Override
             public String getResponseText() {
-                return "{\"sub\": \"311a9f74-439d-4741-9347-ae565a0eb137\", \"email\":\"donlonqwerty@gmail.com\"}";
+                return "{\"sub\": " + Consts.SUB + ", \"email\":\"donlonqwerty@gmail.com\"}";
             }
 
             @Override
@@ -1377,7 +1377,7 @@ public class UserProfileManagerImpl_Test {
             @Override
             public void onSuccess(JSONObject userInfo) {
                 try {
-                    assertEquals(userInfo.getInt("sub"), "311a9f74-439d-4741-9347-ae565a0eb137");
+                    assertEquals(userInfo.getInt("sub"), Consts.SUB);
                     assertEquals(userInfo.getString("email"), "donlonqwerty@gmail.com");
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1387,6 +1387,7 @@ public class UserProfileManagerImpl_Test {
 
             @Override
             public void onFailure(UserProfileException e) {
+                fail(String.valueOf(e));
                 fail("should get to onSuccess");
             }
         });
