@@ -369,13 +369,6 @@ public class TokenManager {
 				throw new IncorrectClaimException(null, claims, "Invalid audience");
 			}
 
-			//verify azp
-			String azp = claims.get("azp", String.class);
-			if(azp == null || !azp.equals(clientId)) {
-				throw new IncorrectClaimException(null, claims, "Invalid azp");
-			}
-
-
 			return true;
 		} catch (SignatureException|IncorrectClaimException exception) { // Invalid signature/claims
 			throw exception;

@@ -34,5 +34,4 @@ public interface Token {
 	List<String> getAuthenticationMethods();
 	boolean isExpired();
 	boolean isAnonymous();
-	String getAzp();
 }

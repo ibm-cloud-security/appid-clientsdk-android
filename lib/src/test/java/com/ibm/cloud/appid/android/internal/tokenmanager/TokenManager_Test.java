@@ -341,7 +341,7 @@ public class TokenManager_Test {
     public void verifyToken() {
         boolean result = spyTokenManager.verifyToken(null,"token","issuer","aud","tenant");
         assertEquals(result,false);
-        Key key=null;
+        Key key = null;
         try {
             key = spyTokenManager.getPublickey(createResponse(Consts.ACCESS_TOKEN_JWK_PUBLIC_KEY,200), Consts.Kid);
         } catch (AuthorizationException e) {
@@ -354,7 +354,7 @@ public class TokenManager_Test {
         doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.ACCESS_TOKEN_JWK, Consts.ISSUER, Consts.CLIENT_ID,"tenant");
 
         //verify v3 token should fail
-        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.V3_ID_TOKEN,Consts.ISSUER, Consts.CLIENT_ID, Consts.TENANT);
+        doThrow(IncorrectClaimException.class).when(spyTokenManager).verifyToken(key, Consts.V3_ID_TOKEN, Consts.ISSUER, Consts.CLIENT_ID, Consts.TENANT);
     }
 
 
