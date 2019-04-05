@@ -45,8 +45,10 @@ import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.IncorrectClaimException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
@@ -346,14 +348,27 @@ public class TokenManager {
 		}
 	}
 
-	protected boolean verifyToken(Key rsaPublicKey, String token, String issuer, String audience, String tenant) throws SignatureException,IncorrectClaimException {
+	protected boolean verifyToken(Key rsaPublicKey, String token, String issuer, String clientId, String tenant) throws SignatureException,IncorrectClaimException {
 		if (rsaPublicKey == null){
 			return false;
 		}
 		try {
-			Jwts.parser().requireIssuer(issuer).requireAudience(audience)
+
+			Claims claims = Jwts.parser().requireIssuer(issuer)
 					.require("tenant", tenant).setSigningKey(rsaPublicKey)
 					.parseClaimsJws(token).getBody();
+
+			try {
+				//since the jwt library does not support audience as an array yet, we do the validation manually.
+				ArrayList<String> aud = claims.get("aud", ArrayList.class);
+
+				if(aud == null || !aud.contains(clientId)) {
+					throw new IncorrectClaimException(null, claims, "Invalid audience");
+				}
+			} catch (ClassCastException ce) {
+				throw new IncorrectClaimException(null, claims, "Invalid audience");
+			}
+
 			return true;
 		} catch (SignatureException|IncorrectClaimException exception) { // Invalid signature/claims
 			throw exception;

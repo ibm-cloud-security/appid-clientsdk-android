@@ -24,7 +24,9 @@ import org.junit.runners.MethodSorters;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.*;
 
@@ -50,19 +52,24 @@ public class AbstractToken_Test {
 
 	@Test()
 	public void withValidToken(){
+
+		List<String> expectedAud = new ArrayList<>();
+		expectedAud.add(Consts.CLIENT_ID);
+
 		AccessToken token = new AccessTokenImpl(Consts.ACCESS_TOKEN);
 		assertThat(token).isNotNull();
 		assertThat(token.getRaw()).isEqualTo(Consts.ACCESS_TOKEN);
 		assertThat(token.getHeader()).isNotNull();
 		assertThat(token.getPayload()).isNotNull();
 		assertThat(token.getSignature()).isNotNull();
-		assertThat(token.getIssuer()).isEqualTo("imf-authserver.stage1.mybluemix.net");
-		assertThat(token.getSubject()).isEqualTo("09b7fea5-2e4e-40b8-9d81-df50071a3053");
-		assertThat(token.getAudience()).isEqualTo("408eb36a2a069ad89cd19c789a96b7cf36b550ec");
-		assertThat(token.getExpiration()).isEqualTo(new Date(1489957459000L));
-		assertThat(token.getIssuedAt()).isEqualTo(new Date(1487365459000L));
-		assertThat(token.getTenant()).isEqualTo("50d0beed-add7-48dd-8b0a-c818cb456bb4");
-		assertThat(token.getAuthenticationMethods().get(0)).isEqualTo("facebook");
+		assertThat(token.getIssuer()).isEqualTo(Consts.ISSUER);
+		assertThat(token.getSubject()).isEqualTo(Consts.SUB);
+		assertThat(token.getAudience()).isEqualTo(expectedAud);
+		assertThat(token.getExpiration()).isEqualTo(new Date(1552502424L*1000));
+		assertThat(token.getIssuedAt()).isEqualTo(new Date(1552502422L*1000));
+		assertThat(token.getTenant()).isEqualTo(Consts.TENANT);
+		assertThat(token.getAuthenticationMethods().get(0)).isEqualTo("google");
+		assertThat(token.getVersion()).isEqualTo(Consts.VERSION);
 
 		Object nonExistingValue = ((AbstractToken)token).getValue("do-not-exist");
 		assertThat(nonExistingValue).isNull();

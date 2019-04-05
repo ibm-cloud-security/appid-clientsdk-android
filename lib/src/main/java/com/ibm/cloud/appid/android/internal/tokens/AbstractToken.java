@@ -40,6 +40,7 @@ public abstract class AbstractToken implements Token {
 	private final static String ISSUED_AT = "iat";
 	private final static String TENANT = "tenant";
 	private final static String AUTHENTICATION_METHODS = "amr";
+	private final static String VERSION = "ver";
 
 
 	private final static Logger logger = Logger.getLogger(Logger.INTERNAL_PREFIX + AbstractToken.class.getName());
@@ -96,8 +97,8 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public String getAudience () {
-		return (String) getValue(AUDIENCE);
+	public List<String> getAudience () {
+		return convertJsonArrayToList(AUDIENCE);
 	}
 
 	@Override
@@ -119,15 +120,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public List<String> getAuthenticationMethods(){
-		List<String> list = new ArrayList<>();
-		JSONArray array = (JSONArray) getValue(AUTHENTICATION_METHODS);
-		for (int i=0; i<array.length(); i++){
-			try {
-				list.add(array.getString(i));
-			} catch (JSONException e){}
-		}
-
-		return list;
+		return convertJsonArrayToList(AUTHENTICATION_METHODS);
 	}
 
 	protected Object getValue (String name){
@@ -139,11 +132,34 @@ public abstract class AbstractToken implements Token {
 		}
 	}
 
+	protected List<String> convertJsonArrayToList(String name) {
+		List<String> list = new ArrayList<>();
+		JSONArray array = (JSONArray) getValue(name);
+		for (int i=0; i<array.length(); i++){
+			try {
+				list.add(array.getString(i));
+			} catch (JSONException e){}
+		}
+
+		return list;
+	}
+
 	public boolean isExpired(){
 		return getExpiration().before(new Date());
 	}
 
 	public boolean isAnonymous() {
 		return getAuthenticationMethods().contains(IDP_ANONYMOUS);
+	}
+
+	@Override
+	public Integer getVersion() {
+
+		try {
+			return (int) getHeader().get(VERSION);
+		} catch (JSONException e) {
+			logger.error("Failed to retrieve " + VERSION, e);
+			return null;
+		}
 	}
 }
