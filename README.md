@@ -33,7 +33,7 @@ allprojects {
 2. Add the dependency for the App ID client SDK:
 ```gradle
 dependencies {
-        compile 'com.github.ibm-cloud-security:appid-clientsdk-android:4.+'
+        compile 'com.github.ibm-cloud-security:appid-clientsdk-android:6.+'
 }
 ```
 
