@@ -274,4 +274,11 @@ public class AppID {
 		signinWithRefreshToken(context, refreshTokenString, tokenResponseListener);
 	}
 
+	/**
+	 * Wrapper for AppIDAuthorizationManager's logout
+	 */
+	public void logout() {
+		AppIDAuthorizationManager appIDAuthorizationManager = new AppIDAuthorizationManager(this);
+		appIDAuthorizationManager.logout(null, null);
+	}
 }
