@@ -193,16 +193,5 @@ public class AppID_Test {
 		ExceptionMessageMatcher<AuthorizationException> matcher = new ExceptionMessageMatcher<>(RegistrationStatus.FAILED_TO_REGISTER.getDescription());
 		Mockito.verify(listener, times(wantedNumberOfInvocations)).onAuthorizationFailure(argThat(matcher));
 	}
-
-	@Test
-	public void testLogout(){
-		this.appId.initialize(RuntimeEnvironment.application, testTenantId, testRegion);
-		AuthorizationListener listener = mock(AuthorizationListener.class);
-
-		appId.signinAnonymously(RuntimeEnvironment.application, listener);
-		assertThat(appId.getOAuthManager().getTokenManager().getLatestAccessToken()).isNotNull();
-		appId.logout();
-		assertThat(appId.getOAuthManager().getTokenManager().getLatestAccessToken()).isNull();
-	}
 }
 
