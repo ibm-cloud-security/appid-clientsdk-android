@@ -240,6 +240,11 @@ AppID.getInstance().signinWithRefreshToken(getApplicationContext(), refreshToken
 });
 ```
 
+## Logout
+```java
+AppID.getInstance().logout();
+```
+
 ## Manage User Profiles
 
 Using the App ID UserProfileManager, you are able to create, delete, and retrieve user profile attributes as well as get additional info about a user.
