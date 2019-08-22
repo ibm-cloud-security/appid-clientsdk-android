@@ -22,6 +22,7 @@ import com.ibm.cloud.appid.android.api.userprofile.UserProfileManager;
 import com.ibm.cloud.appid.android.internal.OAuthManager;
 import com.ibm.cloud.appid.android.internal.loginwidget.LoginWidgetImpl;
 import com.ibm.cloud.appid.android.internal.userprofilemanager.UserProfileManagerImpl;
+import com.ibm.mobilefirstplatform.clientsdk.android.core.api.ResponseListener;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -277,8 +278,8 @@ public class AppID {
 	/**
 	 * Wrapper for AppIDAuthorizationManager's logout
 	 */
-	public void logout() {
+	public void logout(Context context, ResponseListener listener) {
 		AppIDAuthorizationManager appIDAuthorizationManager = new AppIDAuthorizationManager(this);
-		appIDAuthorizationManager.logout(null, null);
+		appIDAuthorizationManager.logout(context, listener);
 	}
 }
