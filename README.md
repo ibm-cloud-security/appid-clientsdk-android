@@ -241,7 +241,6 @@ AppID.getInstance().signinWithRefreshToken(getApplicationContext(), refreshToken
 ```
 
 ## Logout
-Call the logout function in order to clear the stored tokens.
 ```java
 AppID.getInstance().logout();
 ```
